@@ -1,0 +1,211 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { appConfig } from '../config';
+import {
+  persistUploadedFile,
+  type UploadedFile,
+  type StoredFileInfo
+} from './file-service';
+import { extractTextFromDocx, extractTextFromPdf } from './text-extraction';
+
+const SOURCE_INDEX_FILENAME = '.sources.json';
+const MAX_SOURCES_TRACKED = 2000;
+
+export interface SourceSummary {
+  id: string;
+  name: string;
+  type: string;
+  mimeType?: string;
+  relativePath: string;
+  createdAt: string;
+}
+
+export interface SourceSnippet extends SourceSummary {
+  content?: string;
+  warnings?: string[];
+}
+
+interface SourceRecord extends SourceSummary {
+  storedFile: StoredFileInfo;
+}
+
+interface SourceIndex {
+  sources: SourceRecord[];
+}
+
+export interface SaveSourceResult {
+  sources: SourceSummary[];
+  warnings?: string[];
+}
+
+function getIndexPath(): string {
+  return path.join(appConfig.sourceRoot, SOURCE_INDEX_FILENAME);
+}
+
+async function loadIndex(): Promise<SourceIndex> {
+  try {
+    const raw = await fs.readFile(getIndexPath(), 'utf8');
+    const parsed = JSON.parse(raw) as SourceIndex;
+    if (!parsed.sources) {
+      return { sources: [] };
+    }
+    return parsed;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      return { sources: [] };
+    }
+    throw error;
+  }
+}
+
+async function saveIndex(index: SourceIndex): Promise<void> {
+  const serialized = JSON.stringify(index, null, 2);
+  await fs.writeFile(getIndexPath(), serialized, 'utf8');
+}
+
+export async function saveSources(uploads: UploadedFile[]): Promise<SaveSourceResult> {
+  if (!uploads.length) {
+    return { sources: [], warnings: ['No files were provided.'] };
+  }
+
+  const index = await loadIndex();
+  const newSources: SourceRecord[] = [];
+  const warnings: string[] = [];
+
+  for (const upload of uploads) {
+    try {
+      const storedFile = await persistUploadedFile({
+        rootDirectory: appConfig.sourceRoot,
+        prefix: 'source',
+        upload
+      });
+
+      const record: SourceRecord = {
+        id: storedFile.id,
+        name: storedFile.originalName,
+        type: storedFile.extension.replace('.', ''),
+        mimeType: storedFile.mimeType,
+        relativePath: storedFile.relativePath,
+        createdAt: new Date().toISOString(),
+        storedFile
+      };
+
+      index.sources.unshift(record);
+      newSources.push(record);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      warnings.push(`${upload.originalName}: ${message}`);
+    }
+  }
+
+  if (index.sources.length > MAX_SOURCES_TRACKED) {
+    index.sources = index.sources.slice(0, MAX_SOURCES_TRACKED);
+  }
+
+  await saveIndex(index);
+
+  return {
+    sources: newSources.map(toSourceSummary),
+    warnings: warnings.length ? warnings : undefined
+  };
+}
+
+export async function listSources(search?: string): Promise<SourceSummary[]> {
+  const index = await loadIndex();
+  const normalizedSearch = search?.trim().toLowerCase();
+
+  const summaries = index.sources.map(toSourceSummary);
+
+  if (!normalizedSearch) {
+    return summaries;
+  }
+
+  return summaries.filter((source) => source.name.toLowerCase().includes(normalizedSearch));
+}
+
+export async function fetchSourceSnippets(ids: string[]): Promise<SourceSnippet[]> {
+  if (!ids.length) {
+    return [];
+  }
+
+  const index = await loadIndex();
+  const byId = new Map(index.sources.map((source) => [source.id, source] as const));
+  const seen = new Set<string>();
+  const snippets: SourceSnippet[] = [];
+
+  for (const id of ids) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+
+    const record = byId.get(id);
+    if (!record) {
+      continue;
+    }
+
+    try {
+      const extraction = await extractSourceText(record.storedFile);
+      const content = extraction.text.slice(0, 4000);
+      const warnings = combineWarnings(extraction.warnings, content.length < extraction.text.length ? ['Content truncated to 4000 characters.'] : undefined);
+
+      snippets.push({
+        ...toSourceSummary(record),
+        content,
+        warnings
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      snippets.push({
+        ...toSourceSummary(record),
+        warnings: [`Content unavailable: ${message}`]
+      });
+    }
+  }
+
+  return snippets;
+}
+
+async function extractSourceText(storedFile: StoredFileInfo): Promise<{ text: string; warnings?: string[] }> {
+  const buffer = await fs.readFile(storedFile.absolutePath);
+
+  if (storedFile.extension === '.pdf') {
+    return extractTextFromPdf(buffer);
+  }
+
+  if (storedFile.extension === '.docx') {
+    return extractTextFromDocx(buffer);
+  }
+
+  throw new Error(`Unsupported source extension: ${storedFile.extension}`);
+}
+
+function toSourceSummary(record: SourceRecord): SourceSummary {
+  return {
+    id: record.id,
+    name: record.name,
+    type: record.type,
+    mimeType: record.mimeType,
+    relativePath: record.relativePath,
+    createdAt: record.createdAt
+  };
+}
+
+function combineWarnings(
+  ...warningGroups: Array<string[] | undefined>
+): string[] | undefined {
+  const combined = warningGroups.flatMap((group) => group ?? []);
+  if (!combined.length) {
+    return undefined;
+  }
+
+  const unique = new Set<string>();
+  const normalized: string[] = [];
+
+  for (const warning of combined) {
+    const trimmed = warning.trim();
+    if (!trimmed || unique.has(trimmed)) continue;
+    unique.add(trimmed);
+    normalized.push(trimmed);
+  }
+
+  return normalized;
+}

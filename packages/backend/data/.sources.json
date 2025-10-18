@@ -1,0 +1,22 @@
+{
+  "sources": [
+    {
+      "id": "source_a7746d6c-8328-4349-86d9-450bc971b8a4",
+      "name": "sample-source.docx",
+      "type": "docx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "relativePath": "source_a7746d6c-8328-4349-86d9-450bc971b8a4/sample-source.docx",
+      "createdAt": "2025-10-18T03:20:48.732Z",
+      "storedFile": {
+        "id": "source_a7746d6c-8328-4349-86d9-450bc971b8a4",
+        "originalName": "sample-source.docx",
+        "sanitizedFileName": "sample-source.docx",
+        "extension": ".docx",
+        "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "size": 4,
+        "relativePath": "source_a7746d6c-8328-4349-86d9-450bc971b8a4/sample-source.docx",
+        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/data/source_a7746d6c-8328-4349-86d9-450bc971b8a4/sample-source.docx"
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "dossierflow",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/frontend",
+    "packages/backend"
+  ],
+  "scripts": {
+    "dev": "concurrently -k --names 'web,api' --prefix-colors 'cyan,magenta' 'npm run dev --workspace frontend' 'npm run dev --workspace backend'",
+    "build": "npm run build --workspace frontend && npm run build --workspace backend",
+    "test": "npm run test --workspace backend"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
