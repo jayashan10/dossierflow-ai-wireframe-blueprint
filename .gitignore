@@ -31,3 +31,6 @@ packages/backend/.env
 packages/data/
 packages/templates/
 packages/backend/data/
+
+# RepoPrompt (AI assistant workspace files)
+.repoprompt/
