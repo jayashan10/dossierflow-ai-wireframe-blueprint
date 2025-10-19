@@ -26,3 +26,8 @@ yarn-error.log*
 .env
 packages/frontend/.env
 packages/backend/.env
+
+# Data and Templates (sample/test data should not be version controlled)
+packages/data/
+packages/templates/
+packages/backend/data/

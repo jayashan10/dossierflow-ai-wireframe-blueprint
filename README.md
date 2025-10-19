@@ -19,6 +19,21 @@ package.json        # npm workspaces root
 
 Shared data (e.g. uploaded sources/templates) is stored under `packages/backend/data` and `packages/backend/templates` during development.
 
+## Data Management
+
+### Sample Data & Templates
+The `packages/data/`, `packages/templates/`, and `packages/backend/data/` directories contain sample/test data and should **NOT** be committed to version control. These directories are excluded via `.gitignore`.
+
+**For development/testing:**
+1. Create sample PDF/DOCX files in these directories
+2. Upload them through the UI to test template processing
+3. These files are ignored by git and won't clutter version history
+
+**For production deployment:**
+- Configure separate storage paths via environment variables
+- Use external storage services (S3, etc.) for uploaded files
+- Implement proper file validation and size limits
+
 ---
 
 ## Prerequisites
