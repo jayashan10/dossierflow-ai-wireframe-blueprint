@@ -359,13 +359,15 @@ export function SetupWizard({ onComplete, onCancel }: SetupWizardProps) {
 
               <Separator className="my-4" />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {extractedSections.map((section, index) => (
-                  <div key={index} className="flex items-start gap-3 p-3 rounded-md bg-muted/30">
-                    <CheckCircle2 className="h-4 w-4 text-primary mt-0.5" />
-                    <span>{section}</span>
-                  </div>
-                ))}
+              <div className="max-h-96 overflow-y-auto pr-1">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {extractedSections.map((section, index) => (
+                    <div key={index} className="flex items-start gap-3 p-3 rounded-md bg-muted/30">
+                      <CheckCircle2 className="h-4 w-4 text-primary mt-0.5" />
+                      <span>{section}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </Card>
 

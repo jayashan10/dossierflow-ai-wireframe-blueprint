@@ -102,7 +102,7 @@ export function AuthoringStudio({
   onReplyToComment,
   onUpdateDocument
 }: AuthoringStudioProps) {
-  const document = documentProp ?? null;
+  const currentDocument = documentProp ?? null;
   const [selectedSources, setSelectedSources] = useState<string[]>(defaultSelectedSourceIds);
   const [availableSources, setAvailableSources] = useState<SourceSummary[]>(sourceDocs);
   const [isLoadingSources, setIsLoadingSources] = useState(false);
@@ -118,16 +118,16 @@ export function AuthoringStudio({
   const [isSubmitDialogOpen, setSubmitDialogOpen] = useState(false);
   const [isVersionDrawerOpen, setVersionDrawerOpen] = useState(false);
   const [newCommentText, setNewCommentText] = useState('');
-  const docStatus = document?.status ?? 'Drafting';
-  const assignedReviewerNames = document?.assignedReviewers?.map((id) => reviewerLookup.get(id) ?? id) ?? [];
+  const docStatus = currentDocument?.status ?? 'Drafting';
+  const assignedReviewerNames = currentDocument?.assignedReviewers?.map((id) => reviewerLookup.get(id) ?? id) ?? [];
   const isInReview = docStatus === 'In Review';
   const isChangesRequested = docStatus === 'Changes Requested';
   const isReadOnly = mode === 'reviewer' || (mode === 'author' && isInReview);
-  const canSubmitForReview = Boolean(document && (docStatus === 'Drafting' || docStatus === 'Changes Requested'));
+  const canSubmitForReview = Boolean(currentDocument && (docStatus === 'Drafting' || docStatus === 'Changes Requested'));
   const currentUserName = reviewerLookup.get(currentUserId) ?? 'You';
-  const documentComments = document?.comments ?? [];
-  const versionHistory = document?.versionHistory ?? [];
-  const isExistingDocument = Boolean(document);
+  const documentComments = currentDocument?.comments ?? [];
+  const versionHistory = currentDocument?.versionHistory ?? [];
+  const isExistingDocument = Boolean(currentDocument);
   const statusBadgeStyles: Record<Document['status'], string> = {
     Approved: 'bg-green-100 text-green-800 border-green-300',
     Drafting: 'bg-yellow-100 text-yellow-800 border-yellow-300',
@@ -258,7 +258,7 @@ export function AuthoringStudio({
   };
 
   const handleCreateComment = () => {
-    if (!document || !selectedSection || !newCommentText.trim()) return;
+    if (!currentDocument || !selectedSection || !newCommentText.trim()) return;
     const comment: DocumentComment = {
       id: `comment-${Date.now()}`,
       author: currentUserName,
@@ -273,8 +273,8 @@ export function AuthoringStudio({
   };
 
   const handleReply = (parentId: string, text: string) => {
-    if (!document || !text.trim()) return;
-    const parent = findCommentById(document.comments, parentId);
+    if (!currentDocument || !text.trim()) return;
+    const parent = findCommentById(currentDocument.comments, parentId);
     const reply: DocumentComment = {
       id: `reply-${Date.now()}`,
       author: currentUserName,
@@ -286,7 +286,7 @@ export function AuthoringStudio({
   };
 
   const handleRestoreVersion = (versionId: string) => {
-    if (!document) return;
+    if (!currentDocument) return;
     const version = versionHistory.find((entry) => entry.id === versionId);
     if (!version) return;
 
@@ -310,7 +310,7 @@ export function AuthoringStudio({
   };
 
   const bannerMessage = (() => {
-    if (!document) return null;
+    if (!currentDocument) return null;
     if (mode === 'author' && isInReview) {
       return (
         <Alert className="mb-4">
@@ -318,7 +318,7 @@ export function AuthoringStudio({
           <AlertDescription className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <span>
               Awaiting review from {assignedReviewerNames.join(' and ')}.
-              {document.submissionNote ? ` Note: ${document.submissionNote}` : ''}
+              {currentDocument.submissionNote ? ` Note: ${currentDocument.submissionNote}` : ''}
             </span>
             <Button variant="outline" size="sm" onClick={onWithdrawSubmission}>
               Withdraw Submission
@@ -371,13 +371,13 @@ export function AuthoringStudio({
               <ChevronLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h3>{document?.name ?? (documentConfig?.documentType ?? 'Document')}</h3>
+              <h3>{currentDocument?.name ?? (documentConfig?.documentType ?? 'Document')}</h3>
               <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
                 <span>Status:</span>
                 <Badge variant="outline" className={statusBadgeStyles[docStatus]}>
                   {docStatus}
                 </Badge>
-                {document?.lastUpdated && <span>• Updated {document.lastUpdated}</span>}
+                {currentDocument?.lastUpdated && <span>• Updated {currentDocument.lastUpdated}</span>}
               </div>
             </div>
           </div>
@@ -437,7 +437,7 @@ export function AuthoringStudio({
         <div className="flex-1 overflow-auto p-8 bg-white">
           <div className="max-w-4xl mx-auto">
             <h2 className="mb-6">TABLE OF CONTENTS</h2>
-            <div className="space-y-2 mb-8">
+            <div className="space-y-2 mb-8 max-h-96 overflow-y-auto pr-4">
               {sections.map((section, index) => (
                 <div
                   key={index}
@@ -757,7 +757,7 @@ export function AuthoringStudio({
         open={isSubmitDialogOpen}
         onClose={() => setSubmitDialogOpen(false)}
         onSubmit={handleSubmitReview}
-        defaultSelected={document?.assignedReviewers ?? []}
+        defaultSelected={currentDocument?.assignedReviewers ?? []}
       />
 
       <VersionHistoryDrawer

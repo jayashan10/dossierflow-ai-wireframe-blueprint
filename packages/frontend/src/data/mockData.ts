@@ -6,6 +6,10 @@ export interface Program {
   documentCount: number;
   lastUpdated: string;
   lastUpdatedBy: string;
+  defaultDocumentType?: string;
+  defaultSections?: string[];
+  templateUploaded?: boolean;
+  templateId?: string;
 }
 
 export interface Document {

@@ -4,7 +4,7 @@ import { SetupWizard } from './components/SetupWizard';
 import { Dashboard } from './components/Dashboard';
 import { DossierView } from './components/DossierView';
 import { AuthoringStudio } from './components/AuthoringStudio';
-import { CreateProgramWizard } from './components/CreateProgramWizard';
+import { CreateProgramWizard, type CreateProgramResult, type TemplateConfigForAuthoring } from './components/CreateProgramWizard';
 import {
   programs as initialPrograms,
   dossierStructure as initialStructure,
@@ -155,10 +155,28 @@ export default function App() {
     setProgramWizardOpen(true);
   };
 
-  const handleProgramCreated = (program: Program) => {
-    setPrograms((prev) => [program, ...prev]);
+const handleProgramCreated = (result: CreateProgramResult) => {
+  const { program, templateConfig } = result;
+  setPrograms((prev) => [program, ...prev]);
+
+  if (templateConfig) {
+    seedAuthoringFromTemplate(templateConfig);
+  } else {
     setProgramWizardOpen(false);
-  };
+  }
+};
+
+const seedAuthoringFromTemplate = (config: TemplateConfigForAuthoring) => {
+  setDocumentConfig({
+    documentType: config.documentType,
+    templateUploaded: config.templateUploaded,
+    sections: config.sections
+  });
+  setSelectedDocument(null);
+  setAuthoringMode('author');
+  setCurrentView('authoring');
+  setProgramWizardOpen(false);
+};
 
   const handleSetupComplete = (config: DocumentConfig) => {
     setDocumentConfig(config);

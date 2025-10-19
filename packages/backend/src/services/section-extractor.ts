@@ -44,6 +44,8 @@ export function extractSectionsFromText(
 }
 
 function normalizeHeading(heading: string): string {
-  return heading.replace(/\s+/g, ' ').trim();
+  // Remove trailing dots and page numbers
+  const cleaned = heading.replace(/\s*\.{2,}\s*\d+$/, '');
+  return cleaned.replace(/\s+/g, ' ').trim();
 }
 

@@ -7,6 +7,7 @@ This file summarizes operating guidelines for agents collaborating on the Dossie
 1. Start in spec mode when planning substantial features; share the spec and wait for approval before editing files.
 2. Track work with the task list tool (`TodoWrite`) for any multi-step effort and keep statuses current.
 3. Prefer the provided factory tools (`Read`, `LS`, `Grep`, `ApplyPatch`, etc.) over shell commands for exploration and editing.
+4. Use the `tmp/` folder in the root directory for any summary or misc markdown docs for progress or summary.
 
 ## Coding Practices
 

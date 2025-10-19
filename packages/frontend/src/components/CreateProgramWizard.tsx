@@ -6,14 +6,34 @@ import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { Plus, ArrowLeft, ArrowRight, Users, Upload, FileText, CheckCircle2, Sparkles } from 'lucide-react';
+import { Plus, ArrowLeft, ArrowRight, Users, Upload, FileText, CheckCircle2, Sparkles, AlertTriangle } from 'lucide-react';
 import { Separator } from './ui/separator';
 import type { Program } from '../data/mockData';
+import { uploadTemplate } from '../lib/api';
+
+export interface TemplateConfigForAuthoring {
+  documentType: string;
+  templateUploaded: boolean;
+  sections: string[];
+  templateId?: string;
+  warnings?: string[];
+}
+
+export interface CreateProgramResult {
+  program: Program;
+  templateConfig?: TemplateConfigForAuthoring;
+}
+
+type UploadState = {
+  status: 'idle' | 'uploading' | 'success' | 'error';
+  message?: string;
+  warnings?: string[];
+};
 
 interface CreateProgramWizardProps {
   open: boolean;
   onClose: () => void;
-  onCreate: (program: Program) => void;
+  onCreate: (result: CreateProgramResult) => void;
 }
 
 interface Invitee {
@@ -73,7 +93,8 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
   const [selectedDocType, setSelectedDocType] = useState('');
   const [templateFile, setTemplateFile] = useState<File | null>(null);
   const [extractedSections, setExtractedSections] = useState<string[]>([]);
-  const [isProcessingTemplate, setIsProcessingTemplate] = useState(false);
+  const [uploadState, setUploadState] = useState<UploadState>({ status: 'idle' });
+  const [templateId, setTemplateId] = useState<string | null>(null);
   const [invitees, setInvitees] = useState<Invitee[]>([]);
   const [inviteDraft, setInviteDraft] = useState<Invitee>({ email: '', role: 'Author' });
 
@@ -85,7 +106,8 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
     setSelectedDocType('');
     setTemplateFile(null);
     setExtractedSections([]);
-    setIsProcessingTemplate(false);
+    setUploadState({ status: 'idle' });
+    setTemplateId(null);
     setInvitees([]);
     setInviteDraft({ email: '', role: 'Author' });
   };
@@ -109,41 +131,75 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
       progress: 0,
       documentCount: 0,
       lastUpdated: 'Just now',
-      lastUpdatedBy: 'System'
+      lastUpdatedBy: 'System',
+      defaultDocumentType: selectedDocType || 'custom',
+      defaultSections: extractedSections.length ? extractedSections : undefined,
+      templateUploaded: uploadState.status === 'success',
+      templateId: templateId ?? undefined
     };
-    onCreate(newProgram);
+    const hasRealExtraction = uploadState.status === 'success' && extractedSections.length > 0;
+    onCreate({
+      program: newProgram,
+      templateConfig: hasRealExtraction
+        ? {
+            documentType: selectedDocType || 'custom',
+            templateUploaded: true,
+            sections: extractedSections,
+            templateId: templateId ?? undefined,
+            warnings: uploadState.warnings
+          }
+        : undefined
+    });
     handleClose();
   };
 
   const fallbackSections = ['1. Introduction', '2. Methods', '3. Results', '4. Discussion', '5. Conclusion'];
 
-  const ensureDefaultSections = (docType: string) => {
-    const sections = defaultSections[docType] ?? fallbackSections;
-    setExtractedSections(sections);
-  };
-
   const handleDocTypeSelect = (docType: string) => {
     setSelectedDocType(docType);
     setTemplateFile(null);
-    setIsProcessingTemplate(false);
-    ensureDefaultSections(docType);
+    setUploadState({ status: 'idle' });
+    setTemplateId(null);
+    setExtractedSections([]);
   };
 
-  const handleTemplateUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTemplateUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     setTemplateFile(file);
-    setIsProcessingTemplate(true);
+    setUploadState({ status: 'uploading' });
+    setTemplateId(null);
 
-    setTimeout(() => {
-      ensureDefaultSections(selectedDocType);
-      setIsProcessingTemplate(false);
-    }, 2000);
+    try {
+      const result = await uploadTemplate(file);
+      setExtractedSections(result.sections);
+      setTemplateId(result.id);
+      setUploadState({
+        status: 'success',
+        message: `${result.sections.length} sections extracted`,
+        warnings: result.warnings
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to upload template.';
+      setExtractedSections([]);
+      setUploadState({ status: 'error', message });
+    }
   };
 
   const handleSkipTemplate = () => {
-    ensureDefaultSections(selectedDocType);
+    const sections = defaultSections[selectedDocType] ?? fallbackSections;
+    setExtractedSections(sections);
+    setTemplateFile(null);
+    setUploadState({ status: 'idle' });
+    setTemplateId(null);
     setStep(4);
+  };
+
+  const handleRetryUpload = () => {
+    setTemplateFile(null);
+    setExtractedSections([]);
+    setUploadState({ status: 'idle' });
+    setTemplateId(null);
   };
 
   const handleNext = () => {
@@ -151,15 +207,9 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
       setStep(2);
     } else if (step === 2) {
       if (!selectedDocType) return;
-      if (!extractedSections.length) {
-        ensureDefaultSections(selectedDocType);
-      }
       setStep(3);
     } else if (step === 3) {
-      if (isProcessingTemplate) return;
-      if (!templateFile && !extractedSections.length) {
-        ensureDefaultSections(selectedDocType);
-      }
+      if (uploadState.status !== 'success') return;
       setStep(4);
     } else if (step === 4) {
       setStep(5);
@@ -173,28 +223,27 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
 
   return (
     <Dialog open={open} onOpenChange={(value) => !value && handleClose()}>
-      <DialogContent className="max-w-4xl h-[90vh]">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>Create New Program</DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between border-b pb-4 mb-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className={`font-medium ${step === 1 ? 'text-primary' : ''}`}>1. Details</span>
-              <span>→</span>
-              <span className={`font-medium ${step === 2 ? 'text-primary' : ''}`}>2. Document Type</span>
-              <span>→</span>
-              <span className={`font-medium ${step === 3 ? 'text-primary' : ''}`}>3. Template</span>
-              <span>→</span>
-              <span className={`font-medium ${step === 4 ? 'text-primary' : ''}`}>4. Team</span>
-              <span>→</span>
-              <span className={`font-medium ${step === 5 ? 'text-primary' : ''}`}>5. Summary</span>
-            </div>
-            <div className="text-xs text-muted-foreground">Step {step} of 5</div>
+        <div className="flex items-center justify-between border-b pb-4 mb-4 flex-shrink-0">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span className={`font-medium ${step === 1 ? 'text-primary' : ''}`}>1. Details</span>
+            <span>→</span>
+            <span className={`font-medium ${step === 2 ? 'text-primary' : ''}`}>2. Document Type</span>
+            <span>→</span>
+            <span className={`font-medium ${step === 3 ? 'text-primary' : ''}`}>3. Template</span>
+            <span>→</span>
+            <span className={`font-medium ${step === 4 ? 'text-primary' : ''}`}>4. Team</span>
+            <span>→</span>
+            <span className={`font-medium ${step === 5 ? 'text-primary' : ''}`}>5. Summary</span>
           </div>
+          <div className="text-xs text-muted-foreground">Step {step} of 5</div>
+        </div>
 
-          <div className="flex-1 overflow-auto pr-2">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 min-h-0">
             {step === 1 && (
               <section className="space-y-4">
                 <div>
@@ -272,15 +321,15 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
             )}
 
             {step === 3 && (
-              <section className="space-y-6">
+              <section className="space-y-3">
                 <div className="text-center">
-                  <h2 className="mb-2">Upload Template (Optional)</h2>
-                  <p className="text-muted-foreground">
-                    Upload a custom template or use the standard section structure for your selected document type.
+                  <h3 className="text-base font-semibold mb-1">Upload Template (Optional)</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Upload a custom template or use the standard section structure.
                   </p>
                 </div>
 
-                <div className="border-2 border-dashed rounded-lg p-10 text-center hover:border-primary transition-colors">
+                <div className="border-2 border-dashed rounded-lg p-8 text-center hover:border-primary transition-colors">
                   <input
                     type="file"
                     id="program-template-upload"
@@ -289,27 +338,27 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
                     onChange={handleTemplateUpload}
                   />
                   <Label htmlFor="program-template-upload" className="cursor-pointer">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Upload className="h-8 w-8 text-primary" />
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Upload className="h-6 w-6 text-primary" />
                       </div>
                       <div>
-                        <p>Click to upload or drag and drop</p>
-                        <p className="text-muted-foreground">Supports .docx, .pdf, .doc files</p>
+                        <p className="text-sm">Click to upload or drag and drop</p>
+                        <p className="text-xs text-muted-foreground">Supports .docx, .pdf, .doc files</p>
                       </div>
                     </div>
                   </Label>
                 </div>
 
                 {templateFile && (
-                  <Card className="p-4 bg-primary/5 border-primary">
+                  <Card className="p-3 bg-primary/5 border-primary">
                     <div className="flex items-center gap-3">
                       <FileText className="h-5 w-5 text-primary" />
                       <div className="flex-1">
                         <p>{templateFile.name}</p>
                         <p className="text-muted-foreground">{(templateFile.size / 1024).toFixed(2)} KB</p>
                       </div>
-                      {isProcessingTemplate ? (
+                      {uploadState.status === 'uploading' ? (
                         <div className="flex items-center gap-2 text-primary">
                           <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
                           <span>Processing...</span>
@@ -321,38 +370,69 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
                   </Card>
                 )}
 
-                {extractedSections.length > 0 && (
-                  <Card className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-primary" />
-                        <h3 className="text-sm font-medium">Detected Sections</h3>
+                {uploadState.status === 'error' && uploadState.message && (
+                  <Card className="p-3 border-destructive/40 bg-destructive/5 text-sm text-destructive">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="h-4 w-4 mt-0.5" />
+                      <div className="space-y-2">
+                        <p>{uploadState.message}</p>
+                        <Button variant="ghost" size="sm" onClick={handleRetryUpload}>
+                          Try again
+                        </Button>
                       </div>
-                      <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-                        {extractedSections.length} sections
-                      </Badge>
-                    </div>
-                    <Separator className="my-4" />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                      {extractedSections.map((section, index) => (
-                        <div key={index} className="flex items-start gap-3 p-2 rounded-md bg-muted/40">
-                          <CheckCircle2 className="h-4 w-4 text-primary mt-0.5" />
-                          <span className="text-sm">{section}</span>
-                        </div>
-                      ))}
                     </div>
                   </Card>
                 )}
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex gap-3">
-                    <Sparkles className="h-5 w-5 text-blue-600 mt-0.5" />
-                    <div>
-                      <p className="text-blue-900">AI-ready structure</p>
-                      <p className="text-blue-700 mt-1 text-sm">
-                        The sections above will be available for AI generation once the program is created.
-                      </p>
+                {uploadState.status === 'success' && (uploadState.message || uploadState.warnings?.length) && (
+                  <Card className="p-3">
+                    <div className="space-y-2 text-sm">
+                      {uploadState.message && <p className="text-green-700">{uploadState.message}</p>}
+                      {uploadState.warnings && uploadState.warnings.length > 0 && (
+                        <div className="space-y-1">
+                          <p className="font-medium text-muted-foreground">Warnings</p>
+                          <ul className="list-disc list-inside text-muted-foreground">
+                            {uploadState.warnings.map((warning, index) => (
+                              <li key={`${warning}-${index}`}>{warning}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
+                  </Card>
+                )}
+
+                {extractedSections.length > 0 && (
+                  <Card className="p-3">
+                    <div className="flex items-center justify-between gap-4 mb-2">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-primary" />
+                        <h3 className="text-sm font-medium">Detected Sections</h3>
+                      </div>
+                      <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300 whitespace-nowrap">
+                        {extractedSections.length} sections
+                      </Badge>
+                    </div>
+                    <Separator className="mb-2" />
+                    <div style={{ height: '150px', overflowY: 'auto', overflowX: 'hidden' }} className="border rounded-md p-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
+                        {extractedSections.map((section, index) => (
+                          <div key={index} className="flex items-start gap-2 p-1.5 rounded-md bg-muted/40 min-w-0">
+                            <CheckCircle2 className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
+                            <span className="text-xs break-words whitespace-normal leading-tight">{section}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </Card>
+                )}
+
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-2">
+                  <div className="flex gap-2 items-center">
+                    <Sparkles className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
+                    <p className="text-xs text-blue-700">
+                      <span className="font-medium text-blue-900">AI-ready:</span> Sections available for generation.
+                    </p>
                   </div>
                 </div>
               </section>
@@ -435,6 +515,21 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
                   <div>
                     <span className="font-medium">Sections Configured:</span> {extractedSections.length}
                   </div>
+                  {extractedSections.length > 0 && (
+                    <div className="space-y-2">
+                      <span className="font-medium text-sm">Section Preview:</span>
+                      <div style={{ height: '150px', overflowY: 'auto', overflowX: 'hidden' }} className="border rounded-md p-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
+                          {extractedSections.map((section, index) => (
+                            <div key={index} className="flex items-start gap-2 p-1.5 rounded-md bg-muted/40 min-w-0">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
+                              <span className="text-xs break-words whitespace-normal leading-tight">{section}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div>
                     <span className="font-medium">Team Members:</span>
                     <ul className="list-disc list-inside text-muted-foreground">
@@ -447,9 +542,9 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
                 </div>
               </section>
             )}
-          </div>
+        </div>
 
-          <DialogFooter className="mt-4">
+        <DialogFooter className="mt-4 flex-shrink-0">
             <Button variant="outline" onClick={handleClose}>
               Cancel
             </Button>
@@ -468,7 +563,7 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
                   <Button
                     onClick={handleNext}
                     className="gap-2"
-                    disabled={isProcessingTemplate}
+                    disabled={uploadState.status !== 'success'}
                   >
                     Continue
                     <ArrowRight className="h-4 w-4" />
@@ -491,8 +586,7 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
                 </Button>
               )}
             </div>
-          </DialogFooter>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
