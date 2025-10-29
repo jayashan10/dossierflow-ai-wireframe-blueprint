@@ -9,8 +9,18 @@ import {
 } from './file-service';
 import { extractSectionsFromText } from './section-extractor';
 import { extractTextFromDocx, extractTextFromPdf } from './text-extraction';
+import {
+  refineTemplateSections,
+  type TemplateRefinedSection
+} from './codex-service';
 
 const TEMPLATE_INDEX_FILENAME = '.templates.json';
+
+interface TemplateCodexMetadata {
+  codexUsed: boolean;
+  usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+  lastRefinedAt?: string;
+}
 
 interface TemplateRecord {
   id: string;
@@ -18,7 +28,9 @@ interface TemplateRecord {
   originalFileName: string;
   storedFile: StoredFileInfo;
   createdAt: string;
-  sections: string[];
+  rawSections: string[];
+  refinedSections: TemplateRefinedSection[];
+  codexMetadata: TemplateCodexMetadata;
   warnings?: string[];
 }
 
@@ -31,10 +43,13 @@ export interface TemplateSummary {
   name: string;
   sectionCount: number;
   createdAt: string;
+  codexUsed: boolean;
 }
 
 export interface TemplateDetails extends TemplateSummary {
-  sections: string[];
+  rawSections: string[];
+  refinedSections: TemplateRefinedSection[];
+  codexUsage?: { promptTokens: number; completionTokens: number; totalTokens: number };
   warnings?: string[];
   originalFileName: string;
   relativePath: string;
@@ -47,11 +62,14 @@ function getIndexPath(): string {
 async function loadIndex(): Promise<TemplateIndex> {
   try {
     const raw = await fs.readFile(getIndexPath(), 'utf8');
-    const parsed = JSON.parse(raw) as TemplateIndex;
-    if (!parsed.templates) {
+    const parsed = JSON.parse(raw) as Partial<TemplateIndex> | undefined;
+    if (!parsed || !Array.isArray(parsed.templates)) {
       return { templates: [] };
     }
-    return parsed;
+
+    return {
+      templates: parsed.templates.map(normalizeTemplateRecord)
+    };
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       return { templates: [] };
@@ -79,7 +97,7 @@ async function extractTextFromFile(storedFile: StoredFileInfo): Promise<{ text: 
   throw new Error(`Unsupported template extension: ${storedFile.extension}`);
 }
 
-export async function saveTemplate(upload: UploadedFile): Promise<TemplateDetails> {
+export async function saveTemplate(upload: UploadedFile, options?: { autoRefine?: boolean }): Promise<TemplateDetails> {
   if (upload.size > MAX_FILE_SIZE_BYTES) {
     throw new Error('Template exceeds maximum allowed size (10 MB).');
   }
@@ -92,15 +110,24 @@ export async function saveTemplate(upload: UploadedFile): Promise<TemplateDetail
 
   const extraction = await extractTextFromFile(storedFile);
   const { sections, warnings: sectionWarnings } = extractSectionsFromText(extraction.text);
+  const shouldAutoRefine = options?.autoRefine !== false;
+  const refinement = shouldAutoRefine ? await refineTemplateSections(sections) : undefined;
 
-  const recordWarnings = combineWarnings(extraction.warnings, sectionWarnings);
+  const timestamp = new Date().toISOString();
+  const recordWarnings = combineWarnings(extraction.warnings, sectionWarnings, refinement?.warnings);
   const record: TemplateRecord = {
     id: storedFile.id,
     name: storedFile.originalName,
     originalFileName: storedFile.originalName,
     storedFile,
-    createdAt: new Date().toISOString(),
-    sections,
+    createdAt: timestamp,
+    rawSections: sections,
+    refinedSections: refinement?.sections ?? [],
+    codexMetadata: {
+      codexUsed: Boolean(refinement?.codexUsed && refinement.sections.length > 0),
+      usage: refinement?.usage,
+      lastRefinedAt: refinement ? timestamp : undefined
+    },
     warnings: recordWarnings
   };
 
@@ -116,8 +143,9 @@ export async function listTemplates(): Promise<TemplateSummary[]> {
   return index.templates.map((record) => ({
     id: record.id,
     name: record.name,
-    sectionCount: record.sections.length,
-    createdAt: record.createdAt
+    sectionCount: record.refinedSections.length || record.rawSections.length,
+    createdAt: record.createdAt,
+    codexUsed: record.codexMetadata.codexUsed
   }));
 }
 
@@ -131,12 +159,50 @@ function toTemplateDetails(record: TemplateRecord): TemplateDetails {
   return {
     id: record.id,
     name: record.name,
-    sectionCount: record.sections.length,
+    sectionCount: record.refinedSections.length || record.rawSections.length,
     createdAt: record.createdAt,
-    sections: record.sections,
+    rawSections: record.rawSections,
+    refinedSections: record.refinedSections,
+    codexUsage: record.codexMetadata.usage,
     warnings: record.warnings,
     originalFileName: record.originalFileName,
-    relativePath: record.storedFile.relativePath
+    relativePath: record.storedFile.relativePath,
+    codexUsed: record.codexMetadata.codexUsed
+  };
+}
+
+type UnknownTemplateRecord = Partial<TemplateRecord> &
+  Partial<{ sections: string[]; codexMetadata: TemplateCodexMetadata }>;
+
+function normalizeTemplateRecord(record: UnknownTemplateRecord): TemplateRecord {
+  const rawSections = Array.isArray(record.rawSections)
+    ? record.rawSections.filter((section): section is string => typeof section === 'string')
+    : Array.isArray(record.sections)
+      ? record.sections.filter((section): section is string => typeof section === 'string')
+      : [];
+
+  const refinedSections = Array.isArray(record.refinedSections)
+    ? record.refinedSections.filter(isValidRefinedSection)
+    : [];
+
+  const codexMetadata: TemplateCodexMetadata = {
+    codexUsed: Boolean(record.codexMetadata?.codexUsed && refinedSections.length > 0),
+    usage: record.codexMetadata?.usage,
+    lastRefinedAt: refinedSections.length
+      ? record.codexMetadata?.lastRefinedAt ?? record.createdAt ?? new Date().toISOString()
+      : undefined
+  };
+
+  return {
+    id: record.id ?? `template_${Date.now()}`,
+    name: record.name ?? record.originalFileName ?? 'Untitled Template',
+    originalFileName: record.originalFileName ?? record.name ?? 'template',
+    storedFile: record.storedFile as StoredFileInfo,
+    createdAt: record.createdAt ?? new Date().toISOString(),
+    rawSections,
+    refinedSections,
+    codexMetadata,
+    warnings: record.warnings
   };
 }
 
@@ -159,5 +225,45 @@ function combineWarnings(
   }
 
   return normalized;
+}
+
+function isValidRefinedSection(section: unknown): section is TemplateRefinedSection {
+  return Boolean(
+    section &&
+    typeof section === 'object' &&
+    typeof (section as TemplateRefinedSection).title === 'string' &&
+    typeof (section as TemplateRefinedSection).summary === 'string' &&
+    typeof (section as TemplateRefinedSection).originalHeading === 'string'
+  );
+}
+
+export async function refineTemplateRecord(templateId: string): Promise<TemplateDetails> {
+  const index = await loadIndex();
+  const recordIndex = index.templates.findIndex((item) => item.id === templateId);
+
+  if (recordIndex === -1) {
+    throw new Error('Template not found');
+  }
+
+  const current = index.templates[recordIndex];
+  const refinement = await refineTemplateSections(current.rawSections);
+  const timestamp = new Date().toISOString();
+
+  const updated: TemplateRecord = {
+    ...current,
+    refinedSections: refinement.sections,
+    codexMetadata: {
+      codexUsed: refinement.codexUsed,
+      usage: refinement.usage,
+      lastRefinedAt: timestamp
+    },
+    warnings: combineWarnings(current.warnings, refinement.warnings)
+  };
+
+  index.templates.splice(recordIndex, 1);
+  index.templates.unshift(updated);
+  await saveIndex(index);
+
+  return toTemplateDetails(updated);
 }
 

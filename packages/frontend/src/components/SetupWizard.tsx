@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { Alert, AlertDescription } from './ui/alert';
-import { uploadTemplate } from '../lib/api';
+import { uploadTemplate, refineTemplate } from '../lib/api';
 
 interface UploadState {
   status: 'idle' | 'uploading' | 'success' | 'error';
@@ -74,7 +74,11 @@ export function SetupWizard({ onComplete, onCancel }: SetupWizardProps) {
   const [selectedDocType, setSelectedDocType] = useState<string>('');
   const [templateFile, setTemplateFile] = useState<File | null>(null);
   const [extractedSections, setExtractedSections] = useState<string[]>([]);
+  const [refinedSections, setRefinedSections] = useState<string[]>([]);
   const [uploadState, setUploadState] = useState<UploadState>({ status: 'idle' });
+  const [templateId, setTemplateId] = useState<string | null>(null);
+  const [isRefining, setIsRefining] = useState(false);
+  const [refineError, setRefineError] = useState<string | null>(null);
 
   const handleDocTypeSelect = (docType: string) => {
     setSelectedDocType(docType);
@@ -86,20 +90,27 @@ export function SetupWizard({ onComplete, onCancel }: SetupWizardProps) {
 
     setTemplateFile(file);
     setUploadState({ status: 'uploading' });
+    setRefinedSections([]);
+    setTemplateId(null);
+    setRefineError(null);
 
     try {
       const result = await uploadTemplate(file);
-
-      setExtractedSections(result.sections);
+      const raw = result.rawSections.length ? result.rawSections : result.refinedSections.map((section) => section.title);
+      setExtractedSections(raw);
+      setRefinedSections(result.refinedSections.map((section) => section.title));
+      setTemplateId(result.id);
       setUploadState({
         status: 'success',
-        message: `${result.sections.length} sections extracted`,
+        message: `${raw.length} sections extracted`,
         warnings: result.warnings
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to upload template.';
       setUploadState({ status: 'error', message });
       setExtractedSections([]);
+      setRefinedSections([]);
+      setTemplateId(null);
     }
   };
 
@@ -107,6 +118,9 @@ export function SetupWizard({ onComplete, onCancel }: SetupWizardProps) {
     setTemplateFile(null);
     setUploadState({ status: 'idle' });
     setExtractedSections([]);
+    setRefinedSections([]);
+    setTemplateId(null);
+    setRefineError(null);
   };
 
   const handleSkipTemplate = () => {
@@ -118,8 +132,11 @@ export function SetupWizard({ onComplete, onCancel }: SetupWizardProps) {
       '5. Conclusion'
     ];
     setExtractedSections(sections);
+    setRefinedSections([]);
     setUploadState({ status: 'idle' });
     setTemplateFile(null);
+    setTemplateId(null);
+    setRefineError(null);
     setStep(3);
   };
 
@@ -139,8 +156,29 @@ export function SetupWizard({ onComplete, onCancel }: SetupWizardProps) {
     onComplete({
       documentType: selectedDocType,
       templateUploaded: uploadState.status === 'success',
-      sections: extractedSections
+      sections: refinedSections.length ? refinedSections : extractedSections
     });
+  };
+
+  const handleRefine = async () => {
+    if (!templateId) return;
+    setIsRefining(true);
+    setRefineError(null);
+    try {
+      const result = await refineTemplate(templateId);
+      const refined = result.refinedSections.map((section) => section.title);
+      setRefinedSections(refined);
+      setUploadState((prev) => ({
+        status: 'success',
+        message: `${refined.length} sections refined`,
+        warnings: result.warnings ?? prev.warnings
+      }));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Codex refinement failed.';
+      setRefineError(message);
+    } finally {
+      setIsRefining(false);
+    }
   };
 
   return (
@@ -353,15 +391,24 @@ export function SetupWizard({ onComplete, onCancel }: SetupWizardProps) {
                   <h3>{documentTypes.find(d => d.id === selectedDocType)?.name}</h3>
                 </div>
                 <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-                  {extractedSections.length} sections detected
+                  {(refinedSections.length ? refinedSections : extractedSections).length} sections detected
                 </Badge>
               </div>
 
               <Separator className="my-4" />
 
+              {refineError && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="ml-2 text-sm">
+                    {refineError}
+                  </AlertDescription>
+                </Alert>
+              )}
+
               <div className="max-h-96 overflow-y-auto pr-1">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {extractedSections.map((section, index) => (
+                  {(refinedSections.length ? refinedSections : extractedSections).map((section, index) => (
                     <div key={index} className="flex items-start gap-3 p-3 rounded-md bg-muted/30">
                       <CheckCircle2 className="h-4 w-4 text-primary mt-0.5" />
                       <span>{section}</span>

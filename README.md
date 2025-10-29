@@ -91,6 +91,14 @@ This launches:
 - Vite dev server (defaults to `http://localhost:3000`, auto-bumps if the port is taken)
 - Express API on `http://localhost:4000`
 
+To surface detailed Codex request/response logging while avoiding port collisions, run the dev command with the matching environment overrides:
+
+```bash
+PORT=4001 CODEX_DEBUG=1 VITE_API_PROXY_TARGET=http://localhost:4001 npm run dev
+```
+
+The backend moves to `http://localhost:4001`, emits `[Codex Debug]` entries for each refinement/generation call, and the Vite proxy forwards API traffic to the updated port automatically.
+
 You can also run them individually:
 
 ```bash

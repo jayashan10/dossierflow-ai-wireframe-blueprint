@@ -6,9 +6,9 @@ declare module '@openai/codex-sdk' {
   }
 
   interface RunResult {
-    finalResponse: string;
-    items: unknown[];
-    usage: CodexUsage | null;
+    finalResponse?: string;
+    items?: unknown[];
+    usage?: CodexUsage | null;
   }
 
   interface CodexOptions {

@@ -2,7 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import { z } from 'zod';
 import { FileValidationError } from '../services/file-service';
-import { saveTemplate, listTemplates, getTemplate } from '../services/template-service';
+import { saveTemplate, listTemplates, getTemplate, refineTemplateRecord } from '../services/template-service';
 
 const memoryStorage = multer.memoryStorage();
 
@@ -31,7 +31,7 @@ templatesRouter.post('/upload', upload.single('file'), async (req, res, next) =>
       mimeType: req.file.mimetype,
       size: req.file.size,
       buffer: req.file.buffer
-    });
+    }, { autoRefine: false });
 
     res.status(201).json({ template });
   } catch (error) {
@@ -70,6 +70,22 @@ templatesRouter.get('/:id', async (req, res, next) => {
 
     res.json({ template });
   } catch (error) {
+    next(error);
+  }
+});
+
+templatesRouter.post('/:id/refine', async (req, res, next) => {
+  try {
+    const params = getTemplateParamsSchema.parse(req.params);
+    const template = await refineTemplateRecord(params.id);
+    res.json({ template });
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Template not found') {
+      return res.status(404).json({
+        error: 'NotFound',
+        message: 'Template not found.'
+      });
+    }
     next(error);
   }
 });

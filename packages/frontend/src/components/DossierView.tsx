@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ChevronRight, ChevronDown, Home, Sparkles } from 'lucide-react';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
@@ -38,10 +38,65 @@ export function DossierView({
   dataVaultFolders,
   dataVaultFiles
 }: DossierViewProps) {
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set(['module-2']));
-  const [selectedNode, setSelectedNode] = useState<string>('module-2-4');
+  const flattenStructure = (nodes: ModuleNode[]): ModuleNode[] =>
+    nodes.flatMap((node) => [node, ...(node.children ? flattenStructure(node.children) : [])]);
+
+  const findFirstNodeWithDocuments = (nodes: ModuleNode[]): ModuleNode | null => {
+    for (const node of nodes) {
+      if (node.documents && node.documents.length > 0) {
+        return node;
+      }
+      if (node.children) {
+        const found = findFirstNodeWithDocuments(node.children);
+        if (found) {
+          return found;
+        }
+      }
+    }
+    return null;
+  };
+
+  const findPathToNode = (nodes: ModuleNode[], targetId: string, path: ModuleNode[] = []): ModuleNode[] | null => {
+    for (const node of nodes) {
+      const currentPath = [...path, node];
+      if (node.id === targetId) {
+        return currentPath;
+      }
+      if (node.children) {
+        const childPath = findPathToNode(node.children, targetId, currentPath);
+        if (childPath) {
+          return childPath;
+        }
+      }
+    }
+    return null;
+  };
+
+  const initialSelectedNode = (() => {
+    const nodeWithDocuments = findFirstNodeWithDocuments(structure);
+    if (nodeWithDocuments) {
+      return nodeWithDocuments.id;
+    }
+    return structure[0]?.id ?? '';
+  })();
+
+  const initialPath = initialSelectedNode ? findPathToNode(structure, initialSelectedNode) : null;
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(
+    () => new Set(initialPath?.map((node) => node.id) ?? [])
+  );
+  const [selectedNode, setSelectedNode] = useState<string>(initialSelectedNode);
   const [selectedDocs, setSelectedDocs] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'dossier' | 'data-vault' | 'settings'>('dossier');
+
+  useEffect(() => {
+    const nodeWithDocuments = findFirstNodeWithDocuments(structure);
+    const fallbackNodeId = structure[0]?.id ?? '';
+    const nextSelected = nodeWithDocuments?.id ?? fallbackNodeId;
+    const nextPath = nextSelected ? findPathToNode(structure, nextSelected) : null;
+    setSelectedNode(nextSelected);
+    setExpandedNodes(new Set(nextPath?.map((node) => node.id) ?? (fallbackNodeId ? [fallbackNodeId] : [])));
+    setSelectedDocs(new Set());
+  }, [structure]);
 
   const toggleNode = (nodeId: string) => {
     const newExpanded = new Set(expandedNodes);
@@ -87,11 +142,12 @@ export function DossierView({
     );
   };
 
-  const selectedNodeData = useMemo(() => {
-    const flatten = (nodes: ModuleNode[]): ModuleNode[] =>
-      nodes.flatMap((node) => [node, ...(node.children ? flatten(node.children) : [])]);
-    return flatten(structure).find((node) => node.id === selectedNode);
-  }, [structure, selectedNode]);
+  const flattenedStructure = useMemo(() => flattenStructure(structure), [structure]);
+
+  const selectedNodeData = useMemo(
+    () => flattenedStructure.find((node) => node.id === selectedNode),
+    [flattenedStructure, selectedNode]
+  );
 
   const nodeDocuments = selectedNodeData?.documents || [];
 

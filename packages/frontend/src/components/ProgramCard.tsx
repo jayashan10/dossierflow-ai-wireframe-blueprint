@@ -23,6 +23,10 @@ export function ProgramCard({ program, onClick }: ProgramCardProps) {
     'Submitted': 'bg-green-100 text-green-800 border-green-300'
   };
 
+  const documentCount = program.sectionCount ?? program.documentCount ?? 0;
+  const lastUpdated = program.lastUpdated ?? 'Just now';
+  const updatedByLabel = program.lastUpdatedBy ?? 'System';
+
   return (
     <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer" onClick={onClick}>
       <div className="flex items-start justify-between mb-4">
@@ -58,11 +62,11 @@ export function ProgramCard({ program, onClick }: ProgramCardProps) {
         <div className="flex items-center gap-4 text-muted-foreground">
           <div className="flex items-center gap-1">
             <FileText className="h-4 w-4" />
-            <span>{program.documentCount} Documents</span>
+            <span>{documentCount} Documents</span>
           </div>
           <div className="flex items-center gap-1">
             <Clock className="h-4 w-4" />
-            <span>Last updated: {program.lastUpdated} by {program.lastUpdatedBy}</span>
+            <span>Last updated: {lastUpdated} by {updatedByLabel}</span>
           </div>
         </div>
       </div>

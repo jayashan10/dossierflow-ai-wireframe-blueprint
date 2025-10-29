@@ -7,6 +7,7 @@ loadEnv();
 
 const envSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65535).default(4000),
+  // CODEX_API_KEY is optional - the app uses CLI authentication (npx codex login) by default
   CODEX_API_KEY: z.string().trim().optional().transform((value) => value || undefined),
   SOURCE_ROOT: z.string().trim().optional(),
   TEMPLATE_ROOT: z.string().trim().optional()

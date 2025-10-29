@@ -3,13 +3,15 @@ export interface Program {
   title: string;
   status: 'In Progress' | 'Under Review' | 'Submitted';
   progress: number;
-  documentCount: number;
-  lastUpdated: string;
-  lastUpdatedBy: string;
+  documentCount?: number;
+  lastUpdated?: string;
+  lastUpdatedBy?: string;
   defaultDocumentType?: string;
   defaultSections?: string[];
   templateUploaded?: boolean;
   templateId?: string;
+  sectionCount?: number;
+  isSample?: boolean;
 }
 
 export interface Document {
@@ -58,7 +60,8 @@ export const programs: Program[] = [
     progress: 75,
     documentCount: 186,
     lastUpdated: '2 hours ago',
-    lastUpdatedBy: 'Mark'
+    lastUpdatedBy: 'Mark',
+    isSample: true
   },
   {
     id: 'cp-05',
@@ -67,7 +70,8 @@ export const programs: Program[] = [
     progress: 100,
     documentCount: 254,
     lastUpdated: '3 days ago',
-    lastUpdatedBy: 'Regina'
+    lastUpdatedBy: 'Regina',
+    isSample: true
   },
   {
     id: 'dsur',
@@ -76,7 +80,8 @@ export const programs: Program[] = [
     progress: 100,
     documentCount: 58,
     lastUpdated: '1 week ago',
-    lastUpdatedBy: 'System'
+    lastUpdatedBy: 'System',
+    isSample: true
   }
 ];
 

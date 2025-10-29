@@ -6,15 +6,16 @@ import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { Plus, ArrowLeft, ArrowRight, Users, Upload, FileText, CheckCircle2, Sparkles, AlertTriangle } from 'lucide-react';
+import { Plus, ArrowLeft, ArrowRight, Users, Upload, FileText, CheckCircle2, Sparkles, AlertTriangle, Wand2 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import type { Program } from '../data/mockData';
-import { uploadTemplate } from '../lib/api';
+import { uploadTemplate, refineTemplate, type TemplateDetails, type TemplateRefinedSection } from '../lib/api';
 
 export interface TemplateConfigForAuthoring {
   documentType: string;
   templateUploaded: boolean;
-  sections: string[];
+  refinedSections: TemplateRefinedSection[];
+  rawSections: string[];
   templateId?: string;
   warnings?: string[];
 }
@@ -92,9 +93,12 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
   const [regulatoryBody, setRegulatoryBody] = useState('FDA');
   const [selectedDocType, setSelectedDocType] = useState('');
   const [templateFile, setTemplateFile] = useState<File | null>(null);
-  const [extractedSections, setExtractedSections] = useState<string[]>([]);
+  const [refinedSections, setRefinedSections] = useState<TemplateRefinedSection[]>([]);
+  const [rawHeadings, setRawHeadings] = useState<string[]>([]);
   const [uploadState, setUploadState] = useState<UploadState>({ status: 'idle' });
   const [templateId, setTemplateId] = useState<string | null>(null);
+  const [isRefining, setIsRefining] = useState(false);
+  const [refineError, setRefineError] = useState<string | null>(null);
   const [invitees, setInvitees] = useState<Invitee[]>([]);
   const [inviteDraft, setInviteDraft] = useState<Invitee>({ email: '', role: 'Author' });
 
@@ -105,11 +109,14 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
     setRegulatoryBody('FDA');
     setSelectedDocType('');
     setTemplateFile(null);
-    setExtractedSections([]);
+    setRefinedSections([]);
+    setRawHeadings([]);
     setUploadState({ status: 'idle' });
     setTemplateId(null);
     setInvitees([]);
     setInviteDraft({ email: '', role: 'Author' });
+    setIsRefining(false);
+    setRefineError(null);
   };
 
   const handleClose = () => {
@@ -124,43 +131,73 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
   };
 
   const handleCreate = () => {
+    const finalSections = rawHeadings.length
+      ? rawHeadings
+      : refinedSections.map((section) => section.title);
+    const sectionCount = finalSections.length;
     const newProgram: Program = {
       id: `program-${Date.now()}`,
       title: programName || 'Untitled Program',
       status: 'In Progress',
       progress: 0,
-      documentCount: 0,
-      lastUpdated: 'Just now',
-      lastUpdatedBy: 'System',
       defaultDocumentType: selectedDocType || 'custom',
-      defaultSections: extractedSections.length ? extractedSections : undefined,
+      defaultSections: sectionCount ? finalSections : undefined,
       templateUploaded: uploadState.status === 'success',
-      templateId: templateId ?? undefined
+      templateId: templateId ?? undefined,
+      sectionCount,
+      isSample: false
     };
-    const hasRealExtraction = uploadState.status === 'success' && extractedSections.length > 0;
-    onCreate({
-      program: newProgram,
-      templateConfig: hasRealExtraction
+    const templateConfig: TemplateConfigForAuthoring | undefined =
+      sectionCount > 0
         ? {
             documentType: selectedDocType || 'custom',
-            templateUploaded: true,
-            sections: extractedSections,
+            templateUploaded: uploadState.status === 'success',
+            refinedSections,
+            rawSections: finalSections,
             templateId: templateId ?? undefined,
             warnings: uploadState.warnings
           }
-        : undefined
+        : undefined;
+
+    onCreate({
+      program: newProgram,
+      templateConfig
     });
     handleClose();
   };
 
-  const fallbackSections = ['1. Introduction', '2. Methods', '3. Results', '4. Discussion', '5. Conclusion'];
+  const fallbackHeadings = ['1. Introduction', '2. Methods', '3. Results', '4. Discussion', '5. Conclusion'];
+
+  function deriveProgramSections(template: TemplateDetails | null, defaultHeadings: string[]): {
+    refined: TemplateRefinedSection[];
+    raw: string[];
+  } {
+    if (!template) {
+      return {
+        refined: [],
+        raw: defaultHeadings
+      };
+    }
+
+    const refined = Array.isArray(template.refinedSections) ? template.refinedSections : [];
+    const rawCandidates = Array.isArray(template.rawSections) ? template.rawSections : [];
+    const raw = rawCandidates.length ? rawCandidates : defaultHeadings;
+
+    return {
+      refined,
+      raw
+    };
+  }
 
   const handleDocTypeSelect = (docType: string) => {
     setSelectedDocType(docType);
     setTemplateFile(null);
     setUploadState({ status: 'idle' });
     setTemplateId(null);
-    setExtractedSections([]);
+    setRefinedSections([]);
+    setRawHeadings([]);
+    setIsRefining(false);
+    setRefineError(null);
   };
 
   const handleTemplateUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -172,34 +209,72 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
 
     try {
       const result = await uploadTemplate(file);
-      setExtractedSections(result.sections);
+      const defaults = defaultSections[selectedDocType] ?? fallbackHeadings;
+      const { refined, raw } = deriveProgramSections(result, defaults);
+
+      setRefinedSections(refined);
+      setRawHeadings(raw);
       setTemplateId(result.id);
       setUploadState({
         status: 'success',
-        message: `${result.sections.length} sections extracted`,
+        message: `${result.rawSections.length} sections extracted`,
         warnings: result.warnings
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to upload template.';
-      setExtractedSections([]);
+      setRefinedSections([]);
+      setRawHeadings([]);
       setUploadState({ status: 'error', message });
+      setIsRefining(false);
+      setRefineError(null);
     }
   };
 
   const handleSkipTemplate = () => {
-    const sections = defaultSections[selectedDocType] ?? fallbackSections;
-    setExtractedSections(sections);
+    const headings = defaultSections[selectedDocType] ?? fallbackHeadings;
+    const { refined, raw } = deriveProgramSections(null, headings);
+    setRawHeadings(raw);
+    setRefinedSections(refined);
     setTemplateFile(null);
     setUploadState({ status: 'idle' });
     setTemplateId(null);
+    setIsRefining(false);
+    setRefineError(null);
     setStep(4);
   };
 
   const handleRetryUpload = () => {
     setTemplateFile(null);
-    setExtractedSections([]);
+    setRefinedSections([]);
+    setRawHeadings([]);
     setUploadState({ status: 'idle' });
     setTemplateId(null);
+    setIsRefining(false);
+    setRefineError(null);
+  };
+
+  const handleRefine = async () => {
+    if (!templateId) return;
+    setIsRefining(true);
+    setRefineError(null);
+
+    try {
+      const result = await refineTemplate(templateId);
+      const defaults = defaultSections[selectedDocType] ?? fallbackHeadings;
+      const { refined, raw } = deriveProgramSections(result, defaults);
+      setRefinedSections(refined);
+      setRawHeadings(raw);
+      setUploadState((prev) => ({
+        status: 'success',
+        message: `${refined.length} sections refined`,
+        warnings: result.warnings ?? prev.warnings
+      }));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Codex refinement failed.';
+      setRefineError(message);
+    } finally {
+      setIsRefining(false);
+    }
   };
 
   const handleNext = () => {
@@ -337,8 +412,11 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
                     accept=".docx,.pdf,.doc"
                     onChange={handleTemplateUpload}
                   />
-                  <Label htmlFor="program-template-upload" className="cursor-pointer">
-                    <div className="flex flex-col items-center gap-2">
+                  <Label
+                    htmlFor="program-template-upload"
+                    className="cursor-pointer flex justify-center"
+                  >
+                    <div className="flex flex-col items-center gap-2 text-center">
                       <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
                         <Upload className="h-6 w-6 text-primary" />
                       </div>
@@ -402,27 +480,72 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
                   </Card>
                 )}
 
-                {extractedSections.length > 0 && (
+                {uploadState.status === 'success' && rawHeadings.length > 0 && (
                   <Card className="p-3">
                     <div className="flex items-center justify-between gap-4 mb-2">
                       <div className="flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-primary" />
-                        <h3 className="text-sm font-medium">Detected Sections</h3>
+                        <FileText className="h-5 w-5 text-muted-foreground" />
+                        <h3 className="text-sm font-medium">Extracted Headings</h3>
                       </div>
-                      <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300 whitespace-nowrap">
-                        {extractedSections.length} sections
+                      <Badge variant="outline" className="whitespace-nowrap">
+                        {rawHeadings.length} sections
                       </Badge>
                     </div>
                     <Separator className="mb-2" />
-                    <div style={{ height: '150px', overflowY: 'auto', overflowX: 'hidden' }} className="border rounded-md p-2">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
-                        {extractedSections.map((section, index) => (
-                          <div key={index} className="flex items-start gap-2 p-1.5 rounded-md bg-muted/40 min-w-0">
-                            <CheckCircle2 className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
-                            <span className="text-xs break-words whitespace-normal leading-tight">{section}</span>
-                          </div>
-                        ))}
+                    <div className="space-y-1.5" style={{ maxHeight: '220px', overflowY: 'auto' }}>
+                      {rawHeadings.map((heading, index) => (
+                        <div key={`${heading}-${index}`} className="border rounded-md p-2 text-xs bg-muted/40">
+                          {heading}
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      className="mt-3 gap-2"
+                      variant="secondary"
+                      onClick={handleRefine}
+                      disabled={isRefining || !templateId}
+                    >
+                      <Wand2 className="h-4 w-4" />
+                      {isRefining ? 'Refining...' : 'Refine with Codex'}
+                    </Button>
+                    {refineError && (
+                      <p className="mt-2 text-xs text-destructive">{refineError}</p>
+                    )}
+                  </Card>
+                )}
+
+                {refinedSections.length > 0 && (
+                  <Card className="p-3">
+                    <div className="flex items-center justify-between gap-4 mb-2">
+                      <div className="flex items-center gap-2">
+                        <Wand2 className="h-5 w-5 text-primary" />
+                        <h3 className="text-sm font-medium">Codex-Refined Sections</h3>
                       </div>
+                      <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300 whitespace-nowrap">
+                        {refinedSections.length} sections
+                      </Badge>
+                    </div>
+                    <Separator className="mb-2" />
+                    <div className="space-y-2" style={{ maxHeight: '260px', overflowY: 'auto' }}>
+                      {refinedSections.map((section) => (
+                        <div key={section.originalHeading} className="border rounded-md p-3 bg-muted/30">
+                          <div className="flex items-start justify-between gap-2">
+                            <div>
+                              <div className="flex items-center gap-2 text-sm font-medium">
+                                <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+                                <span>{section.title}</span>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{section.summary}</p>
+                            </div>
+                            {section.originalHeading !== section.title && (
+                              <Badge variant="secondary" className="whitespace-nowrap">Refined</Badge>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-muted-foreground mt-2">
+                            Original heading: <span className="font-medium">{section.originalHeading}</span>
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   </Card>
                 )}
@@ -513,17 +636,34 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
                     {documentTypes.find((doc) => doc.id === selectedDocType)?.name || 'Not selected'}
                   </div>
                   <div>
-                    <span className="font-medium">Sections Configured:</span> {extractedSections.length}
+                    <span className="font-medium">Sections Configured:</span> {refinedSections.length || rawHeadings.length}
                   </div>
-                  {extractedSections.length > 0 && (
+                  {refinedSections.length > 0 ? (
                     <div className="space-y-2">
                       <span className="font-medium text-sm">Section Preview:</span>
                       <div style={{ height: '150px', overflowY: 'auto', overflowX: 'hidden' }} className="border rounded-md p-2">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
-                          {extractedSections.map((section, index) => (
-                            <div key={index} className="flex items-start gap-2 p-1.5 rounded-md bg-muted/40 min-w-0">
-                              <CheckCircle2 className="h-3.5 w-3.5 text-primary mt-0.5 flex-shrink-0" />
-                              <span className="text-xs break-words whitespace-normal leading-tight">{section}</span>
+                          {refinedSections.map((section) => (
+                            <div key={section.originalHeading} className="flex flex-col gap-2 p-1.5 rounded-md bg-muted/40 min-w-0">
+                              <div className="flex items-center gap-2">
+                                <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                                <span className="text-xs font-medium leading-tight">{section.title}</span>
+                              </div>
+                              <p className="text-[11px] text-muted-foreground leading-snug">{section.summary}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : rawHeadings.length > 0 && (
+                    <div className="space-y-2">
+                      <span className="font-medium text-sm">Section Preview:</span>
+                      <div style={{ height: '150px', overflowY: 'auto', overflowX: 'hidden' }} className="border rounded-md p-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
+                          {rawHeadings.map((heading, index) => (
+                            <div key={`${heading}-${index}`} className="flex items-center gap-2 p-1.5 rounded-md bg-muted/40 min-w-0">
+                              <CheckCircle2 className="h-3.5 w-3.5 text-primary flex-shrink-0" />
+                              <span className="text-xs leading-tight">{heading}</span>
                             </div>
                           ))}
                         </div>

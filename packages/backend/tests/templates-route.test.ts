@@ -18,10 +18,28 @@ const extractionMocks = vi.hoisted(() => {
   return { docxMock, pdfMock };
 });
 
+const refinementMock = vi.hoisted(() => vi.fn().mockResolvedValue({
+  sections: [
+    { title: '1. Executive Summary', summary: 'Summary details', originalHeading: '1. Executive Summary' },
+    { title: '2. Introduction', summary: 'Summary details', originalHeading: '2. Introduction' }
+  ],
+  warnings: undefined,
+  codexUsed: false,
+  usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
+}));
+
 vi.mock('../src/services/text-extraction', () => ({
   extractTextFromDocx: extractionMocks.docxMock,
   extractTextFromPdf: extractionMocks.pdfMock
 }));
+
+vi.mock('../src/services/codex-service', async () => {
+  const actual = await vi.importActual<typeof import('../src/services/codex-service')>('../src/services/codex-service');
+  return {
+    ...actual,
+    refineTemplateSections: refinementMock
+  };
+});
 
 describe('Templates API', () => {
   const app = createServer();
@@ -36,6 +54,17 @@ describe('Templates API', () => {
     });
 
     extractionMocks.pdfMock.mockResolvedValue({ text: 'PDF placeholder', warnings: undefined });
+
+    refinementMock.mockClear();
+    refinementMock.mockResolvedValue({
+      sections: [
+        { title: '1. Executive Summary', summary: 'Summary details', originalHeading: '1. Executive Summary' },
+        { title: '2. Introduction', summary: 'Summary details', originalHeading: '2. Introduction' }
+      ],
+      warnings: undefined,
+      codexUsed: true,
+      usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
+    });
 
     await fs.rm(appConfig.templateRoot, { recursive: true, force: true });
     await fs.mkdir(appConfig.templateRoot, { recursive: true });
@@ -54,8 +83,43 @@ describe('Templates API', () => {
 
     expect(response.status).toBe(201);
     expect(response.body.template).toBeDefined();
-    expect(response.body.template.sections).toEqual(['1. Executive Summary', '2. Introduction']);
+    expect(refinementMock).not.toHaveBeenCalled();
+    expect(response.body.template.refinedSections).toEqual([]);
+    expect(response.body.template.rawSections).toEqual(['1. Executive Summary', '2. Introduction']);
     expect(response.body.template.warnings).toContain('Test warning');
+  });
+
+  it('refines an existing template on demand', async () => {
+    const docxPath = path.join(fixturesDir, 'sample-template.docx');
+
+    const uploadResponse = await request(app)
+      .post('/api/templates/upload')
+      .attach('file', docxPath);
+
+    const templateId = uploadResponse.body.template.id;
+
+    refinementMock.mockResolvedValue({
+      sections: [
+        { title: 'Executive Summary Refined', summary: 'Summary details', originalHeading: '1. Executive Summary' },
+        { title: 'Introduction Refined', summary: 'Summary details', originalHeading: '2. Introduction' }
+      ],
+      warnings: ['Codex warning'],
+      codexUsed: true,
+      usage: { promptTokens: 20, completionTokens: 10, totalTokens: 30 }
+    });
+
+    const refineResponse = await request(app)
+      .post(`/api/templates/${templateId}/refine`);
+
+    expect(refinementMock).toHaveBeenCalled();
+    expect(refineResponse.status).toBe(200);
+    expect(refineResponse.body.template.refinedSections).toEqual([
+      expect.objectContaining({ title: 'Executive Summary Refined', originalHeading: '1. Executive Summary' }),
+      expect.objectContaining({ title: 'Introduction Refined', originalHeading: '2. Introduction' })
+    ]);
+    expect(refineResponse.body.template.warnings).toContain('Test warning');
+    expect(refineResponse.body.template.warnings).toContain('Codex warning');
+    expect(refineResponse.body.template.codexUsed).toBe(true);
   });
 
   it('rejects unsupported file types', async () => {

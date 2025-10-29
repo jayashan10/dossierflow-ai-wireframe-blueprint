@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Header } from './components/Header';
 import { SetupWizard } from './components/SetupWizard';
 import { Dashboard } from './components/Dashboard';
@@ -17,6 +17,42 @@ import {
 } from './data/mockData';
 
 type DocumentMap = Record<string, Document>;
+
+const PROGRAM_STORAGE_KEY = 'dossierflow.customPrograms';
+
+const loadStoredPrograms = (): Program[] => {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+
+  try {
+    const raw = window.sessionStorage.getItem(PROGRAM_STORAGE_KEY);
+    if (!raw) {
+      return [];
+    }
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    // Enforce Program shape for stored entries and ensure they are treated as user created items.
+    return parsed
+      .filter((program): program is Program => {
+        if (!program || typeof program !== 'object') {
+          return false;
+        }
+        const candidate = program as Record<string, unknown>;
+        return (
+          typeof candidate.id === 'string' &&
+          typeof candidate.title === 'string' &&
+          typeof candidate.status === 'string' &&
+          typeof candidate.progress === 'number'
+        );
+      })
+      .map((program) => ({ ...program, isSample: false }));
+  } catch {
+    return [];
+  }
+};
 
 const cloneComment = (comment: DocumentComment): DocumentComment => ({
   ...comment,
@@ -47,6 +83,63 @@ const buildDocumentMap = (structure: ModuleNode[]): DocumentMap => {
   return map;
 };
 
+const cloneStructure = (nodes: ModuleNode[]): ModuleNode[] =>
+  nodes.map((node) => ({
+    ...node,
+    documents: node.documents ? node.documents.map(cloneDocument) : undefined,
+    children: node.children ? cloneStructure(node.children) : undefined
+  }));
+
+const createProgramStructureFromSections = (
+  programId: string,
+  sections: string[],
+  timestamp: string
+): { structure: ModuleNode[]; documents: DocumentMap } => {
+  if (!sections.length) {
+    const emptyRoot: ModuleNode[] = [
+      {
+        id: `${programId}-sections`,
+        name: 'Template Sections',
+        documents: []
+      }
+    ];
+    return { structure: emptyRoot, documents: {} };
+  }
+
+  const documents: DocumentMap = {};
+  const docEntries = sections.map((title, index) => {
+    const documentId = `${programId}-section-${index + 1}`;
+    const document: Document = {
+      id: documentId,
+      name: title,
+      status: 'To Do',
+      lastUpdated: timestamp,
+      linkedSources: []
+    };
+    documents[documentId] = document;
+    return document;
+  });
+
+  const structure: ModuleNode[] = [
+    {
+      id: `${programId}-sections`,
+      name: 'Template Sections',
+      documents: docEntries
+    }
+  ];
+
+  return { structure, documents };
+};
+
+const formatTimestamp = () =>
+  new Date().toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit'
+  });
+
 const addReplyToComments = (comments: DocumentComment[], parentId: string, reply: DocumentComment): boolean => {
   for (const comment of comments) {
     if (comment.id === parentId) {
@@ -69,24 +162,46 @@ interface DocumentConfig {
 }
 
 export default function App() {
+  const storedProgramsSnapshot = loadStoredPrograms();
+  const storedProgramIds = new Set(storedProgramsSnapshot.map((program) => program.id));
+
   const [currentView, setCurrentView] = useState<View>('dashboard');
-  const [programs, setPrograms] = useState<Program[]>(initialPrograms);
-  const [structure] = useState<ModuleNode[]>(initialStructure);
-  const [documents, setDocuments] = useState<DocumentMap>(() => buildDocumentMap(initialStructure));
+  const [programs, setPrograms] = useState<Program[]>(() => {
+    const samples = initialPrograms.filter((program) => !storedProgramIds.has(program.id));
+    return [...storedProgramsSnapshot, ...samples];
+  });
+  const [structuresByProgram, setStructuresByProgram] = useState<Record<string, ModuleNode[]>>(() => {
+    const map: Record<string, ModuleNode[]> = {};
+    initialPrograms.forEach((program) => {
+      map[program.id] = cloneStructure(initialStructure);
+    });
+
+    storedProgramsSnapshot.forEach((program) => {
+      if (map[program.id]) {
+        return;
+      }
+      const sections = program.defaultSections ?? [];
+      const { structure } = createProgramStructureFromSections(program.id, sections, formatTimestamp());
+      map[program.id] = structure;
+    });
+
+    return map;
+  });
+  const [documents, setDocuments] = useState<DocumentMap>(() => {
+    const base = buildDocumentMap(initialStructure);
+    storedProgramsSnapshot.forEach((program) => {
+      const sections = program.defaultSections ?? [];
+      const { documents: docMap } = createProgramStructureFromSections(program.id, sections, formatTimestamp());
+      Object.assign(base, docMap);
+    });
+    return base;
+  });
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
   const [documentConfig, setDocumentConfig] = useState<DocumentConfig | null>(null);
   const [authoringMode, setAuthoringMode] = useState<'author' | 'reviewer'>('author');
   const [currentReviewerId, setCurrentReviewerId] = useState<string>('regina');
   const [isProgramWizardOpen, setProgramWizardOpen] = useState(false);
-
-  const formatTimestamp = () => new Date().toLocaleString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit'
-  });
 
   const mutateDocument = (documentId: string, mutator: (doc: Document) => Document) => {
     setDocuments((prev) => {
@@ -155,28 +270,79 @@ export default function App() {
     setProgramWizardOpen(true);
   };
 
-const handleProgramCreated = (result: CreateProgramResult) => {
-  const { program, templateConfig } = result;
-  setPrograms((prev) => [program, ...prev]);
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
 
-  if (templateConfig) {
-    seedAuthoringFromTemplate(templateConfig);
-  } else {
+    const customPrograms = programs.filter((program) => !program.isSample);
+    try {
+      window.sessionStorage.setItem(PROGRAM_STORAGE_KEY, JSON.stringify(customPrograms));
+    } catch {
+      // Swallow storage exceptions (e.g., quota exceeded) silently for now.
+    }
+  }, [programs]);
+
+  const handleProgramCreated = (result: CreateProgramResult) => {
+    const { program, templateConfig } = result;
+
+    const sectionsFromConfig = templateConfig
+      ? (templateConfig.refinedSections.length
+          ? templateConfig.refinedSections.map((section) => section.title)
+          : [...templateConfig.rawSections])
+      : program.defaultSections ?? [];
+
+    const enrichedProgram: Program = {
+      ...program,
+      defaultSections: sectionsFromConfig.length ? sectionsFromConfig : program.defaultSections,
+      sectionCount: sectionsFromConfig.length || program.sectionCount
+    };
+
+    setPrograms((prev) => [enrichedProgram, ...prev]);
+    setSelectedProgram(enrichedProgram.id);
+
+    const timestamp = formatTimestamp();
+    const { structure: generatedStructure, documents: generatedDocuments } = createProgramStructureFromSections(
+      enrichedProgram.id,
+      enrichedProgram.defaultSections ?? [],
+      timestamp
+    );
+
+    setStructuresByProgram((prev) => ({
+      ...prev,
+      [enrichedProgram.id]: generatedStructure
+    }));
+
+    if (Object.keys(generatedDocuments).length > 0) {
+      setDocuments((prev) => ({
+        ...prev,
+        ...generatedDocuments
+      }));
+    }
+
+    if (templateConfig) {
+      seedAuthoringFromTemplate(templateConfig);
+    } else {
+      setCurrentView('dossier');
+      setProgramWizardOpen(false);
+    }
+  };
+
+  const seedAuthoringFromTemplate = (config: TemplateConfigForAuthoring) => {
+    const sections = config.refinedSections.length
+      ? config.refinedSections.map((section) => section.title)
+      : [...config.rawSections];
+
+    setDocumentConfig({
+      documentType: config.documentType,
+      templateUploaded: config.templateUploaded,
+      sections
+    });
+    setSelectedDocument(null);
+    setAuthoringMode('author');
+    setCurrentView('authoring');
     setProgramWizardOpen(false);
-  }
-};
-
-const seedAuthoringFromTemplate = (config: TemplateConfigForAuthoring) => {
-  setDocumentConfig({
-    documentType: config.documentType,
-    templateUploaded: config.templateUploaded,
-    sections: config.sections
-  });
-  setSelectedDocument(null);
-  setAuthoringMode('author');
-  setCurrentView('authoring');
-  setProgramWizardOpen(false);
-};
+  };
 
   const handleSetupComplete = (config: DocumentConfig) => {
     setDocumentConfig(config);
@@ -218,6 +384,7 @@ const seedAuthoringFromTemplate = (config: TemplateConfigForAuthoring) => {
 
   const authoringDocument = useMemo(() => (selectedDocument ? documents[selectedDocument] : null), [documents, selectedDocument]);
   const activeUserId = authoringMode === 'author' ? 'mark' : currentReviewerId;
+  const currentStructure = selectedProgram ? structuresByProgram[selectedProgram] ?? [] : [];
 
   return (
     <div className="h-screen flex flex-col bg-background">
@@ -247,7 +414,7 @@ const seedAuthoringFromTemplate = (config: TemplateConfigForAuthoring) => {
             onBack={handleBackToDashboard}
             onOpenDocument={handleOpenDocument}
             documents={documents}
-            structure={structure}
+            structure={currentStructure}
             dataVaultFolders={dataVaultFolders}
             dataVaultFiles={dataVaultFiles}
           />

@@ -40,16 +40,29 @@ export interface TemplateSummary {
   name: string;
   sectionCount: number;
   createdAt: string;
+  codexUsed: boolean;
+}
+
+export interface TemplateRefinedSection {
+  title: string;
+  summary: string;
+  originalHeading: string;
 }
 
 export interface TemplateDetails extends TemplateSummary {
-  sections: string[];
+  rawSections: string[];
+  refinedSections: TemplateRefinedSection[];
+  codexUsage?: { promptTokens: number; completionTokens: number; totalTokens: number };
   warnings?: string[];
   originalFileName: string;
   relativePath: string;
 }
 
 interface UploadTemplateResponse {
+  template: TemplateDetails;
+}
+
+interface RefineTemplateResponse {
   template: TemplateDetails;
 }
 
@@ -89,4 +102,13 @@ export async function listTemplates(): Promise<TemplateSummary[]> {
   const response = await fetch(`${API_BASE_URL}/api/templates`);
   const data = await handleResponse<{ templates: TemplateSummary[] }>(response);
   return data.templates;
+}
+
+export async function refineTemplate(templateId: string): Promise<TemplateDetails> {
+  const response = await fetch(`${API_BASE_URL}/api/templates/${templateId}/refine`, {
+    method: 'POST'
+  });
+
+  const data = await handleResponse<RefineTemplateResponse>(response);
+  return data.template;
 }
