@@ -40,7 +40,7 @@ The `packages/data/`, `packages/templates/`, and `packages/backend/data/` direct
 
 - Node.js 20+
 - npm 10+
-- Anthropic API key from https://console.anthropic.com/
+- Anthropic API key (optional - SDK uses default provider if not configured)
 
 ---
 
@@ -64,7 +64,7 @@ This pulls dependencies for both `packages/frontend` and `packages/backend` usin
 PORT=4000
 SOURCE_ROOT=/absolute/path/to/data       # optional; defaults to packages/backend/data
 TEMPLATE_ROOT=/absolute/path/to/templates # optional; defaults to packages/backend/templates
-ANTHROPIC_API_KEY=sk-ant-...             # required for AI generation unless using a proxy
+ANTHROPIC_API_KEY=sk-ant-...             # optional; SDK uses default provider if not specified
 ANTHROPIC_BASE_URL=https://.../          # optional; proxy / gateway endpoint (include trailing slash)
 ANTHROPIC_AUTH_TOKEN=sk-proxy-...        # optional; bearer token used by a proxy service
 ANTHROPIC_CUSTOM_HEADERS=X-Forwarded-For: 203.0.113.10  # optional; additional headers for compatible gateways
@@ -167,14 +167,15 @@ Located in `packages/frontend/src/lib/api.ts`:
 ## Claude Agent SDK Integration
 
 - **Model**: Automatically selected by SDK (uses latest available Claude model)
-- **Authentication**: API key via `ANTHROPIC_API_KEY` environment variable (or proxy/cloud integrations)
+- **Authentication**: Uses default SDK provider (optionally configure `ANTHROPIC_API_KEY` for direct API access, or proxy/cloud integrations)
 - **Features**:
   - Agentic draft generation with multi-turn conversations and source document access
   - Template section refinement with file parsing and structured JSON output
-  - Multi-turn workflows (configurable via `AGENT_MAX_TURNS`, default: 5)
+  - Multi-turn workflows (configurable via `AGENT_MAX_TURNS`, default: 15)
   - File operations (`Read`, `Bash`) for accessing templates and sources
   - Token usage tracking (input/cached/output tokens)
-  - Graceful fallback when API key not configured
+  - Graceful error handling when SDK encounters issues
+  - Note: Large templates with 100+ sections may require increasing `AGENT_MAX_TURNS` to 20-25
 - **API Documentation**: https://docs.anthropic.com/claude/reference/
 - **Security**: API key loaded from environment only; no secrets in logs or code
 

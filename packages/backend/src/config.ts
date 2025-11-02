@@ -58,7 +58,7 @@ const envSchema = z.object({
   LLAMA_CLOUD_API_KEY: z.string().trim().optional().transform((value) => value || undefined),
   SEMTOOLS_WORKSPACE: z.string().trim().default('dossierflow'),
   // Agent configuration
-  AGENT_MAX_TURNS: z.coerce.number().int().min(1).max(50).default(5),
+  AGENT_MAX_TURNS: z.coerce.number().int().min(1).max(50).default(15),
   AGENT_ENABLE_TOOLS: z.coerce.boolean().default(true)
 });
 

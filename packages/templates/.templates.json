@@ -1,6 +1,3029 @@
 {
   "templates": [
     {
+      "id": "template_3020d04d-d32e-464b-8eb0-de4762edaa1f",
+      "name": "CPT_CoreBWE_v010.pdf",
+      "originalFileName": "CPT_CoreBWE_v010.pdf",
+      "storedFile": {
+        "id": "template_3020d04d-d32e-464b-8eb0-de4762edaa1f",
+        "originalName": "CPT_CoreBWE_v010.pdf",
+        "sanitizedFileName": "CPT_CoreBWE_v010.pdf",
+        "extension": ".pdf",
+        "mimeType": "application/pdf",
+        "size": 1470624,
+        "relativePath": "template_3020d04d-d32e-464b-8eb0-de4762edaa1f/CPT_CoreBWE_v010.pdf",
+        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/packages/templates/template_3020d04d-d32e-464b-8eb0-de4762edaa1f/CPT_CoreBWE_v010.pdf"
+      },
+      "createdAt": "2025-11-02T07:39:49.540Z",
+      "rawSections": [
+        "A study to investigate [health measurement/outcome] with [investigational intervention]",
+        "1. Protocol Summary",
+        "1.1. Synopsis",
+        "1.2. Schema",
+        "1.3. Schedule of Activities (SoA)",
+        "2. Introduction",
+        "2.1. Study Rationale",
+        "2.2. Background",
+        "2.3. Benefit/Risk Assessment",
+        "2.3.1. Risk Assessment",
+        "2.3.2. Benefit Assessment",
+        "2.3.3. Overall Benefit Risk Conclusion",
+        "3. Objectives, Endpoints, and Estimands",
+        "4. Study Design",
+        "4.1. Overall Design",
+        "4.2. Scientific Rationale for Study Design",
+        "4.2.1. Patient Input into Design",
+        "4.3. Justification for Dose",
+        "4.4. End-of-Study Definition",
+        "5. Study Population",
+        "5.1. Inclusion Criteria",
+        "5.2. Exclusion Criteria",
+        "5.3. Lifestyle Considerations",
+        "5.3.1. Meals and Dietary Restrictions",
+        "5.3.2. Caffeine, Alcohol, and Tobacco",
+        "5.3.3. Activity",
+        "5.3.4. Other Restrictions",
+        "5.4. Screen Failures",
+        "5.5. Criteria for Temporarily Delaying",
+        "6. Study Intervention(s) and Concomitant Therapy",
+        "6.1. Study Intervention(s) Administered",
+        "6.1.1. Rescue Medicine",
+        "6.1.2. Medical Devices",
+        "6.2. Preparation, Handling, Storage, and Accountability",
+        "6.3. Assignment to Study Intervention",
+        "6.4. [Blinding, Masking]",
+        "6.5. Study Intervention Compliance",
+        "6.6. Dose Modification",
+        "6.6.1. Retreatment Criteria",
+        "6.7. Continued Access to Study Intervention after the End of the",
+        "6.8. Treatment of Overdose",
+        "6.9. Prior and Concomitant Therapy",
+        "7. Discontinuation of Study Intervention and Participant",
+        "7.1. Discontinuation of Study Intervention",
+        "7.1.1. Liver Event Stopping Criteria",
+        "7.1.2. QTc Stopping Criteria",
+        "7.1.3. Temporary Discontinuation",
+        "7.1.4. Rechallenge",
+        "7.2. Participant Discontinuation/Withdrawal from the Study",
+        "7.3. Lost to Follow up",
+        "8. Study Assessments and Procedures",
+        "8.1. Administrative [and General/Baseline] Procedures",
+        "8.2. [Efficacy and/or Immunogenicity] Assessments",
+        "8.3. Safety Assessments",
+        "8.3.1. Physical Examinations",
+        "8.3.2. Vital Signs",
+        "8.3.3. Electrocardiograms",
+        "8.3.4. Clinical Safety Laboratory Tests",
+        "8.3.5. Pregnancy Testing",
+        "8.3.6. Suicidal Ideation and Behavior Risk Monitoring",
+        "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and",
+        "8.4.1. Time Period and Frequency for Collecting AE and SAE",
+        "8.4.2. Method of Detecting AEs and SAEs",
+        "8.4.3. Follow-up of AEs and SAEs",
+        "8.4.4. Regulatory Reporting Requirements for SAEs",
+        "8.4.5. Pregnancy",
+        "8.4.6. Cardiovascular and Death Events",
+        "8.4.7. Disease-related Events and/or Disease-related Outcomes Not",
+        "8.4.8. Adverse Events of Special Interest",
+        "8.4.9. Medical Device Deficiencies",
+        "8.5. Pharmacokinetics",
+        "8.6. Pharmacodynamics",
+        "8.7. Genetics",
+        "8.8. Biomarkers",
+        "8.9. Immunogenicity Assessments",
+        "8.10. [Health Economics OR Medical Resource Utilization and Health",
+        "9. Statistical Considerations",
+        "9.1. General Considerations",
+        "9.1.1. [Decision Criteria/Statistical Hypotheses]",
+        "9.1.2. Multiplicity Adjustment",
+        "9.1.3. Impact of Intercurrent Events Strategies",
+        "9.1.4. Handling of Missing Data",
+        "9.2. Analysis Sets",
+        "9.3. Analyses Supporting Primary Objective(s)",
+        "9.3.1. Primary [Endpoint(s)/Estimand(s)]",
+        "9.4. Analyses Supporting Secondary Objective(s)",
+        "9.4.1. Analyses Supporting Secondary Objective [label]",
+        "9.5. Analyses Supporting [Tertiary/Exploratory/Other] Objective(s)",
+        "9.6. [Other] Safety Analyses",
+        "9.7. Other Analyses",
+        "9.7.1. Other variables and/or parameters",
+        "9.7.2. Subgroup analyses",
+        "9.8. Interim [Analysis/Analyses]",
+        "9.9. Sample Size Determination",
+        "10. Supporting Documentation and Operational Considerations",
+        "10.1. Appendix 1: Regulatory, Ethical, and Study Oversight",
+        "10.1.1. Regulatory and Ethical Considerations",
+        "10.1.2. Financial Disclosure",
+        "10.1.3. Informed Consent Process",
+        "10.1.4. Recruitment strategy",
+        "10.1.5. Data Protection",
+        "10.1.6. Committees Structure",
+        "10.1.7. Dissemination of Clinical Study Data",
+        "10.1.8. Data Quality Assurance",
+        "10.1.9. Source Documents",
+        "10.1.10. Study and Site Start and Closure",
+        "10.1.11. Publication Policy",
+        "10.2. Appendix 2: Clinical Laboratory Tests",
+        "10.3. Appendix 3: AEs and SAEs: Definitions and Procedures for",
+        "10.3.1. Definition of AE",
+        "10.3.2. Definition of SAE",
+        "10.3.3. Recording and Follow-Up of AE and/or SAE",
+        "10.3.4. Reporting of SAEs",
+        "10.4. Appendix 4: Contraceptive and Barrier Guidance",
+        "10.4.1. Definitions",
+        "10.4.2. Contraception Guidance",
+        "10.5. Appendix 5: Genetics",
+        "10.6. Appendix 6: Liver Safety: Suggestions and Guidelines for Liver",
+        "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs,",
+        "10.7.1. Definition of Medical Device AE and ADE",
+        "10.7.2. Definition of Medical Device SAE, SADE and USADE",
+        "10.7.3. Definition of Device Deficiency",
+        "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE",
+        "10.7.5. Reporting of Medical Device SAEs",
+        "10.7.6. Reporting of SADEs",
+        "10.8. Appendix 8: Country-specific Requirements",
+        "10.9. Appendix 9: Protocol Amendment History",
+        "11. References",
+        "A maximum of [X] participants will be [enrolled / randomized / assigned to investigational",
+        "A [data monitoring committee] has been appointed for this study. The [data monitoring committee (board)]",
+        "X X X X",
+        "X ============================= X X",
+        "A detailed description of the chemistry, pharmacology, efficacy, and safety of [investigational intervention",
+        "4.2.1.1 Obtaining Study Participant Feedback (Voluntary):",
+        "A participant is considered to have completed the study if the participant has completed all",
+        "1. Participant must be [18] [or the legal age of consent in the jurisdiction in which the",
+        "2. Participants who are overtly healthy as determined by medical evaluation including",
+        "3. Participants who are [insert criteria]",
+        "4. Body weight within [insert range including units] and BMI within the range [X – X]",
+        "5. [male and/or female] assigned at birth, inclusive of all gender identities.",
+        "6. Signed informed consent as described in Appendix 1 which includes compliance with",
+        "1. [ ]",
+        "2. [ ]",
+        "3. [ ]",
+        "4. [ ]",
+        "5. [ ]",
+        "6. [ ]",
+        "1. Participants will abstain from strenuous exercise for [X hours] before each blood collection for",
+        "A screen failure occurs when a participant who has consented to participate in the clinical study",
+        "1. The [sponsor] manufactured medical devices (or devices manufactured for [sponsor] by a third",
+        "2. Other medical devices (not manufactured by or for [sponsor]) provided for use in this study are",
+        "4 cycles.]",
+        "3. Instructions for medical device use are provided [cross reference the location of such",
+        "4. All device deficiencies (including malfunction, use error and inadequate labelling) shall be",
+        "1. The investigator or designee must confirm appropriate conditions (eg, temperature) have",
+        "2. Only participants [randomized/assigned] to study intervention may receive study",
+        "3. All study intervention must be stored in a secure, environmentally controlled, and",
+        "4. The investigator, [institution, the head of the medical institution (where applicable), or",
+        "5. Further guidance and information for the final disposition of unused study interventions",
+        "A record of the quantity of [insert study intervention(s)] dispensed to and administered by each participant",
+        "6.7. Continued Access to Study Intervention after the End of the Study",
+        "7.1.4.1. Study Intervention Restart or Rechallenge After Liver Stopping Criteria Are",
+        "A participant will be considered lost to follow-up if the participant repeatedly fails to return for",
+        "5 minutes rest and will include temperature, systolic and diastolic blood pressure, and pulse [and",
+        "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and Other",
+        "8.4.1. Time Period and Frequency for Collecting AE and SAE Information",
+        "8.4.7. Disease-related Events and/or Disease-related Outcomes Not Qualifying as AEs",
+        "8.4.9.1. Time Period for Detecting Medical Device Deficiencies",
+        "8.4.9.2. Follow-up of Medical Device Deficiencies",
+        "8.4.9.3. Prompt Reporting of Device Deficiencies to the Sponsor",
+        "8.4.9.4. Regulatory Reporting Requirements for Device Deficiencies",
+        "A [X] mL [blood OR saliva] sample for DNA isolation will be collected from participants who have",
+        "A closed testing procedure that controls the family wise error rate in the strong sense at the overall [5]%",
+        "9.3.1.1. Definition of endpoint(s)",
+        "9.3.1.2. Main Analytical Approach",
+        "9.3.1.3. Sensitivity [Analysis/Analyses]",
+        "9.3.1.4. Supplementary [Analysis/Analyses]",
+        "10.1.6.1. [Early Safety Data Review AND/OR Committee]",
+        "A type of adverse event that is usually transient and may require only minimal treatment",
+        "A type of adverse event that is usually alleviated with additional specific therapeutic",
+        "A type of adverse event that interrupts usual activities of daily living, or significantly",
+        "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs, USADEs",
+        "14155 and the European Medical Device Regulation (MDR) 2017/745 for clinical device",
+        "A Medical Device SAE is an any serious adverse event that:",
+        "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE and Device",
+        "5.1. Inclusion Criteria Removed maximum age range To better reflect the age of the"
+      ],
+      "refinedSections": [
+        {
+          "title": "1. Protocol Summary",
+          "summary": "Overview of the clinical trial protocol including synopsis, schema, and schedule of activities",
+          "originalHeading": "1. Protocol Summary"
+        },
+        {
+          "title": "1.1. Synopsis",
+          "summary": "Concise summary of the study protocol including title, objectives, design, population, interventions, and key parameters",
+          "originalHeading": "1.1. Synopsis"
+        },
+        {
+          "title": "1.2. Schema",
+          "summary": "Visual representation of the study design and flow",
+          "originalHeading": "1.2. Schema"
+        },
+        {
+          "title": "1.3. Schedule of Activities (SoA)",
+          "summary": "Timeline and schedule of all study procedures, assessments, and visits throughout the trial",
+          "originalHeading": "1.3. Schedule of Activities (SoA)"
+        },
+        {
+          "title": "2. Introduction",
+          "summary": "Background information and rationale for conducting the study",
+          "originalHeading": "2. Introduction"
+        },
+        {
+          "title": "2.1. Study Rationale",
+          "summary": "Scientific and medical justification for the study",
+          "originalHeading": "2.1. Study Rationale"
+        },
+        {
+          "title": "2.2. Background",
+          "summary": "Relevant scientific and clinical context for the study intervention and disease",
+          "originalHeading": "2.2. Background"
+        },
+        {
+          "title": "2.3. Benefit/Risk Assessment",
+          "summary": "Evaluation of potential benefits versus risks for study participants",
+          "originalHeading": "2.3. Benefit/Risk Assessment"
+        },
+        {
+          "title": "2.3.1. Risk Assessment",
+          "summary": "Detailed evaluation of potential risks and safety concerns",
+          "originalHeading": "2.3.1. Risk Assessment"
+        },
+        {
+          "title": "2.3.2. Benefit Assessment",
+          "summary": "Evaluation of potential benefits to participants and scientific knowledge",
+          "originalHeading": "2.3.2. Benefit Assessment"
+        },
+        {
+          "title": "2.3.3. Overall Benefit Risk Conclusion",
+          "summary": "Summary conclusion weighing benefits against risks",
+          "originalHeading": "2.3.3. Overall Benefit Risk Conclusion"
+        },
+        {
+          "title": "3. Objectives, Endpoints, and Estimands",
+          "summary": "Study goals, measurable outcomes, and statistical targets for evaluation",
+          "originalHeading": "3. Objectives, Endpoints, and Estimands"
+        },
+        {
+          "title": "4. Study Design",
+          "summary": "Overall structure and methodology of the clinical trial",
+          "originalHeading": "4. Study Design"
+        },
+        {
+          "title": "4.1. Overall Design",
+          "summary": "Description of study type, phases, arms, and general structure",
+          "originalHeading": "4.1. Overall Design"
+        },
+        {
+          "title": "4.2. Scientific Rationale for Study Design",
+          "summary": "Justification for chosen study design and methodology",
+          "originalHeading": "4.2. Scientific Rationale for Study Design"
+        },
+        {
+          "title": "4.2.1. Patient Input into Design",
+          "summary": "Description of how patient perspectives informed study design",
+          "originalHeading": "4.2.1. Patient Input into Design"
+        },
+        {
+          "title": "4.3. Justification for Dose",
+          "summary": "Rationale for selected dosing regimen and levels",
+          "originalHeading": "4.3. Justification for Dose"
+        },
+        {
+          "title": "4.4. End-of-Study Definition",
+          "summary": "Criteria defining when the study is considered complete",
+          "originalHeading": "4.4. End-of-Study Definition"
+        },
+        {
+          "title": "5. Study Population",
+          "summary": "Characteristics and criteria for participant selection",
+          "originalHeading": "5. Study Population"
+        },
+        {
+          "title": "5.1. Inclusion Criteria",
+          "summary": "Requirements participants must meet to be eligible for the study",
+          "originalHeading": "5.1. Inclusion Criteria"
+        },
+        {
+          "title": "5.2. Exclusion Criteria",
+          "summary": "Conditions or characteristics that disqualify participants from the study",
+          "originalHeading": "5.2. Exclusion Criteria"
+        },
+        {
+          "title": "5.3. Lifestyle Considerations",
+          "summary": "Lifestyle restrictions and requirements for study participants",
+          "originalHeading": "5.3. Lifestyle Considerations"
+        },
+        {
+          "title": "5.3.1. Meals and Dietary Restrictions",
+          "summary": "Food and meal requirements during the study",
+          "originalHeading": "5.3.1. Meals and Dietary Restrictions"
+        },
+        {
+          "title": "5.3.2. Caffeine, Alcohol, and Tobacco",
+          "summary": "Restrictions on caffeine, alcohol, and tobacco use",
+          "originalHeading": "5.3.2. Caffeine, Alcohol, and Tobacco"
+        },
+        {
+          "title": "5.3.3. Activity",
+          "summary": "Physical activity guidelines and restrictions",
+          "originalHeading": "5.3.3. Activity"
+        },
+        {
+          "title": "5.3.4. Other Restrictions",
+          "summary": "Additional lifestyle limitations during study participation",
+          "originalHeading": "5.3.4. Other Restrictions"
+        },
+        {
+          "title": "5.4. Screen Failures",
+          "summary": "Procedures for participants who do not meet eligibility criteria",
+          "originalHeading": "5.4. Screen Failures"
+        },
+        {
+          "title": "5.5. Criteria for Temporarily Delaying Enrollment/Randomization/Administration of Study Intervention",
+          "summary": "Conditions requiring temporary postponement of study procedures",
+          "originalHeading": "5.5. Criteria for Temporarily Delaying"
+        },
+        {
+          "title": "6. Study Intervention(s) and Concomitant Therapy",
+          "summary": "Description of investigational products and allowed concomitant medications",
+          "originalHeading": "6. Study Intervention(s) and Concomitant Therapy"
+        },
+        {
+          "title": "6.1. Study Intervention(s) Administered",
+          "summary": "Details of investigational interventions provided to participants",
+          "originalHeading": "6.1. Study Intervention(s) Administered"
+        },
+        {
+          "title": "6.1.1. Rescue Medicine",
+          "summary": "Medications allowed for symptom relief or emergencies",
+          "originalHeading": "6.1.1. Rescue Medicine"
+        },
+        {
+          "title": "6.1.2. Medical Devices",
+          "summary": "Medical devices used as study interventions or for delivery",
+          "originalHeading": "6.1.2. Medical Devices"
+        },
+        {
+          "title": "6.2. Preparation, Handling, Storage, and Accountability",
+          "summary": "Procedures for managing study interventions safely and maintaining records",
+          "originalHeading": "6.2. Preparation, Handling, Storage, and Accountability"
+        },
+        {
+          "title": "6.3. Assignment to Study Intervention",
+          "summary": "Randomization and allocation procedures for study arms",
+          "originalHeading": "6.3. Assignment to Study Intervention"
+        },
+        {
+          "title": "6.4. Blinding/Masking",
+          "summary": "Procedures to maintain masking of treatment assignments",
+          "originalHeading": "6.4. [Blinding, Masking]"
+        },
+        {
+          "title": "6.5. Study Intervention Compliance",
+          "summary": "Methods for monitoring and ensuring participant adherence to intervention",
+          "originalHeading": "6.5. Study Intervention Compliance"
+        },
+        {
+          "title": "6.6. Dose Modification",
+          "summary": "Criteria and procedures for adjusting dosing during the study",
+          "originalHeading": "6.6. Dose Modification"
+        },
+        {
+          "title": "6.6.1. Retreatment Criteria",
+          "summary": "Conditions under which participants may receive additional treatment",
+          "originalHeading": "6.6.1. Retreatment Criteria"
+        },
+        {
+          "title": "6.7. Continued Access to Study Intervention after the End of the Study",
+          "summary": "Provisions for accessing intervention after study completion",
+          "originalHeading": "6.7. Continued Access to Study Intervention after the End of the Study"
+        },
+        {
+          "title": "6.8. Treatment of Overdose",
+          "summary": "Procedures for managing accidental overdose of study intervention",
+          "originalHeading": "6.8. Treatment of Overdose"
+        },
+        {
+          "title": "6.9. Prior and Concomitant Therapy",
+          "summary": "Rules for medications and therapies allowed before and during the study",
+          "originalHeading": "6.9. Prior and Concomitant Therapy"
+        },
+        {
+          "title": "7. Discontinuation of Study Intervention and Participant Discontinuation/Withdrawal",
+          "summary": "Criteria and procedures for stopping intervention or participant withdrawal",
+          "originalHeading": "7. Discontinuation of Study Intervention and Participant Discontinuation/Withdrawal"
+        },
+        {
+          "title": "7.1. Discontinuation of Study Intervention",
+          "summary": "Reasons and procedures for stopping study intervention while continuing in study",
+          "originalHeading": "7.1. Discontinuation of Study Intervention"
+        },
+        {
+          "title": "7.1.1. Liver Event Stopping Criteria",
+          "summary": "Specific liver-related safety criteria requiring intervention discontinuation",
+          "originalHeading": "7.1.1. Liver Event Stopping Criteria"
+        },
+        {
+          "title": "7.1.2. QTc Stopping Criteria",
+          "summary": "Cardiac safety thresholds requiring intervention discontinuation",
+          "originalHeading": "7.1.2. QTc Stopping Criteria"
+        },
+        {
+          "title": "7.1.3. Temporary Discontinuation",
+          "summary": "Conditions allowing temporary pause of intervention with possible resumption",
+          "originalHeading": "7.1.3. Temporary Discontinuation"
+        },
+        {
+          "title": "7.1.4. Rechallenge",
+          "summary": "Criteria for restarting intervention after previous discontinuation",
+          "originalHeading": "7.1.4. Rechallenge"
+        },
+        {
+          "title": "7.2. Participant Discontinuation/Withdrawal from the Study",
+          "summary": "Procedures when participants completely leave the study",
+          "originalHeading": "7.2. Participant Discontinuation/Withdrawal from the Study"
+        },
+        {
+          "title": "7.3. Lost to Follow up",
+          "summary": "Procedures when participants cannot be contacted for follow-up",
+          "originalHeading": "7.3. Lost to Follow up"
+        },
+        {
+          "title": "8. Study Assessments and Procedures",
+          "summary": "All evaluations, tests, and procedures conducted during the study",
+          "originalHeading": "8. Study Assessments and Procedures"
+        },
+        {
+          "title": "8.1. Administrative and General/Baseline Procedures",
+          "summary": "Administrative tasks and baseline assessments at study entry",
+          "originalHeading": "8.1. Administrative [and General/Baseline] Procedures"
+        },
+        {
+          "title": "8.2. Efficacy and/or Immunogenicity Assessments",
+          "summary": "Measurements of treatment effectiveness and immune response",
+          "originalHeading": "8.2. [Efficacy and/or Immunogenicity] Assessments"
+        },
+        {
+          "title": "8.3. Safety Assessments",
+          "summary": "Evaluations to monitor participant safety throughout the study",
+          "originalHeading": "8.3. Safety Assessments"
+        },
+        {
+          "title": "8.3.1. Physical Examinations",
+          "summary": "Clinical examinations of participants at scheduled timepoints",
+          "originalHeading": "8.3.1. Physical Examinations"
+        },
+        {
+          "title": "8.3.2. Vital Signs",
+          "summary": "Monitoring of blood pressure, pulse, temperature, and other vital parameters",
+          "originalHeading": "8.3.2. Vital Signs"
+        },
+        {
+          "title": "8.3.3. Electrocardiograms",
+          "summary": "ECG assessments to monitor cardiac function and safety",
+          "originalHeading": "8.3.3. Electrocardiograms"
+        },
+        {
+          "title": "8.3.4. Clinical Safety Laboratory Tests",
+          "summary": "Blood and urine tests to monitor safety parameters",
+          "originalHeading": "8.3.4. Clinical Safety Laboratory Tests"
+        },
+        {
+          "title": "8.3.5. Pregnancy Testing",
+          "summary": "Procedures for pregnancy screening and monitoring",
+          "originalHeading": "8.3.5. Pregnancy Testing"
+        },
+        {
+          "title": "8.3.6. Suicidal Ideation and Behavior Risk Monitoring",
+          "summary": "Assessment of suicide risk using validated instruments",
+          "originalHeading": "8.3.6. Suicidal Ideation and Behavior Risk Monitoring"
+        },
+        {
+          "title": "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and Other Safety Reporting",
+          "summary": "Procedures for detecting, recording, and reporting adverse events",
+          "originalHeading": "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and Other Safety Reporting"
+        },
+        {
+          "title": "8.4.1. Time Period and Frequency for Collecting AE and SAE Information",
+          "summary": "Timeframes and schedules for adverse event collection",
+          "originalHeading": "8.4.1. Time Period and Frequency for Collecting AE and SAE Information"
+        },
+        {
+          "title": "8.4.2. Method of Detecting AEs and SAEs",
+          "summary": "Approaches for identifying adverse events during the study",
+          "originalHeading": "8.4.2. Method of Detecting AEs and SAEs"
+        },
+        {
+          "title": "8.4.3. Follow-up of AEs and SAEs",
+          "summary": "Procedures for monitoring adverse events until resolution",
+          "originalHeading": "8.4.3. Follow-up of AEs and SAEs"
+        },
+        {
+          "title": "8.4.4. Regulatory Reporting Requirements for SAEs",
+          "summary": "Timelines and procedures for reporting serious adverse events to authorities",
+          "originalHeading": "8.4.4. Regulatory Reporting Requirements for SAEs"
+        },
+        {
+          "title": "8.4.5. Pregnancy",
+          "summary": "Procedures for managing and reporting pregnancies during the study",
+          "originalHeading": "8.4.5. Pregnancy"
+        },
+        {
+          "title": "8.4.6. Cardiovascular and Death Events",
+          "summary": "Special procedures for cardiovascular events and mortality reporting",
+          "originalHeading": "8.4.6. Cardiovascular and Death Events"
+        },
+        {
+          "title": "8.4.7. Disease-related Events and/or Disease-related Outcomes Not Qualifying as AEs or SAEs",
+          "summary": "Expected disease outcomes that are not reported as adverse events",
+          "originalHeading": "8.4.7. Disease-related Events and/or Disease-related Outcomes Not Qualifying as AEs or SAEs"
+        },
+        {
+          "title": "8.4.8. Adverse Events of Special Interest",
+          "summary": "Specific adverse events requiring enhanced monitoring or reporting",
+          "originalHeading": "8.4.8. Adverse Events of Special Interest"
+        },
+        {
+          "title": "8.4.9. Medical Device Deficiencies",
+          "summary": "Procedures for detecting and reporting device malfunctions or defects",
+          "originalHeading": "8.4.9. Medical Device Deficiencies"
+        },
+        {
+          "title": "8.4.9.1. Time Period for Detecting Medical Device Deficiencies",
+          "summary": "Timeframe during which device deficiencies must be detected",
+          "originalHeading": "8.4.9.1. Time Period for Detecting Medical Device Deficiencies"
+        },
+        {
+          "title": "8.4.9.2. Follow-up of Medical Device Deficiencies",
+          "summary": "Procedures for monitoring device deficiencies until resolution",
+          "originalHeading": "8.4.9.2. Follow-up of Medical Device Deficiencies"
+        },
+        {
+          "title": "8.4.9.3. Prompt Reporting of Device Deficiencies to the Sponsor",
+          "summary": "Timelines for reporting device issues to sponsor",
+          "originalHeading": "8.4.9.3. Prompt Reporting of Device Deficiencies to the Sponsor"
+        },
+        {
+          "title": "8.4.9.4. Regulatory Reporting Requirements for Device Deficiencies",
+          "summary": "Requirements for reporting device deficiencies to regulatory authorities",
+          "originalHeading": "8.4.9.4. Regulatory Reporting Requirements for Device Deficiencies"
+        },
+        {
+          "title": "8.5. Pharmacokinetics",
+          "summary": "Assessments of drug absorption, distribution, metabolism, and excretion",
+          "originalHeading": "8.5. Pharmacokinetics"
+        },
+        {
+          "title": "8.6. Pharmacodynamics",
+          "summary": "Measurements of drug effects on the body and biological markers",
+          "originalHeading": "8.6. Pharmacodynamics"
+        },
+        {
+          "title": "8.7. Genetics",
+          "summary": "Collection and analysis of genetic samples for research purposes",
+          "originalHeading": "8.7. Genetics"
+        },
+        {
+          "title": "8.8. Biomarkers",
+          "summary": "Collection and evaluation of biological markers of disease or response",
+          "originalHeading": "8.8. Biomarkers"
+        },
+        {
+          "title": "8.9. Immunogenicity Assessments",
+          "summary": "Testing for antibodies to the study intervention",
+          "originalHeading": "8.9. Immunogenicity Assessments"
+        },
+        {
+          "title": "8.10. Health Economics OR Medical Resource Utilization and Health Economics",
+          "summary": "Collection of healthcare resource use and economic impact data",
+          "originalHeading": "8.10. [Health Economics OR Medical Resource Utilization and Health Economics]"
+        },
+        {
+          "title": "9. Statistical Considerations",
+          "summary": "Statistical methods, sample size, and analysis plans",
+          "originalHeading": "9. Statistical Considerations"
+        },
+        {
+          "title": "9.1. General Considerations",
+          "summary": "Overall statistical approach and general principles",
+          "originalHeading": "9.1. General Considerations"
+        },
+        {
+          "title": "9.1.1. Decision Criteria/Statistical Hypotheses",
+          "summary": "Statistical hypotheses and criteria for decision-making",
+          "originalHeading": "9.1.1. [Decision Criteria/Statistical Hypotheses]"
+        },
+        {
+          "title": "9.1.2. Multiplicity Adjustment",
+          "summary": "Methods for controlling Type I error with multiple comparisons",
+          "originalHeading": "9.1.2. Multiplicity Adjustment"
+        },
+        {
+          "title": "9.1.3. Impact of Intercurrent Events Strategies",
+          "summary": "Handling of events occurring after treatment that affect outcomes",
+          "originalHeading": "9.1.3. Impact of Intercurrent Events Strategies"
+        },
+        {
+          "title": "9.1.4. Handling of Missing Data",
+          "summary": "Statistical approaches for managing missing or incomplete data",
+          "originalHeading": "9.1.4. Handling of Missing Data"
+        },
+        {
+          "title": "9.2. Analysis Sets",
+          "summary": "Definition of populations for statistical analysis",
+          "originalHeading": "9.2. Analysis Sets"
+        },
+        {
+          "title": "9.3. Analyses Supporting Primary Objective(s)",
+          "summary": "Statistical methods for primary endpoint analysis",
+          "originalHeading": "9.3. Analyses Supporting Primary Objective(s)"
+        },
+        {
+          "title": "9.3.1. Primary Endpoint(s)/Estimand(s)",
+          "summary": "Detailed specification of primary endpoint analysis approach",
+          "originalHeading": "9.3.1. Primary [Endpoint(s)/Estimand(s)]"
+        },
+        {
+          "title": "9.3.1.1. Definition of endpoint(s)",
+          "summary": "Precise definition of primary endpoints",
+          "originalHeading": "9.3.1.1. Definition of endpoint(s)"
+        },
+        {
+          "title": "9.3.1.2. Main Analytical Approach",
+          "summary": "Primary statistical method for analyzing endpoints",
+          "originalHeading": "9.3.1.2. Main Analytical Approach"
+        },
+        {
+          "title": "9.3.1.3. Sensitivity Analysis/Analyses",
+          "summary": "Additional analyses to test robustness of primary results",
+          "originalHeading": "9.3.1.3. Sensitivity [Analysis/Analyses]"
+        },
+        {
+          "title": "9.3.1.4. Supplementary Analysis/Analyses",
+          "summary": "Supporting analyses to complement primary analysis",
+          "originalHeading": "9.3.1.4. Supplementary [Analysis/Analyses]"
+        },
+        {
+          "title": "9.4. Analyses Supporting Secondary Objective(s)",
+          "summary": "Statistical methods for secondary endpoint analysis",
+          "originalHeading": "9.4. Analyses Supporting Secondary Objective(s)"
+        },
+        {
+          "title": "9.4.1. Analyses Supporting Secondary Objective [label]",
+          "summary": "Specific analysis plan for individual secondary objectives",
+          "originalHeading": "9.4.1. Analyses Supporting Secondary Objective [label]"
+        },
+        {
+          "title": "9.5. Analyses Supporting Tertiary/Exploratory/Other Objective(s)",
+          "summary": "Statistical approaches for exploratory and tertiary endpoints",
+          "originalHeading": "9.5. Analyses Supporting [Tertiary/Exploratory/Other] Objective(s)"
+        },
+        {
+          "title": "9.6. Other Safety Analyses",
+          "summary": "Statistical methods for safety data evaluation",
+          "originalHeading": "9.6. [Other] Safety Analyses"
+        },
+        {
+          "title": "9.7. Other Analyses",
+          "summary": "Additional statistical analyses not covered elsewhere",
+          "originalHeading": "9.7. Other Analyses"
+        },
+        {
+          "title": "9.7.1. Other variables and/or parameters",
+          "summary": "Analysis of additional variables of interest",
+          "originalHeading": "9.7.1. Other variables and/or parameters"
+        },
+        {
+          "title": "9.7.2. Subgroup analyses",
+          "summary": "Statistical evaluation within participant subgroups",
+          "originalHeading": "9.7.2. Subgroup analyses"
+        },
+        {
+          "title": "9.8. Interim Analysis/Analyses",
+          "summary": "Planned analyses conducted before study completion",
+          "originalHeading": "9.8. Interim [Analysis/Analyses]"
+        },
+        {
+          "title": "9.9. Sample Size Determination",
+          "summary": "Justification and calculation of required number of participants",
+          "originalHeading": "9.9. Sample Size Determination"
+        },
+        {
+          "title": "10. Supporting Documentation and Operational Considerations",
+          "summary": "Appendices with regulatory, ethical, and operational details",
+          "originalHeading": "10. Supporting Documentation and Operational Considerations"
+        },
+        {
+          "title": "10.1. Appendix 1: Regulatory, Ethical, and Study Oversight Considerations",
+          "summary": "Regulatory compliance, ethics, and oversight requirements",
+          "originalHeading": "10.1. Appendix 1: Regulatory, Ethical, and Study Oversight Considerations"
+        },
+        {
+          "title": "10.1.1. Regulatory and Ethical Considerations",
+          "summary": "Compliance with regulations and ethical principles",
+          "originalHeading": "10.1.1. Regulatory and Ethical Considerations"
+        },
+        {
+          "title": "10.1.2. Financial Disclosure",
+          "summary": "Requirements for disclosing financial interests of investigators",
+          "originalHeading": "10.1.2. Financial Disclosure"
+        },
+        {
+          "title": "10.1.3. Informed Consent Process",
+          "summary": "Procedures for obtaining participant informed consent",
+          "originalHeading": "10.1.3. Informed Consent Process"
+        },
+        {
+          "title": "10.1.4. Recruitment strategy",
+          "summary": "Methods for identifying and recruiting study participants",
+          "originalHeading": "10.1.4. Recruitment strategy"
+        },
+        {
+          "title": "10.1.5. Data Protection",
+          "summary": "Procedures for protecting participant privacy and data security",
+          "originalHeading": "10.1.5. Data Protection"
+        },
+        {
+          "title": "10.1.6. Committees Structure",
+          "summary": "Description of oversight committees for the study",
+          "originalHeading": "10.1.6. Committees Structure"
+        },
+        {
+          "title": "10.1.6.1. Early Safety Data Review AND/OR Committee",
+          "summary": "Committee for early review of safety data during the study",
+          "originalHeading": "10.1.6.1. [Early Safety Data Review AND/OR Committee]"
+        },
+        {
+          "title": "10.1.7. Dissemination of Clinical Study Data",
+          "summary": "Plans for sharing study results with scientific community",
+          "originalHeading": "10.1.7. Dissemination of Clinical Study Data"
+        },
+        {
+          "title": "10.1.8. Data Quality Assurance",
+          "summary": "Procedures for ensuring accuracy and integrity of study data",
+          "originalHeading": "10.1.8. Data Quality Assurance"
+        },
+        {
+          "title": "10.1.9. Source Documents",
+          "summary": "Definition and requirements for source documentation",
+          "originalHeading": "10.1.9. Source Documents"
+        },
+        {
+          "title": "10.1.10. Study and Site Start and Closure",
+          "summary": "Procedures for initiating and closing study sites",
+          "originalHeading": "10.1.10. Study and Site Start and Closure"
+        },
+        {
+          "title": "10.1.11. Publication Policy",
+          "summary": "Guidelines for publishing study results",
+          "originalHeading": "10.1.11. Publication Policy"
+        },
+        {
+          "title": "10.2. Appendix 2: Clinical Laboratory Tests",
+          "summary": "Detailed list of laboratory tests and specifications",
+          "originalHeading": "10.2. Appendix 2: Clinical Laboratory Tests"
+        },
+        {
+          "title": "10.3. Appendix 3: AEs and SAEs: Definitions and Procedures for Recording, Evaluating, Follow-up, and Reporting",
+          "summary": "Comprehensive guidelines for adverse event management",
+          "originalHeading": "10.3. Appendix 3: AEs and SAEs: Definitions and Procedures for Recording, Evaluating, Follow-up, and Reporting"
+        },
+        {
+          "title": "10.3.1. Definition of AE",
+          "summary": "Formal definition of adverse event and related concepts",
+          "originalHeading": "10.3.1. Definition of AE"
+        },
+        {
+          "title": "10.3.2. Definition of SAE",
+          "summary": "Formal definition of serious adverse event",
+          "originalHeading": "10.3.2. Definition of SAE"
+        },
+        {
+          "title": "10.3.3. Recording and Follow-Up of AE and/or SAE",
+          "summary": "Procedures for documenting and tracking adverse events",
+          "originalHeading": "10.3.3. Recording and Follow-Up of AE and/or SAE"
+        },
+        {
+          "title": "10.3.4. Reporting of SAEs",
+          "summary": "Timelines and procedures for serious adverse event reporting",
+          "originalHeading": "10.3.4. Reporting of SAEs"
+        },
+        {
+          "title": "10.4. Appendix 4: Contraceptive and Barrier Guidance",
+          "summary": "Requirements for contraception during study participation",
+          "originalHeading": "10.4. Appendix 4: Contraceptive and Barrier Guidance"
+        },
+        {
+          "title": "10.4.1. Definitions",
+          "summary": "Definitions of contraceptive methods and terms",
+          "originalHeading": "10.4.1. Definitions"
+        },
+        {
+          "title": "10.4.2. Contraception Guidance",
+          "summary": "Specific contraceptive requirements for participants",
+          "originalHeading": "10.4.2. Contraception Guidance"
+        },
+        {
+          "title": "10.5. Appendix 5: Genetics",
+          "summary": "Procedures for genetic sample collection and analysis",
+          "originalHeading": "10.5. Appendix 5: Genetics"
+        },
+        {
+          "title": "10.6. Appendix 6: Liver Safety: Suggestions and Guidelines for Liver Events",
+          "summary": "Specific guidelines for monitoring and managing hepatic safety",
+          "originalHeading": "10.6. Appendix 6: Liver Safety: Suggestions and Guidelines for Liver Events"
+        },
+        {
+          "title": "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs, USADEs and Device Deficiencies: Definitions and Procedures for Recording, Evaluating, Follow-up, and Reporting in Medical Device Studies",
+          "summary": "Comprehensive procedures for device-related events and deficiencies",
+          "originalHeading": "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs, USADEs and Device Deficiencies: Definitions and Procedures for Recording, Evaluating, Follow-up, and Reporting in Medical Device Studies"
+        },
+        {
+          "title": "10.7.1. Definition of Medical Device AE and ADE",
+          "summary": "Definitions specific to device adverse events",
+          "originalHeading": "10.7.1. Definition of Medical Device AE and ADE"
+        },
+        {
+          "title": "10.7.2. Definition of Medical Device SAE, SADE and USADE",
+          "summary": "Definitions of serious device-related adverse events",
+          "originalHeading": "10.7.2. Definition of Medical Device SAE, SADE and USADE"
+        },
+        {
+          "title": "10.7.3. Definition of Device Deficiency",
+          "summary": "Definition of device malfunction or defect",
+          "originalHeading": "10.7.3. Definition of Device Deficiency"
+        },
+        {
+          "title": "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE and Device Deficiencies",
+          "summary": "Procedures for documenting device-related events",
+          "originalHeading": "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE and Device Deficiencies"
+        },
+        {
+          "title": "10.7.5. Reporting of Medical Device SAEs",
+          "summary": "Requirements for reporting serious device adverse events",
+          "originalHeading": "10.7.5. Reporting of Medical Device SAEs"
+        },
+        {
+          "title": "10.7.6. Reporting of SADEs",
+          "summary": "Procedures for reporting serious adverse device effects",
+          "originalHeading": "10.7.6. Reporting of SADEs"
+        },
+        {
+          "title": "10.8. Appendix 8: Country-specific Requirements",
+          "summary": "Additional requirements specific to study countries",
+          "originalHeading": "10.8. Appendix 8: Country-specific Requirements"
+        },
+        {
+          "title": "10.9. Appendix 9: Protocol Amendment History",
+          "summary": "Record of all protocol amendments and changes",
+          "originalHeading": "10.9. Appendix 9: Protocol Amendment History"
+        },
+        {
+          "title": "11. References",
+          "summary": "Bibliography of cited literature and supporting documents",
+          "originalHeading": "11. References"
+        }
+      ],
+      "claudeMetadata": {
+        "claudeUsed": true,
+        "usage": {
+          "promptTokens": 55,
+          "completionTokens": 9818,
+          "totalTokens": 9873
+        },
+        "lastRefinedAt": "2025-11-02T07:43:05.729Z"
+      }
+    },
+    {
+      "id": "template_15d9c3e8-3b82-4c09-83e3-5a9d07a0936c",
+      "name": "CPT_CoreBWE_v010.pdf",
+      "originalFileName": "CPT_CoreBWE_v010.pdf",
+      "storedFile": {
+        "id": "template_15d9c3e8-3b82-4c09-83e3-5a9d07a0936c",
+        "originalName": "CPT_CoreBWE_v010.pdf",
+        "sanitizedFileName": "CPT_CoreBWE_v010.pdf",
+        "extension": ".pdf",
+        "mimeType": "application/pdf",
+        "size": 1470624,
+        "relativePath": "template_15d9c3e8-3b82-4c09-83e3-5a9d07a0936c/CPT_CoreBWE_v010.pdf",
+        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/packages/templates/template_15d9c3e8-3b82-4c09-83e3-5a9d07a0936c/CPT_CoreBWE_v010.pdf"
+      },
+      "createdAt": "2025-11-02T07:31:52.420Z",
+      "rawSections": [
+        "A study to investigate [health measurement/outcome] with [investigational intervention]",
+        "1. Protocol Summary",
+        "1.1. Synopsis",
+        "1.2. Schema",
+        "1.3. Schedule of Activities (SoA)",
+        "2. Introduction",
+        "2.1. Study Rationale",
+        "2.2. Background",
+        "2.3. Benefit/Risk Assessment",
+        "2.3.1. Risk Assessment",
+        "2.3.2. Benefit Assessment",
+        "2.3.3. Overall Benefit Risk Conclusion",
+        "3. Objectives, Endpoints, and Estimands",
+        "4. Study Design",
+        "4.1. Overall Design",
+        "4.2. Scientific Rationale for Study Design",
+        "4.2.1. Patient Input into Design",
+        "4.3. Justification for Dose",
+        "4.4. End-of-Study Definition",
+        "5. Study Population",
+        "5.1. Inclusion Criteria",
+        "5.2. Exclusion Criteria",
+        "5.3. Lifestyle Considerations",
+        "5.3.1. Meals and Dietary Restrictions",
+        "5.3.2. Caffeine, Alcohol, and Tobacco",
+        "5.3.3. Activity",
+        "5.3.4. Other Restrictions",
+        "5.4. Screen Failures",
+        "5.5. Criteria for Temporarily Delaying",
+        "6. Study Intervention(s) and Concomitant Therapy",
+        "6.1. Study Intervention(s) Administered",
+        "6.1.1. Rescue Medicine",
+        "6.1.2. Medical Devices",
+        "6.2. Preparation, Handling, Storage, and Accountability",
+        "6.3. Assignment to Study Intervention",
+        "6.4. [Blinding, Masking]",
+        "6.5. Study Intervention Compliance",
+        "6.6. Dose Modification",
+        "6.6.1. Retreatment Criteria",
+        "6.7. Continued Access to Study Intervention after the End of the",
+        "6.8. Treatment of Overdose",
+        "6.9. Prior and Concomitant Therapy",
+        "7. Discontinuation of Study Intervention and Participant",
+        "7.1. Discontinuation of Study Intervention",
+        "7.1.1. Liver Event Stopping Criteria",
+        "7.1.2. QTc Stopping Criteria",
+        "7.1.3. Temporary Discontinuation",
+        "7.1.4. Rechallenge",
+        "7.2. Participant Discontinuation/Withdrawal from the Study",
+        "7.3. Lost to Follow up",
+        "8. Study Assessments and Procedures",
+        "8.1. Administrative [and General/Baseline] Procedures",
+        "8.2. [Efficacy and/or Immunogenicity] Assessments",
+        "8.3. Safety Assessments",
+        "8.3.1. Physical Examinations",
+        "8.3.2. Vital Signs",
+        "8.3.3. Electrocardiograms",
+        "8.3.4. Clinical Safety Laboratory Tests",
+        "8.3.5. Pregnancy Testing",
+        "8.3.6. Suicidal Ideation and Behavior Risk Monitoring",
+        "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and",
+        "8.4.1. Time Period and Frequency for Collecting AE and SAE",
+        "8.4.2. Method of Detecting AEs and SAEs",
+        "8.4.3. Follow-up of AEs and SAEs",
+        "8.4.4. Regulatory Reporting Requirements for SAEs",
+        "8.4.5. Pregnancy",
+        "8.4.6. Cardiovascular and Death Events",
+        "8.4.7. Disease-related Events and/or Disease-related Outcomes Not",
+        "8.4.8. Adverse Events of Special Interest",
+        "8.4.9. Medical Device Deficiencies",
+        "8.5. Pharmacokinetics",
+        "8.6. Pharmacodynamics",
+        "8.7. Genetics",
+        "8.8. Biomarkers",
+        "8.9. Immunogenicity Assessments",
+        "8.10. [Health Economics OR Medical Resource Utilization and Health",
+        "9. Statistical Considerations",
+        "9.1. General Considerations",
+        "9.1.1. [Decision Criteria/Statistical Hypotheses]",
+        "9.1.2. Multiplicity Adjustment",
+        "9.1.3. Impact of Intercurrent Events Strategies",
+        "9.1.4. Handling of Missing Data",
+        "9.2. Analysis Sets",
+        "9.3. Analyses Supporting Primary Objective(s)",
+        "9.3.1. Primary [Endpoint(s)/Estimand(s)]",
+        "9.4. Analyses Supporting Secondary Objective(s)",
+        "9.4.1. Analyses Supporting Secondary Objective [label]",
+        "9.5. Analyses Supporting [Tertiary/Exploratory/Other] Objective(s)",
+        "9.6. [Other] Safety Analyses",
+        "9.7. Other Analyses",
+        "9.7.1. Other variables and/or parameters",
+        "9.7.2. Subgroup analyses",
+        "9.8. Interim [Analysis/Analyses]",
+        "9.9. Sample Size Determination",
+        "10. Supporting Documentation and Operational Considerations",
+        "10.1. Appendix 1: Regulatory, Ethical, and Study Oversight",
+        "10.1.1. Regulatory and Ethical Considerations",
+        "10.1.2. Financial Disclosure",
+        "10.1.3. Informed Consent Process",
+        "10.1.4. Recruitment strategy",
+        "10.1.5. Data Protection",
+        "10.1.6. Committees Structure",
+        "10.1.7. Dissemination of Clinical Study Data",
+        "10.1.8. Data Quality Assurance",
+        "10.1.9. Source Documents",
+        "10.1.10. Study and Site Start and Closure",
+        "10.1.11. Publication Policy",
+        "10.2. Appendix 2: Clinical Laboratory Tests",
+        "10.3. Appendix 3: AEs and SAEs: Definitions and Procedures for",
+        "10.3.1. Definition of AE",
+        "10.3.2. Definition of SAE",
+        "10.3.3. Recording and Follow-Up of AE and/or SAE",
+        "10.3.4. Reporting of SAEs",
+        "10.4. Appendix 4: Contraceptive and Barrier Guidance",
+        "10.4.1. Definitions",
+        "10.4.2. Contraception Guidance",
+        "10.5. Appendix 5: Genetics",
+        "10.6. Appendix 6: Liver Safety: Suggestions and Guidelines for Liver",
+        "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs,",
+        "10.7.1. Definition of Medical Device AE and ADE",
+        "10.7.2. Definition of Medical Device SAE, SADE and USADE",
+        "10.7.3. Definition of Device Deficiency",
+        "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE",
+        "10.7.5. Reporting of Medical Device SAEs",
+        "10.7.6. Reporting of SADEs",
+        "10.8. Appendix 8: Country-specific Requirements",
+        "10.9. Appendix 9: Protocol Amendment History",
+        "11. References",
+        "A maximum of [X] participants will be [enrolled / randomized / assigned to investigational",
+        "A [data monitoring committee] has been appointed for this study. The [data monitoring committee (board)]",
+        "X X X X",
+        "X ============================= X X",
+        "A detailed description of the chemistry, pharmacology, efficacy, and safety of [investigational intervention",
+        "4.2.1.1 Obtaining Study Participant Feedback (Voluntary):",
+        "A participant is considered to have completed the study if the participant has completed all",
+        "1. Participant must be [18] [or the legal age of consent in the jurisdiction in which the",
+        "2. Participants who are overtly healthy as determined by medical evaluation including",
+        "3. Participants who are [insert criteria]",
+        "4. Body weight within [insert range including units] and BMI within the range [X – X]",
+        "5. [male and/or female] assigned at birth, inclusive of all gender identities.",
+        "6. Signed informed consent as described in Appendix 1 which includes compliance with",
+        "1. [ ]",
+        "2. [ ]",
+        "3. [ ]",
+        "4. [ ]",
+        "5. [ ]",
+        "6. [ ]",
+        "1. Participants will abstain from strenuous exercise for [X hours] before each blood collection for",
+        "A screen failure occurs when a participant who has consented to participate in the clinical study",
+        "1. The [sponsor] manufactured medical devices (or devices manufactured for [sponsor] by a third",
+        "2. Other medical devices (not manufactured by or for [sponsor]) provided for use in this study are",
+        "4 cycles.]",
+        "3. Instructions for medical device use are provided [cross reference the location of such",
+        "4. All device deficiencies (including malfunction, use error and inadequate labelling) shall be",
+        "1. The investigator or designee must confirm appropriate conditions (eg, temperature) have",
+        "2. Only participants [randomized/assigned] to study intervention may receive study",
+        "3. All study intervention must be stored in a secure, environmentally controlled, and",
+        "4. The investigator, [institution, the head of the medical institution (where applicable), or",
+        "5. Further guidance and information for the final disposition of unused study interventions",
+        "A record of the quantity of [insert study intervention(s)] dispensed to and administered by each participant",
+        "6.7. Continued Access to Study Intervention after the End of the Study",
+        "7.1.4.1. Study Intervention Restart or Rechallenge After Liver Stopping Criteria Are",
+        "A participant will be considered lost to follow-up if the participant repeatedly fails to return for",
+        "5 minutes rest and will include temperature, systolic and diastolic blood pressure, and pulse [and",
+        "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and Other",
+        "8.4.1. Time Period and Frequency for Collecting AE and SAE Information",
+        "8.4.7. Disease-related Events and/or Disease-related Outcomes Not Qualifying as AEs",
+        "8.4.9.1. Time Period for Detecting Medical Device Deficiencies",
+        "8.4.9.2. Follow-up of Medical Device Deficiencies",
+        "8.4.9.3. Prompt Reporting of Device Deficiencies to the Sponsor",
+        "8.4.9.4. Regulatory Reporting Requirements for Device Deficiencies",
+        "A [X] mL [blood OR saliva] sample for DNA isolation will be collected from participants who have",
+        "A closed testing procedure that controls the family wise error rate in the strong sense at the overall [5]%",
+        "9.3.1.1. Definition of endpoint(s)",
+        "9.3.1.2. Main Analytical Approach",
+        "9.3.1.3. Sensitivity [Analysis/Analyses]",
+        "9.3.1.4. Supplementary [Analysis/Analyses]",
+        "10.1.6.1. [Early Safety Data Review AND/OR Committee]",
+        "A type of adverse event that is usually transient and may require only minimal treatment",
+        "A type of adverse event that is usually alleviated with additional specific therapeutic",
+        "A type of adverse event that interrupts usual activities of daily living, or significantly",
+        "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs, USADEs",
+        "14155 and the European Medical Device Regulation (MDR) 2017/745 for clinical device",
+        "A Medical Device SAE is an any serious adverse event that:",
+        "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE and Device",
+        "5.1. Inclusion Criteria Removed maximum age range To better reflect the age of the"
+      ],
+      "refinedSections": [
+        {
+          "title": "Title Page",
+          "summary": "Protocol identification information including title, protocol number, amendment details, sponsor information, and regulatory identifiers",
+          "originalHeading": "Title Page"
+        },
+        {
+          "title": "Protocol Amendment Summary of Changes Table",
+          "summary": "Document history and summary of changes for protocol amendments with rationale",
+          "originalHeading": "Protocol Amendment Summary of Changes Table"
+        },
+        {
+          "title": "Table of Contents",
+          "summary": "Hierarchical listing of all protocol sections with page numbers",
+          "originalHeading": "Table of Contents"
+        },
+        {
+          "title": "List of Abbreviations",
+          "summary": "Definitions and explanations of abbreviations and terms used throughout the protocol",
+          "originalHeading": "List of Abbreviations [and Definitions of terms]"
+        },
+        {
+          "title": "Protocol Summary",
+          "summary": "High-level overview including synopsis, schema, and schedule of activities",
+          "originalHeading": "1. Protocol Summary"
+        },
+        {
+          "title": "Synopsis",
+          "summary": "Condensed summary of protocol title, rationale, objectives, endpoints, design, participant numbers, and study arms",
+          "originalHeading": "1.1. Synopsis"
+        },
+        {
+          "title": "Schema",
+          "summary": "Visual representation of the study design and flow",
+          "originalHeading": "1.2. Schema"
+        },
+        {
+          "title": "Schedule of Activities",
+          "summary": "Detailed timeline of all study procedures, assessments, and interventions by visit",
+          "originalHeading": "1.3. Schedule of Activities (SoA)"
+        },
+        {
+          "title": "Introduction",
+          "summary": "Study rationale, background information, and benefit/risk assessment for the investigational intervention",
+          "originalHeading": "2. Introduction"
+        },
+        {
+          "title": "Study Rationale",
+          "summary": "Justification and scientific reasoning for conducting the study",
+          "originalHeading": "2.1. Study Rationale"
+        },
+        {
+          "title": "Background",
+          "summary": "Detailed background on the disease, intervention, and relevant scientific context",
+          "originalHeading": "2.2. Background"
+        },
+        {
+          "title": "Benefit/Risk Assessment",
+          "summary": "Comprehensive evaluation of potential benefits versus risks for study participants",
+          "originalHeading": "2.3. Benefit/Risk Assessment"
+        },
+        {
+          "title": "Objectives, Endpoints, and Estimands",
+          "summary": "Detailed specification of study objectives with corresponding endpoints and estimands including primary, secondary, and exploratory",
+          "originalHeading": "3. Objectives, Endpoints, and Estimands"
+        },
+        {
+          "title": "Study Design",
+          "summary": "Overall study design, scientific rationale, dose justification, and end-of-study definition",
+          "originalHeading": "4. Study Design"
+        },
+        {
+          "title": "Study Population",
+          "summary": "Inclusion and exclusion criteria, lifestyle considerations, screen failure procedures, and enrollment criteria",
+          "originalHeading": "5. Study Population"
+        },
+        {
+          "title": "Study Intervention(s) and Concomitant Therapy",
+          "summary": "Details on study interventions, preparation, handling, storage, accountability, assignment, blinding, compliance, and dose modifications",
+          "originalHeading": "6. Study Intervention(s) and Concomitant Therapy"
+        },
+        {
+          "title": "Discontinuation of Study Intervention and Participant Discontinuation/Withdrawal",
+          "summary": "Criteria and procedures for discontinuing study intervention or withdrawing participants, including liver and QTc stopping criteria",
+          "originalHeading": "7. Discontinuation of Study Intervention and Participant Discontinuation/Withdrawal"
+        },
+        {
+          "title": "Study Assessments and Procedures",
+          "summary": "Comprehensive description of all study assessments including administrative, efficacy, safety, pharmacokinetics, pharmacodynamics, genetics, biomarkers, and adverse event reporting",
+          "originalHeading": "8. Study Assessments and Procedures"
+        },
+        {
+          "title": "Statistical Considerations",
+          "summary": "Statistical methodology including hypotheses, multiplicity adjustment, analysis sets, sample size determination, and interim analyses",
+          "originalHeading": "9. Statistical Considerations"
+        },
+        {
+          "title": "Supporting Documentation and Operational Considerations",
+          "summary": "Regulatory and ethical considerations, informed consent, data protection, committees, quality assurance, and publication policy",
+          "originalHeading": "10. Supporting Documentation and Operational Considerations"
+        },
+        {
+          "title": "Appendix 1: Regulatory, Ethical, and Study Oversight Considerations",
+          "summary": "Detailed requirements for regulatory compliance, ethical conduct, informed consent process, data protection, and study oversight",
+          "originalHeading": "10.1. Appendix 1: Regulatory, Ethical, and Study Oversight Considerations"
+        },
+        {
+          "title": "Appendix 2: Clinical Laboratory Tests",
+          "summary": "Comprehensive list of protocol-required laboratory tests including hematology, chemistry, urinalysis, and other screening tests",
+          "originalHeading": "10.2. Appendix 2: Clinical Laboratory Tests"
+        },
+        {
+          "title": "Appendix 3: AEs and SAEs: Definitions and Procedures",
+          "summary": "Definitions of adverse events and serious adverse events with detailed procedures for recording, evaluating, follow-up, and reporting",
+          "originalHeading": "10.3. Appendix 3: AEs and SAEs: Definitions and Procedures for Recording, Evaluating, Follow-up, and Reporting"
+        },
+        {
+          "title": "Appendix 4: Contraceptive and Barrier Guidance",
+          "summary": "Definitions and guidance for contraceptive requirements for study participants",
+          "originalHeading": "10.4. Appendix 4: Contraceptive and Barrier Guidance"
+        },
+        {
+          "title": "Appendix 5: Genetics",
+          "summary": "Details on genetic sample collection, use, analysis, and storage for research purposes",
+          "originalHeading": "10.5. Appendix 5: Genetics"
+        },
+        {
+          "title": "Appendix 6: Liver Safety",
+          "summary": "Suggestions and guidelines for managing and monitoring liver-related safety events",
+          "originalHeading": "10.6. Appendix 6: Liver Safety: Suggestions and Guidelines for Liver Events"
+        },
+        {
+          "title": "Appendix 7: Medical Device Safety Events",
+          "summary": "Definitions and procedures for recording, evaluating, and reporting medical device adverse events, deficiencies, and serious adverse device effects",
+          "originalHeading": "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs, USADEs and Device Deficiencies"
+        },
+        {
+          "title": "Appendix 8: Country-specific Requirements",
+          "summary": "Additional requirements specific to countries where the study will be conducted",
+          "originalHeading": "10.8. Appendix 8: Country-specific Requirements"
+        },
+        {
+          "title": "Appendix 9: Protocol Amendment History",
+          "summary": "Historical record of all protocol amendments with descriptions of changes and rationale",
+          "originalHeading": "10.9. Appendix 9: Protocol Amendment History"
+        },
+        {
+          "title": "References",
+          "summary": "Bibliography of cited literature and supporting documentation",
+          "originalHeading": "11. References"
+        }
+      ],
+      "claudeMetadata": {
+        "claudeUsed": true,
+        "usage": {
+          "promptTokens": 20,
+          "completionTokens": 2047,
+          "totalTokens": 2067
+        },
+        "lastRefinedAt": "2025-11-02T07:32:48.203Z"
+      }
+    },
+    {
+      "id": "template_0a98e37e-8983-495d-8391-92eb9c46c435",
+      "name": "CPT_CoreBWE_v010.pdf",
+      "originalFileName": "CPT_CoreBWE_v010.pdf",
+      "storedFile": {
+        "id": "template_0a98e37e-8983-495d-8391-92eb9c46c435",
+        "originalName": "CPT_CoreBWE_v010.pdf",
+        "sanitizedFileName": "CPT_CoreBWE_v010.pdf",
+        "extension": ".pdf",
+        "mimeType": "application/pdf",
+        "size": 1470624,
+        "relativePath": "template_0a98e37e-8983-495d-8391-92eb9c46c435/CPT_CoreBWE_v010.pdf",
+        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/packages/templates/template_0a98e37e-8983-495d-8391-92eb9c46c435/CPT_CoreBWE_v010.pdf"
+      },
+      "createdAt": "2025-11-02T06:54:15.911Z",
+      "rawSections": [
+        "A study to investigate [health measurement/outcome] with [investigational intervention]",
+        "1. Protocol Summary",
+        "1.1. Synopsis",
+        "1.2. Schema",
+        "1.3. Schedule of Activities (SoA)",
+        "2. Introduction",
+        "2.1. Study Rationale",
+        "2.2. Background",
+        "2.3. Benefit/Risk Assessment",
+        "2.3.1. Risk Assessment",
+        "2.3.2. Benefit Assessment",
+        "2.3.3. Overall Benefit Risk Conclusion",
+        "3. Objectives, Endpoints, and Estimands",
+        "4. Study Design",
+        "4.1. Overall Design",
+        "4.2. Scientific Rationale for Study Design",
+        "4.2.1. Patient Input into Design",
+        "4.3. Justification for Dose",
+        "4.4. End-of-Study Definition",
+        "5. Study Population",
+        "5.1. Inclusion Criteria",
+        "5.2. Exclusion Criteria",
+        "5.3. Lifestyle Considerations",
+        "5.3.1. Meals and Dietary Restrictions",
+        "5.3.2. Caffeine, Alcohol, and Tobacco",
+        "5.3.3. Activity",
+        "5.3.4. Other Restrictions",
+        "5.4. Screen Failures",
+        "5.5. Criteria for Temporarily Delaying",
+        "6. Study Intervention(s) and Concomitant Therapy",
+        "6.1. Study Intervention(s) Administered",
+        "6.1.1. Rescue Medicine",
+        "6.1.2. Medical Devices",
+        "6.2. Preparation, Handling, Storage, and Accountability",
+        "6.3. Assignment to Study Intervention",
+        "6.4. [Blinding, Masking]",
+        "6.5. Study Intervention Compliance",
+        "6.6. Dose Modification",
+        "6.6.1. Retreatment Criteria",
+        "6.7. Continued Access to Study Intervention after the End of the",
+        "6.8. Treatment of Overdose",
+        "6.9. Prior and Concomitant Therapy",
+        "7. Discontinuation of Study Intervention and Participant",
+        "7.1. Discontinuation of Study Intervention",
+        "7.1.1. Liver Event Stopping Criteria",
+        "7.1.2. QTc Stopping Criteria",
+        "7.1.3. Temporary Discontinuation",
+        "7.1.4. Rechallenge",
+        "7.2. Participant Discontinuation/Withdrawal from the Study",
+        "7.3. Lost to Follow up",
+        "8. Study Assessments and Procedures",
+        "8.1. Administrative [and General/Baseline] Procedures",
+        "8.2. [Efficacy and/or Immunogenicity] Assessments",
+        "8.3. Safety Assessments",
+        "8.3.1. Physical Examinations",
+        "8.3.2. Vital Signs",
+        "8.3.3. Electrocardiograms",
+        "8.3.4. Clinical Safety Laboratory Tests",
+        "8.3.5. Pregnancy Testing",
+        "8.3.6. Suicidal Ideation and Behavior Risk Monitoring",
+        "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and",
+        "8.4.1. Time Period and Frequency for Collecting AE and SAE",
+        "8.4.2. Method of Detecting AEs and SAEs",
+        "8.4.3. Follow-up of AEs and SAEs",
+        "8.4.4. Regulatory Reporting Requirements for SAEs",
+        "8.4.5. Pregnancy",
+        "8.4.6. Cardiovascular and Death Events",
+        "8.4.7. Disease-related Events and/or Disease-related Outcomes Not",
+        "8.4.8. Adverse Events of Special Interest",
+        "8.4.9. Medical Device Deficiencies",
+        "8.5. Pharmacokinetics",
+        "8.6. Pharmacodynamics",
+        "8.7. Genetics",
+        "8.8. Biomarkers",
+        "8.9. Immunogenicity Assessments",
+        "8.10. [Health Economics OR Medical Resource Utilization and Health",
+        "9. Statistical Considerations",
+        "9.1. General Considerations",
+        "9.1.1. [Decision Criteria/Statistical Hypotheses]",
+        "9.1.2. Multiplicity Adjustment",
+        "9.1.3. Impact of Intercurrent Events Strategies",
+        "9.1.4. Handling of Missing Data",
+        "9.2. Analysis Sets",
+        "9.3. Analyses Supporting Primary Objective(s)",
+        "9.3.1. Primary [Endpoint(s)/Estimand(s)]",
+        "9.4. Analyses Supporting Secondary Objective(s)",
+        "9.4.1. Analyses Supporting Secondary Objective [label]",
+        "9.5. Analyses Supporting [Tertiary/Exploratory/Other] Objective(s)",
+        "9.6. [Other] Safety Analyses",
+        "9.7. Other Analyses",
+        "9.7.1. Other variables and/or parameters",
+        "9.7.2. Subgroup analyses",
+        "9.8. Interim [Analysis/Analyses]",
+        "9.9. Sample Size Determination",
+        "10. Supporting Documentation and Operational Considerations",
+        "10.1. Appendix 1: Regulatory, Ethical, and Study Oversight",
+        "10.1.1. Regulatory and Ethical Considerations",
+        "10.1.2. Financial Disclosure",
+        "10.1.3. Informed Consent Process",
+        "10.1.4. Recruitment strategy",
+        "10.1.5. Data Protection",
+        "10.1.6. Committees Structure",
+        "10.1.7. Dissemination of Clinical Study Data",
+        "10.1.8. Data Quality Assurance",
+        "10.1.9. Source Documents",
+        "10.1.10. Study and Site Start and Closure",
+        "10.1.11. Publication Policy",
+        "10.2. Appendix 2: Clinical Laboratory Tests",
+        "10.3. Appendix 3: AEs and SAEs: Definitions and Procedures for",
+        "10.3.1. Definition of AE",
+        "10.3.2. Definition of SAE",
+        "10.3.3. Recording and Follow-Up of AE and/or SAE",
+        "10.3.4. Reporting of SAEs",
+        "10.4. Appendix 4: Contraceptive and Barrier Guidance",
+        "10.4.1. Definitions",
+        "10.4.2. Contraception Guidance",
+        "10.5. Appendix 5: Genetics",
+        "10.6. Appendix 6: Liver Safety: Suggestions and Guidelines for Liver",
+        "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs,",
+        "10.7.1. Definition of Medical Device AE and ADE",
+        "10.7.2. Definition of Medical Device SAE, SADE and USADE",
+        "10.7.3. Definition of Device Deficiency",
+        "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE",
+        "10.7.5. Reporting of Medical Device SAEs",
+        "10.7.6. Reporting of SADEs",
+        "10.8. Appendix 8: Country-specific Requirements",
+        "10.9. Appendix 9: Protocol Amendment History",
+        "11. References",
+        "A maximum of [X] participants will be [enrolled / randomized / assigned to investigational",
+        "A [data monitoring committee] has been appointed for this study. The [data monitoring committee (board)]",
+        "X X X X",
+        "X ============================= X X",
+        "A detailed description of the chemistry, pharmacology, efficacy, and safety of [investigational intervention",
+        "4.2.1.1 Obtaining Study Participant Feedback (Voluntary):",
+        "A participant is considered to have completed the study if the participant has completed all",
+        "1. Participant must be [18] [or the legal age of consent in the jurisdiction in which the",
+        "2. Participants who are overtly healthy as determined by medical evaluation including",
+        "3. Participants who are [insert criteria]",
+        "4. Body weight within [insert range including units] and BMI within the range [X – X]",
+        "5. [male and/or female] assigned at birth, inclusive of all gender identities.",
+        "6. Signed informed consent as described in Appendix 1 which includes compliance with",
+        "1. [ ]",
+        "2. [ ]",
+        "3. [ ]",
+        "4. [ ]",
+        "5. [ ]",
+        "6. [ ]",
+        "1. Participants will abstain from strenuous exercise for [X hours] before each blood collection for",
+        "A screen failure occurs when a participant who has consented to participate in the clinical study",
+        "1. The [sponsor] manufactured medical devices (or devices manufactured for [sponsor] by a third",
+        "2. Other medical devices (not manufactured by or for [sponsor]) provided for use in this study are",
+        "4 cycles.]",
+        "3. Instructions for medical device use are provided [cross reference the location of such",
+        "4. All device deficiencies (including malfunction, use error and inadequate labelling) shall be",
+        "1. The investigator or designee must confirm appropriate conditions (eg, temperature) have",
+        "2. Only participants [randomized/assigned] to study intervention may receive study",
+        "3. All study intervention must be stored in a secure, environmentally controlled, and",
+        "4. The investigator, [institution, the head of the medical institution (where applicable), or",
+        "5. Further guidance and information for the final disposition of unused study interventions",
+        "A record of the quantity of [insert study intervention(s)] dispensed to and administered by each participant",
+        "6.7. Continued Access to Study Intervention after the End of the Study",
+        "7.1.4.1. Study Intervention Restart or Rechallenge After Liver Stopping Criteria Are",
+        "A participant will be considered lost to follow-up if the participant repeatedly fails to return for",
+        "5 minutes rest and will include temperature, systolic and diastolic blood pressure, and pulse [and",
+        "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and Other",
+        "8.4.1. Time Period and Frequency for Collecting AE and SAE Information",
+        "8.4.7. Disease-related Events and/or Disease-related Outcomes Not Qualifying as AEs",
+        "8.4.9.1. Time Period for Detecting Medical Device Deficiencies",
+        "8.4.9.2. Follow-up of Medical Device Deficiencies",
+        "8.4.9.3. Prompt Reporting of Device Deficiencies to the Sponsor",
+        "8.4.9.4. Regulatory Reporting Requirements for Device Deficiencies",
+        "A [X] mL [blood OR saliva] sample for DNA isolation will be collected from participants who have",
+        "A closed testing procedure that controls the family wise error rate in the strong sense at the overall [5]%",
+        "9.3.1.1. Definition of endpoint(s)",
+        "9.3.1.2. Main Analytical Approach",
+        "9.3.1.3. Sensitivity [Analysis/Analyses]",
+        "9.3.1.4. Supplementary [Analysis/Analyses]",
+        "10.1.6.1. [Early Safety Data Review AND/OR Committee]",
+        "A type of adverse event that is usually transient and may require only minimal treatment",
+        "A type of adverse event that is usually alleviated with additional specific therapeutic",
+        "A type of adverse event that interrupts usual activities of daily living, or significantly",
+        "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs, USADEs",
+        "14155 and the European Medical Device Regulation (MDR) 2017/745 for clinical device",
+        "A Medical Device SAE is an any serious adverse event that:",
+        "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE and Device",
+        "5.1. Inclusion Criteria Removed maximum age range To better reflect the age of the"
+      ],
+      "refinedSections": [
+        {
+          "title": "Title Page",
+          "summary": "Contains administrative information for the protocol including protocol title with intervention model and purpose, protocol number, amendment details, compound information, brief title, study phase, sponsor information, and regulatory agency identifiers. This is the cover page with all key identifying information for the clinical trial.",
+          "originalHeading": "Title Page"
+        },
+        {
+          "title": "Protocol [protocol number] [version number and or identifier]",
+          "summary": "Second title page containing pediatric investigational plan number (if applicable), approval date, sponsor signatory section with signature line and date field, and medical monitor contact information. This page documents formal approval and key contact details.",
+          "originalHeading": "Protocol [protocol number] [version number and or identifier]"
+        },
+        {
+          "title": "Protocol Amendment Summary of Changes Table",
+          "summary": "Documents the history of all protocol amendments including document history table with dates, amendment rationale statements, and a detailed table listing section numbers, descriptions of changes, and brief rationales. Used to track all modifications made to the original protocol over time.",
+          "originalHeading": "Protocol Amendment Summary of Changes Table"
+        },
+        {
+          "title": "Table of Contents",
+          "summary": "Comprehensive listing of all protocol sections with page numbers, organized hierarchically from Section 1 (Protocol Summary) through Section 11 (References), including all subsections and appendices. Provides navigational structure for the entire protocol document.",
+          "originalHeading": "Table of Contents"
+        },
+        {
+          "title": "List of Abbreviations [and Definitions of terms]",
+          "summary": "Alphabetical listing of all abbreviations and specialized terms used throughout the protocol with their full definitions or explanations. Ensures consistent terminology understanding across all protocol users.",
+          "originalHeading": "List of Abbreviations [and Definitions of terms]"
+        },
+        {
+          "title": "1. Protocol Summary",
+          "summary": "High-level overview section containing the synopsis, study schema diagram, and schedule of activities. This section provides a complete summary of the study design, objectives, endpoints, population, duration, and key procedures at a glance.",
+          "originalHeading": "Protocol Summary"
+        },
+        {
+          "title": "1.1. Synopsis",
+          "summary": "Structured summary including protocol title, brief title, regulatory identifiers, pediatric plan number, study rationale, objectives and endpoints table, overall design description, brief summary of study purpose and duration, number of participants, study arms and duration details, and data monitoring committee information. This is a comprehensive one-page summary of the entire study.",
+          "originalHeading": "1.1. Synopsis"
+        },
+        {
+          "title": "1.2. Schema",
+          "summary": "Visual representation or diagram showing the study design flow, including screening, randomization, treatment periods, follow-up, and key decision points. Provides a graphical overview of the participant journey through the study.",
+          "originalHeading": "1.2. Schema"
+        },
+        {
+          "title": "1.3. Schedule of Activities (SoA)",
+          "summary": "Detailed table listing all study procedures, assessments, and visits across the timeline of the study. Includes informed consent, eligibility criteria checks, demographics, physical examinations, medical history, pregnancy testing, laboratory tests, ECGs, vital signs, randomization, study intervention administration, genetic sampling, AE/SAE review, device deficiencies, concomitant medications, PK sampling, efficacy assessments, and PRO assessments with specific timing for each.",
+          "originalHeading": "1.3. Schedule of Activities (SoA)"
+        },
+        {
+          "title": "2. Introduction",
+          "summary": "Provides background context for the study including a brief description of the investigational intervention being studied. This section sets up the scientific and medical rationale for conducting the trial.",
+          "originalHeading": "2. Introduction"
+        },
+        {
+          "title": "2.1. Study Rationale",
+          "summary": "Explains the scientific and clinical reasoning for conducting this particular study, including the unmet medical need, gaps in current knowledge, and how this study will address those gaps. Justifies why this research is necessary and timely.",
+          "originalHeading": "2.1. Study Rationale"
+        },
+        {
+          "title": "2.2. Background",
+          "summary": "Provides detailed background information on the disease/condition being studied, the investigational intervention's mechanism of action, pharmacology, and prior research. References the investigator's brochure for comprehensive details on chemistry, efficacy, and safety data.",
+          "originalHeading": "2.2. Background"
+        },
+        {
+          "title": "2.3. Benefit/Risk Assessment",
+          "summary": "Comprehensive evaluation of the known and expected benefits versus risks of the investigational intervention. References additional documents like investigator's brochure, package insert, and development safety update reports for detailed safety information.",
+          "originalHeading": "2.3. Benefit/Risk Assessment"
+        },
+        {
+          "title": "2.3.1. Risk Assessment",
+          "summary": "Detailed analysis of all potential risks associated with the investigational intervention and study procedures, including known adverse events, their frequency and severity, and risk mitigation strategies implemented in the protocol.",
+          "originalHeading": "2.3.1. Risk Assessment"
+        },
+        {
+          "title": "2.3.2. Benefit Assessment",
+          "summary": "Analysis of potential benefits to study participants and/or future patients, including anticipated therapeutic effects, contribution to scientific knowledge, and potential improvements in treatment outcomes.",
+          "originalHeading": "2.3.2. Benefit Assessment"
+        },
+        {
+          "title": "2.3.3. Overall Benefit Risk Conclusion",
+          "summary": "Final determination that the anticipated benefits justify the identified risks for participants with the target indication, taking into account all risk minimization measures implemented in the study design.",
+          "originalHeading": "2.3.3. Overall Benefit Risk Conclusion"
+        },
+        {
+          "title": "3. Objectives, Endpoints, and Estimands",
+          "summary": "Comprehensive table listing all study objectives (primary, secondary, tertiary/exploratory) with their corresponding endpoints, followed by detailed estimand specifications for each objective including population, endpoint, treatment condition, intercurrent events handling, and population-level summary measures.",
+          "originalHeading": "3. Objectives, Endpoints, and Estimands"
+        },
+        {
+          "title": "3.1. Estimand(s) for Primary Objective(s)",
+          "summary": "Detailed specification of the primary estimand using ICH E9(R1) framework, including the clinical question of interest, target population, variable/endpoint, treatment condition, strategies for handling intercurrent events, and population-level summary. May include multiple primary estimands or coprimary estimands with rationale.",
+          "originalHeading": "Estimand(s) for Primary Objective(s)"
+        },
+        {
+          "title": "3.1.1. Supplementary Estimand(s)",
+          "summary": "Additional estimands that provide supplementary analyses for the primary objective using alternative strategies for handling intercurrent events or different population-level summaries. These support the primary estimand with sensitivity or alternative perspectives.",
+          "originalHeading": "Supplementary Estimand(s)"
+        },
+        {
+          "title": "3.2. Estimands for Secondary Objective(s)",
+          "summary": "Detailed estimand specifications for each secondary objective, following the same ICH E9(R1) framework with clinical question, population, endpoint, treatment condition, intercurrent event strategies, and population-level summary. Each secondary objective may have its own estimand.",
+          "originalHeading": "Estimands for Secondary Objective(s)"
+        },
+        {
+          "title": "3.2.1. Secondary estimand(s) for Secondary Objective [label]",
+          "summary": "Specific estimand definition for a labeled secondary objective, including how discontinuation of intervention and rescue medications are handled (e.g., composite strategy, treatment policy strategy), and the population-level summary measure of interest.",
+          "originalHeading": "Secondary estimand(s) for Secondary Objective [label]"
+        },
+        {
+          "title": "3.3. Estimands for [Tertiary/Exploratory/Other] Objectives",
+          "summary": "Estimand specifications for exploratory or other objectives that are not primary or secondary. These may be less formally specified and may explore additional research questions or hypothesis-generating analyses.",
+          "originalHeading": "Estimands for [Tertiary/Exploratory/Other] Objectives"
+        },
+        {
+          "title": "4. Study Design",
+          "summary": "Comprehensive description of the study design including overall design description, scientific rationale for design choices, patient input considerations, dose justification, and end-of-study definition. This section explains the fundamental structure and approach of the trial.",
+          "originalHeading": "4. Study Design"
+        },
+        {
+          "title": "4.1. Overall Design",
+          "summary": "High-level description of the study design including intervention model (parallel, crossover, sequential, etc.), allocation method, blinding/masking approach, study phases, treatment groups, and overall study flow from screening through follow-up.",
+          "originalHeading": "4.1. Overall Design"
+        },
+        {
+          "title": "4.2. Scientific Rationale for Study Design",
+          "summary": "Justification for key design choices including selection of intervention model, comparator selection, study duration, visit frequency, and assessment timing. Explains why this particular design is optimal for answering the research questions.",
+          "originalHeading": "4.2. Scientific Rationale for Study Design"
+        },
+        {
+          "title": "4.2.1. Patient Input into Design",
+          "summary": "Description of how patient perspectives and feedback were incorporated into the study design. May include information about the optional Study Participant Feedback Questionnaire used to collect participant experience data to improve future trial design and conduct.",
+          "originalHeading": "4.2.1. Patient Input into Design"
+        },
+        {
+          "title": "4.3. Justification for Dose",
+          "summary": "Rationale for the selected dose(s) or dose range, including supporting pharmacokinetic and pharmacodynamic data, safety considerations, and dose-response information. For device studies, explains what constitutes a 'dose.' May include dose escalation/adjustment criteria and stopping rules based on safety or PK data.",
+          "originalHeading": "4.3. Justification for Dose"
+        },
+        {
+          "title": "4.4. End-of-Study Definition",
+          "summary": "Clear definition of when the study is considered complete (typically the last visit of the last participant or last scheduled procedure globally). Also defines what constitutes study completion for an individual participant (completion of all study periods and procedures).",
+          "originalHeading": "4.4. End-of-Study Definition"
+        },
+        {
+          "title": "5. Study Population",
+          "summary": "Comprehensive section defining the target participant population including inclusion criteria, exclusion criteria, lifestyle restrictions, screen failure policies, and criteria for temporarily delaying enrollment or intervention administration. Begins with statement prohibiting protocol waivers.",
+          "originalHeading": "5. Study Population"
+        },
+        {
+          "title": "5.1. Inclusion Criteria",
+          "summary": "Complete list of criteria that participants must meet to be eligible for the study, organized by categories including age, participant type and disease characteristics, weight and BMI, sex and contraceptive requirements, informed consent, and other study-specific criteria. All criteria must be met for enrollment.",
+          "originalHeading": "5.1. Inclusion Criteria"
+        },
+        {
+          "title": "5.2. Exclusion Criteria",
+          "summary": "Complete list of criteria that would disqualify a participant from the study, organized by categories including medical conditions, liver safety considerations, prior/concomitant therapy restrictions, prior/concurrent clinical study experience, diagnostic assessment findings, and other exclusion factors. Any single criterion met results in exclusion.",
+          "originalHeading": "5.2. Exclusion Criteria"
+        },
+        {
+          "title": "5.3. Lifestyle Considerations",
+          "summary": "Overall section covering lifestyle restrictions and requirements during the study including meals and dietary restrictions, caffeine/alcohol/tobacco limitations, activity restrictions, and other lifestyle constraints necessary for study integrity and participant safety.",
+          "originalHeading": "5.3. Lifestyle Considerations"
+        },
+        {
+          "title": "5.3.1. Meals and Dietary Restrictions",
+          "summary": "Specific requirements for meals and dietary restrictions during the study, such as avoiding grapefruit juice, red wine, or specific foods that may interact with the intervention. May include fasting requirements and water restriction timing for food effect studies.",
+          "originalHeading": "5.3.1. Meals and Dietary Restrictions"
+        },
+        {
+          "title": "5.3.2. Caffeine, Alcohol, and Tobacco",
+          "summary": "Restrictions on caffeine/xanthine-containing products (coffee, tea, cola, chocolate), alcohol consumption, and tobacco/nicotine product use during dosing sessions or throughout the study. Specifies timing and duration of restrictions relative to dosing and sample collection.",
+          "originalHeading": "5.3.2. Caffeine, Alcohol, and Tobacco"
+        },
+        {
+          "title": "5.3.3. Activity",
+          "summary": "Restrictions on physical activity and exercise during the study, such as abstaining from strenuous exercise before blood collection or clinical assessments. May allow light recreational activities while restricting vigorous exercise.",
+          "originalHeading": "5.3.3. Activity"
+        },
+        {
+          "title": "5.3.4. Other Restrictions",
+          "summary": "Any additional lifestyle restrictions or requirements not covered in previous subsections, such as restrictions on sun exposure, driving, occupational limitations, or other activities that may interfere with study procedures or safety.",
+          "originalHeading": "5.3.4. Other Restrictions"
+        },
+        {
+          "title": "5.4. Screen Failures",
+          "summary": "Definition of screen failure (participant consented but not enrolled), requirements for transparent reporting to meet CONSORT standards and regulatory queries, minimal data collection requirements (demographics, screen failure details, eligibility criteria, SAEs), and policies on rescreening with participant number assignment procedures.",
+          "originalHeading": "5.4. Screen Failures"
+        },
+        {
+          "title": "5.5. Criteria for Temporarily Delaying [Enrollment/Randomization/Administration of Study Intervention]",
+          "summary": "Specific conditions or circumstances under which enrollment, randomization, or intervention administration should be temporarily delayed (e.g., acute illness, abnormal lab values requiring follow-up, intercurrent medical events) and criteria for when the participant can proceed.",
+          "originalHeading": "5.5. Criteria for Temporarily Delaying [Enrollment/Randomization/Administration of Study Intervention]"
+        },
+        {
+          "title": "6. Study Intervention(s) and Concomitant Therapy",
+          "summary": "Comprehensive section covering all aspects of study interventions including detailed description of interventions administered, rescue medications, medical devices, preparation and storage requirements, assignment/randomization procedures, blinding methods, compliance monitoring, dose modification rules, overdose management, and prior/concomitant therapy policies.",
+          "originalHeading": "6. Study Intervention(s) and Concomitant Therapy"
+        },
+        {
+          "title": "6.1. Study Intervention(s) Administered",
+          "summary": "Detailed tables describing all study interventions including intervention name, description, type (drug/device/biologic), dose formulation, unit dose strength, dosage levels, route of administration, use category (experimental/placebo/comparator), IMP/NIMP designation, sourcing, packaging and labeling, and current/former names. Also includes study arm descriptions.",
+          "originalHeading": "6.1. Study Intervention(s) Administered"
+        },
+        {
+          "title": "6.1.1. Rescue Medicine",
+          "summary": "Description of permitted rescue medications including whether supplied by sponsor or obtained locally, specific rescue medications allowed, timing restrictions for rescue medication use relative to study intervention administration, and documentation requirements for rescue medication administration.",
+          "originalHeading": "6.1.1. Rescue Medicine"
+        },
+        {
+          "title": "6.1.2. Medical Devices",
+          "summary": "List of all medical devices provided for the study including sponsor-manufactured devices and third-party devices, cross-reference to device use instructions, and requirements for documenting and reporting all device deficiencies (malfunction, use error, inadequate labeling) throughout the clinical investigation.",
+          "originalHeading": "6.1.2. Medical Devices"
+        },
+        {
+          "title": "6.2. Preparation, Handling, Storage, and Accountability",
+          "summary": "Requirements for confirming appropriate storage conditions during transit, authorization for supply and administration, secure environmentally-controlled storage with limited access, investigator responsibility for accountability and record maintenance, and guidance for final disposition of unused study interventions.",
+          "originalHeading": "6.2. Preparation, Handling, Storage, and Accountability"
+        },
+        {
+          "title": "6.3. Assignment to Study Intervention",
+          "summary": "Procedures for assigning participants to study intervention, with examples for IVRS/IWRS systems (central randomization with phone/web access) or precoded randomization provided to sites. Includes dispensing schedule, prohibition on redispensing returned intervention, and assignment documentation requirements.",
+          "originalHeading": "6.3. Assignment to Study Intervention"
+        },
+        {
+          "title": "6.4. [Blinding, Masking]",
+          "summary": "Description of blinding/masking approach for the study including who is blinded (participants, investigators, assessors), methods for maintaining blind (IVRS/IWRS, sealed envelopes, third-party dispensing), emergency unblinding procedures with investigator responsibility and sponsor notification requirements, and bias reduction strategies for open-label studies.",
+          "originalHeading": "6.4. [Blinding, Masking]"
+        },
+        {
+          "title": "6.5. Study Intervention Compliance",
+          "summary": "Procedures for ensuring and documenting intervention compliance including double-checking for bulk supply preparation, direct observation for clinic dosing with mouth checks, documentation of date/time and dual verification, and compliance assessment methods for home administration (direct questioning, pill counts) with intervention accountability and reconciliation requirements.",
+          "originalHeading": "6.5. Study Intervention Compliance"
+        },
+        {
+          "title": "6.6. Dose Modification",
+          "summary": "Procedures and criteria for dose reduction or modification when necessary due to tolerability or safety concerns. Includes description of modified dosing regimens or table of dose level changes to be implemented if dose adjustment is required.",
+          "originalHeading": "6.6. Dose Modification"
+        },
+        {
+          "title": "6.6.1. Retreatment Criteria",
+          "summary": "Eligibility criteria that participants must meet to receive additional study intervention after initial treatment, determination process involving investigator judgment and participant agreement, and statement of whether retreatment will be blinded or unblinded.",
+          "originalHeading": "6.6.1. Retreatment Criteria"
+        },
+        {
+          "title": "6.7. Continued Access to Study Intervention after the End of the Study",
+          "summary": "Policies and procedures for providing continued access to study intervention for participants who complete the study and may benefit from ongoing treatment, including eligibility criteria, duration of continued access, and regulatory/ethical requirements for compassionate use or expanded access programs.",
+          "originalHeading": "6.7. Continued Access to Study Intervention after the End of the Study"
+        },
+        {
+          "title": "6.8. Treatment of Overdose",
+          "summary": "Definition of what constitutes an overdose (e.g., exceeding specified daily dose within 24-hour period), availability or absence of specific antidote, and required actions for investigators including evaluation for intervention continuation, close monitoring for AEs and laboratory abnormalities, optional PK sampling, and documentation of excess dose quantity and duration.",
+          "originalHeading": "6.8. Treatment of Overdose"
+        },
+        {
+          "title": "6.9. Prior and Concomitant Therapy",
+          "summary": "Requirements for recording all medications and vaccines (prescription, over-the-counter, recreational drugs, vitamins, herbal supplements) with reason for use, dates, and dosage information. Includes washout requirements before study intervention, permitted medications (e.g., paracetamol/acetaminophen), and medical monitor consultation for questions about concomitant therapy.",
+          "originalHeading": "6.9. Prior and Concomitant Therapy"
+        },
+        {
+          "title": "7. Discontinuation of Study Intervention and Participant Discontinuation/Withdrawal",
+          "summary": "Comprehensive section covering procedures for discontinuing study intervention (temporary or permanent) while remaining in study, participant withdrawal from the study entirely, and lost to follow-up procedures. Includes specific stopping criteria for liver events, QTc changes, and rechallenge policies.",
+          "originalHeading": "7. Discontinuation of Study Intervention and Participant Discontinuation/Withdrawal"
+        },
+        {
+          "title": "7.1. Discontinuation of Study Intervention",
+          "summary": "Circumstances and procedures for permanent discontinuation of study intervention while participant remains in study for evaluations and follow-up. References Schedule of Activities for data collection at time of discontinuation and any further required evaluations.",
+          "originalHeading": "7.1. Discontinuation of Study Intervention"
+        },
+        {
+          "title": "7.1.1. Liver Event Stopping Criteria",
+          "summary": "Mandatory discontinuation criteria for abnormal liver tests including specific algorithm-defined conditions requiring intervention discontinuation, or investigator determination that discontinuation is in the participant's best interest based on liver chemistry abnormalities even if not meeting protocol-specified stopping rules.",
+          "originalHeading": "7.1.1. Liver Event Stopping Criteria"
+        },
+        {
+          "title": "7.1.2. QTc Stopping Criteria",
+          "summary": "Procedures for managing clinically significant ECG findings including QT interval changes (QTcB or QTcF), investigator determination of whether participant can continue study intervention, required documentation of ECG review, participant management changes, and reporting of clinically relevant findings as adverse events.",
+          "originalHeading": "7.1.2. QTc Stopping Criteria"
+        },
+        {
+          "title": "7.1.3. Temporary Discontinuation",
+          "summary": "Conditions and procedures for temporarily pausing study intervention administration with intention to resume, including criteria for when temporary discontinuation is appropriate, duration limits, monitoring during the pause, and criteria for safe resumption of intervention.",
+          "originalHeading": "7.1.3. Temporary Discontinuation"
+        },
+        {
+          "title": "7.1.4. Rechallenge",
+          "summary": "Overall policies for restarting study intervention after stopping criteria are met, with specific subsection for liver chemistry rechallenge requiring sponsor board approval, ethics/IRB approval, separate consent, and participant education about risks of death, liver transplantation, hospitalization, and jaundice.",
+          "originalHeading": "7.1.4. Rechallenge"
+        },
+        {
+          "title": "7.2. Participant Discontinuation/Withdrawal from the Study",
+          "summary": "Participant rights to withdraw at any time without consequences, investigator authority to withdraw participants for safety/behavioral/compliance reasons, requirement for early discontinuation visit per Schedule of Activities, procedures for handling withdrawal of consent for future information while retaining already-collected data, and participant request for sample destruction documentation.",
+          "originalHeading": "7.2. Participant Discontinuation/Withdrawal from the Study"
+        },
+        {
+          "title": "7.3. Lost to Follow up",
+          "summary": "Definition of lost to follow-up (repeatedly fails to return and cannot be contacted), required contact attempts (3 phone calls, certified letter) before declaring lost to follow-up, documentation requirements, and optional procedures for vital status collection through public sources while maintaining legal and ethical boundaries.",
+          "originalHeading": "7.3. Lost to Follow up"
+        },
+        {
+          "title": "8. Study Assessments and Procedures",
+          "summary": "Comprehensive section detailing all study assessments including administrative procedures, efficacy/immunogenicity assessments, safety assessments (physical exams, vital signs, ECGs, laboratory tests, pregnancy testing, suicidality monitoring), adverse event reporting, pharmacokinetics, pharmacodynamics, genetics, biomarkers, immunogenicity, and health economics. Emphasizes adherence to Schedule of Activities and protocol waivers not allowed.",
+          "originalHeading": "8. Study Assessments and Procedures"
+        },
+        {
+          "title": "8.1. Administrative [and General/Baseline] Procedures",
+          "summary": "Administrative assessments and procedures including informed consent, participant identification assignment, screening procedures, baseline assessments, and general administrative documentation required throughout the study to ensure proper participant management and data collection.",
+          "originalHeading": "8.1. Administrative [and General/Baseline] Procedures"
+        },
+        {
+          "title": "8.2. [Efficacy and/or Immunogenicity] Assessments",
+          "summary": "Description of all efficacy and/or immunogenicity assessments specific to the study objectives, including measurement instruments, timing per Schedule of Activities, procedures for conducting assessments, and handling of assessment data to maintain blinding if applicable.",
+          "originalHeading": "8.2. [Efficacy and/or Immunogenicity] Assessments"
+        },
+        {
+          "title": "8.3. Safety Assessments",
+          "summary": "Comprehensive safety monitoring section including physical examinations (complete and brief), vital signs measurements with specific procedures, electrocardiograms (single or triplicate), clinical laboratory tests with investigator review requirements, pregnancy testing, and suicidal ideation and behavior monitoring for CNS-active interventions.",
+          "originalHeading": "8.3. Safety Assessments"
+        },
+        {
+          "title": "8.3.1. Physical Examinations",
+          "summary": "Requirements for complete physical examination (cardiovascular, respiratory, gastrointestinal, neurological systems minimum, plus height and weight) and brief physical examination (skin, lungs, cardiovascular, abdomen including liver and spleen). Investigators should pay special attention to signs related to previous serious illnesses.",
+          "originalHeading": "8.3.1. Physical Examinations"
+        },
+        {
+          "title": "8.3.2. Vital Signs",
+          "summary": "Procedures for vital signs measurement including temperature (with method specified), pulse rate, respiratory rate, and blood pressure. Requirements include 5-minute rest before measurement, automated devices preferred, blood pressure taken in triplicate at 1-minute intervals with average recorded, and participant position specified.",
+          "originalHeading": "8.3.2. Vital Signs"
+        },
+        {
+          "title": "8.3.3. Electrocardiograms",
+          "summary": "ECG procedures including whether single or triplicate 12-lead ECGs will be obtained, timing per Schedule of Activities, automatic calculation of heart rate and intervals (PR, QRS, QT, QTc), and for triplicate ECGs requirement that 3 tracings be obtained in succession no more than 2 minutes apart. References QTc withdrawal criteria.",
+          "originalHeading": "8.3.3. Electrocardiograms"
+        },
+        {
+          "title": "8.3.4. Clinical Safety Laboratory Tests",
+          "summary": "Requirements for protocol-specified laboratory tests per Appendix 2 and Schedule of Activities, investigator review and documentation of all results, recording of clinically significant changes as adverse events, procedures for repeating abnormal values until resolution or stabilization, etiology identification for persistent abnormalities, and requirements for local lab tests when needed.",
+          "originalHeading": "8.3.4. Clinical Safety Laboratory Tests"
+        },
+        {
+          "title": "8.3.5. Pregnancy Testing",
+          "summary": "Requirements for pregnancy testing in participants of childbearing potential, including test type (highly sensitive serum or urine hCG), timing per Schedule of Activities, and procedures for managing positive results. References Section 8.4.5 for pregnancy reporting and follow-up requirements.",
+          "originalHeading": "8.3.5. Pregnancy Testing"
+        },
+        {
+          "title": "8.3.6. Suicidal Ideation and Behavior Risk Monitoring",
+          "summary": "Monitoring requirements for CNS-active interventions or interventions with increased suicide risk, including baseline and ongoing assessment using specified scales, close observation especially at intervention start/end or dose changes, risk assessment for participants with signs of suicidal ideation/behavior, consideration of intervention discontinuation, and requirements to alert families/caregivers about monitoring needs.",
+          "originalHeading": "8.3.6. Suicidal Ideation and Behavior Risk Monitoring"
+        },
+        {
+          "title": "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and Other Safety Reporting",
+          "summary": "Comprehensive AE/SAE reporting section covering definitions (Appendix 3/7), time periods and frequency for collection, detection methods, follow-up procedures, regulatory reporting requirements, pregnancy reporting, cardiovascular and death events, disease-related events, adverse events of special interest, and medical device deficiencies. Emphasizes investigator responsibility for detection, documentation, and follow-up.",
+          "originalHeading": "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and Other Safety Reporting"
+        },
+        {
+          "title": "8.4.1. Time Period and Frequency for Collecting AE and SAE Information",
+          "summary": "Specifies collection period for SAEs (from consent or first dose until follow-up visit) and AEs (from consent or first dose until follow-up visit) per Schedule of Activities, requirement for immediate SAE reporting to sponsor within 24 hours, procedures for medical occurrences before intervention start, and investigator responsibility for reporting SAEs learned after study discharge if reasonably related to intervention.",
+          "originalHeading": "8.4.1. Time Period and Frequency for Collecting AE and SAE Information"
+        },
+        {
+          "title": "8.4.2. Method of Detecting AEs and SAEs",
+          "summary": "Emphasizes use of open-ended and nonleading verbal questioning of participants as the preferred method to detect adverse events and serious adverse events, avoiding introduction of bias in the detection process.",
+          "originalHeading": "8.4.2. Method of Detecting AEs and SAEs"
+        },
+        {
+          "title": "8.4.3. Follow-up of AEs and SAEs",
+          "summary": "Requirements for proactive follow-up of all SAEs and AEs of special interest until resolution, stabilization, event explained, or participant lost to follow-up. Investigator must follow participants at subsequent visits/contacts with additional follow-up procedures detailed in Appendix 3/7.",
+          "originalHeading": "8.4.3. Follow-up of AEs and SAEs"
+        },
+        {
+          "title": "8.4.4. Regulatory Reporting Requirements for SAEs",
+          "summary": "Sponsor legal responsibility to notify regulatory authorities and other agencies about study intervention safety, compliance with country-specific safety reporting requirements to authorities, IRBs/IECs, and investigators. Investigator responsibilities to review and file safety reports, notify IRB/IEC per local requirements, and timelines for preparing and forwarding SUSARs (suspected unexpected serious adverse reactions) within 15 days.",
+          "originalHeading": "8.4.4. Regulatory Reporting Requirements for SAEs"
+        },
+        {
+          "title": "8.4.5. Pregnancy",
+          "summary": "Requirements for collecting pregnancy information in participants and partners, reporting to sponsor within 24 hours, classification of pregnancy itself as not an AE/SAE but pregnancy complications and abnormal outcomes (spontaneous abortion, fetal death, stillbirth, congenital anomalies, ectopic pregnancy) as SAEs, follow-up of pregnancy outcome and neonate, and procedures for continuing or discontinuing intervention during pregnancy with required approvals and informed consent.",
+          "originalHeading": "8.4.5. Pregnancy"
+        },
+        {
+          "title": "8.4.6. Cardiovascular and Death Events",
+          "summary": "Special procedures and requirements for reporting and following cardiovascular events and deaths that occur during the study, including adjudication processes, additional data collection, and regulatory reporting timelines specific to these serious events.",
+          "originalHeading": "8.4.6. Cardiovascular and Death Events"
+        },
+        {
+          "title": "8.4.7. Disease-related Events and/or Disease-related Outcomes Not Qualifying as AEs or SAEs",
+          "summary": "Definition of disease-related events (DREs) common in the study population that typically won't be reported as SAEs even if meeting SAE criteria, monitoring by data/safety committee, and exceptions requiring AE/SAE reporting (if event is of greater intensity/frequency/duration than expected for the participant, or if investigator considers reasonable possibility of relationship to study intervention).",
+          "originalHeading": "8.4.7. Disease-related Events and/or Disease-related Outcomes Not Qualifying as AEs or SAEs"
+        },
+        {
+          "title": "8.4.8. Adverse Events of Special Interest",
+          "summary": "Definition and listing of specific adverse events that are of particular interest for the study intervention or indication, requiring enhanced monitoring, follow-up, and reporting even if not meeting serious criteria. These events may have specific collection instruments or adjudication procedures.",
+          "originalHeading": "8.4.8. Adverse Events of Special Interest"
+        },
+        {
+          "title": "8.4.9. Medical Device Deficiencies",
+          "summary": "Requirements for detection and documentation of device deficiencies (inadequacy in identity, quality, durability, reliability, safety, or performance) throughout all periods when medical device is used. Definition reference to Appendix 7, note that deficiencies meeting AE/SAE criteria follow those processes.",
+          "originalHeading": "8.4.9. Medical Device Deficiencies"
+        },
+        {
+          "title": "8.4.9.1. Time Period for Detecting Medical Device Deficiencies",
+          "summary": "Device deficiencies resulting in incidents detected, documented, and reported during all periods of medical device use. Investigator must promptly notify sponsor of deficiencies learned after participant discharge if reasonably related to study medical device.",
+          "originalHeading": "8.4.9.1. Time Period for Detecting Medical Device Deficiencies"
+        },
+        {
+          "title": "8.4.9.2. Follow-up of Medical Device Deficiencies",
+          "summary": "Follow-up applies to all participants including those who discontinue. Investigator responsible for supplemental investigations to elucidate nature and causality of deficiency. New or updated information recorded on original form with investigator signature and date.",
+          "originalHeading": "8.4.9.2. Follow-up of Medical Device Deficiencies"
+        },
+        {
+          "title": "8.4.9.3. Prompt Reporting of Device Deficiencies to the Sponsor",
+          "summary": "Device deficiencies reported to sponsor within 24 hours after investigator determines event meets protocol definition. Reporting method specified (e.g., electronic system) with alternative method identified. Sponsor contact designated for receipt of deficiency reports.",
+          "originalHeading": "8.4.9.3. Prompt Reporting of Device Deficiencies to the Sponsor"
+        },
+        {
+          "title": "8.4.9.4. Regulatory Reporting Requirements for Device Deficiencies",
+          "summary": "Investigator must promptly report all device deficiencies to enable sponsor fulfillment of legal responsibility to notify regulatory authorities and entities about medical device safety information. Investigator or responsible person complies with local regulatory requirements for reporting to IRB/IEC.",
+          "originalHeading": "8.4.9.4. Regulatory Reporting Requirements for Device Deficiencies"
+        },
+        {
+          "title": "8.5. Pharmacokinetics",
+          "summary": "Description of PK sampling including sample type (plasma/serum/whole blood/urine), volume, timing per Schedule of Activities, procedures for collection and handling, number of aliquots, potential for additional timepoint sampling based on emerging data, and confidentiality measures to maintain blinding. May state PK parameters not evaluated if not applicable.",
+          "originalHeading": "8.5. Pharmacokinetics"
+        },
+        {
+          "title": "8.6. Pharmacodynamics",
+          "summary": "Description of pharmacodynamic assessments and biomarkers that will be measured to evaluate the biological or physiological effects of the study intervention, including sample types, timing, procedures, and analysis plans for PD endpoints.",
+          "originalHeading": "8.6. Pharmacodynamics"
+        },
+        {
+          "title": "8.7. Genetics",
+          "summary": "Genetic sampling procedures including blood or saliva sample collection for DNA isolation from consenting participants (participation optional), volume, procedures for DNA extraction failure replacement, reference to Appendix 5 for detailed genetic research information, and collection/shipment/destruction processes. May state genetics not evaluated if not applicable.",
+          "originalHeading": "8.7. Genetics"
+        },
+        {
+          "title": "8.8. Biomarkers",
+          "summary": "Description of biomarker sample collection (sample type, protocol-specific objectives, biomarker names), timing per Schedule of Activities and laboratory manual, storage duration (up to specified years), and optional further research use with participant consent for understanding disease, treatment development, or research methods. May state biomarkers not evaluated if not applicable.",
+          "originalHeading": "8.8. Biomarkers"
+        },
+        {
+          "title": "8.9. Immunogenicity Assessments",
+          "summary": "Procedures for evaluating antibodies to study intervention in plasma/serum samples per Schedule of Activities and at final visit for discontinuing participants, screening for binding antibodies with titer reporting, neutralizing antibody characterization, validated assay methods, coordination with intervention concentration measurement, sample storage duration, and further antibody characterization analyses.",
+          "originalHeading": "8.9. Immunogenicity Assessments"
+        },
+        {
+          "title": "8.10. [Health Economics OR Medical Resource Utilization and Health Economics]",
+          "summary": "Collection of health care resource utilization data including reasons and duration of hospitalizations and emergency room visits (excluding protocol-mandated procedures and encounters). Sponsor may use collected data to conduct economic analyses. May state health economics not evaluated if not applicable.",
+          "originalHeading": "8.10. [Health Economics OR Medical Resource Utilization and Health Economics]"
+        },
+        {
+          "title": "9. Statistical Considerations",
+          "summary": "Comprehensive statistical section covering general considerations (decision criteria, multiplicity adjustment, intercurrent events, missing data), analysis sets definitions, analyses for primary/secondary/exploratory objectives, safety analyses, other analyses including subgroups, interim analyses, and sample size determination. Notes that statistical analysis plan will provide more detailed technical descriptions.",
+          "originalHeading": "9. Statistical Considerations"
+        },
+        {
+          "title": "9.1. General Considerations",
+          "summary": "Overview of general statistical principles for the study including decision criteria/statistical hypotheses, multiplicity adjustment strategies, impact of intercurrent events, and handling of missing data. Provides foundation for all statistical analyses.",
+          "originalHeading": "9.1. General Considerations"
+        },
+        {
+          "title": "9.1.1. [Decision Criteria/Statistical Hypotheses]",
+          "summary": "Specification of nominal significance levels, one- or two-sided tests, confidence interval probabilities, and formal null and alternative hypotheses for primary and secondary objectives. May include superiority, non-inferiority, or equivalence hypotheses with justification for non-inferiority margins. Defines statistical framework for hypothesis testing.",
+          "originalHeading": "9.1.1. [Decision Criteria/Statistical Hypotheses]"
+        },
+        {
+          "title": "9.1.2. Multiplicity Adjustment",
+          "summary": "Strategy for controlling family-wise error rate across multiple comparisons, such as hierarchical testing procedures, closed testing procedures, alpha spending approaches, or fixed sequence testing. Ensures overall type I error rate maintained at specified level (e.g., 5%) when testing multiple hypotheses.",
+          "originalHeading": "9.1.2. Multiplicity Adjustment"
+        },
+        {
+          "title": "9.1.3. Impact of Intercurrent Events Strategies",
+          "summary": "Description of how intercurrent events (events occurring after treatment initiation that affect interpretation of the endpoint) will be handled in the analysis, aligned with the estimand framework. Strategies may include treatment policy, composite, hypothetical, while on treatment, or principal stratum approaches.",
+          "originalHeading": "9.1.3. Impact of Intercurrent Events Strategies"
+        },
+        {
+          "title": "9.1.4. Handling of Missing Data",
+          "summary": "Approach for handling missing data in the analysis, including primary analysis method, sensitivity analyses to assess robustness, and assumptions about missingness mechanisms (MCAR, MAR, MNAR). May include multiple imputation, mixed models, or other methods appropriate for the data and estimand.",
+          "originalHeading": "9.1.4. Handling of Missing Data"
+        },
+        {
+          "title": "9.2. Analysis Sets",
+          "summary": "Definitions of all participant analysis sets (e.g., Full Analysis Set, Safety Analysis Set, Per Protocol Set) and data points sets used for different estimands and objectives. Specifies which participants and which data will be included in each analysis, treatment assignment principles (planned vs. actual), and alignment with estimands.",
+          "originalHeading": "9.2. Analysis Sets"
+        },
+        {
+          "title": "9.3. Analyses Supporting Primary Objective(s)",
+          "summary": "Detailed description of statistical analyses for the primary objective including endpoint definition, main analytical approach (statistical model, covariates, estimands), sensitivity analyses to assess robustness, and supplementary analyses to provide additional perspectives on the primary objective.",
+          "originalHeading": "9.3. Analyses Supporting Primary Objective(s)"
+        },
+        {
+          "title": "9.3.1. Primary [Endpoint(s)/Estimand(s)]",
+          "summary": "Subsection containing detailed specifications for primary endpoint(s) or estimand(s) including endpoint definition, main analytical approach with statistical methods, sensitivity analyses, and supplementary analyses.",
+          "originalHeading": "9.3.1. Primary [Endpoint(s)/Estimand(s)]"
+        },
+        {
+          "title": "9.4. Analyses Supporting Secondary Objective(s)",
+          "summary": "Statistical analyses for all secondary objectives, organized by objective with subsections for each. Describes analytical methods, models, and approaches for each secondary endpoint/estimand, recognizing hierarchical testing constraints from multiplicity adjustment.",
+          "originalHeading": "9.4. Analyses Supporting Secondary Objective(s)"
+        },
+        {
+          "title": "9.4.1. Analyses Supporting Secondary Objective [label]",
+          "summary": "Specific analytical approach for a labeled secondary objective including statistical methods, models, covariates, and handling of intercurrent events consistent with the secondary estimand definition. Subject to hierarchical testing order from multiplicity adjustment.",
+          "originalHeading": "9.4.1. Analyses Supporting Secondary Objective [label]"
+        },
+        {
+          "title": "9.5. Analyses Supporting [Tertiary/Exploratory/Other] Objective(s)",
+          "summary": "Statistical analyses for exploratory or other objectives not subject to formal hypothesis testing. These are typically descriptive or hypothesis-generating analyses without multiplicity adjustment, providing additional insights beyond primary and secondary objectives.",
+          "originalHeading": "9.5. Analyses Supporting [Tertiary/Exploratory/Other] Objective(s)"
+        },
+        {
+          "title": "9.6. [Other] Safety Analyses",
+          "summary": "Description of safety data analyses including adverse events, serious adverse events, laboratory values, vital signs, ECGs, and other safety assessments. Typically descriptive summaries by treatment group with frequency tables, time to event analyses, and special analyses for safety topics of interest.",
+          "originalHeading": "9.6. [Other] Safety Analyses"
+        },
+        {
+          "title": "9.7. Other Analyses",
+          "summary": "Section covering additional analyses not fitting into primary, secondary, exploratory, or safety categories, including analyses of other variables/parameters and subgroup analyses.",
+          "originalHeading": "9.7. Other Analyses"
+        },
+        {
+          "title": "9.7.1. Other variables and/or parameters",
+          "summary": "Analyses of additional variables or parameters such as demographics, baseline characteristics, protocol deviations, pharmacokinetics, pharmacodynamics, biomarkers, or other data not specifically addressed in other analysis sections.",
+          "originalHeading": "9.7.1. Other variables and/or parameters"
+        },
+        {
+          "title": "9.7.2. Subgroup analyses",
+          "summary": "Prespecified analyses within subgroups of participants defined by baseline characteristics (e.g., age, sex, disease severity, geographic region) to explore consistency of treatment effects. Includes specification of subgroups and methods for subgroup comparisons, recognizing exploratory nature.",
+          "originalHeading": "9.7.2. Subgroup analyses"
+        },
+        {
+          "title": "9.8. Interim [Analysis/Analyses]",
+          "summary": "Description of any planned interim analyses including purpose (efficacy monitoring, futility, sample size re-estimation), timing based on information fraction or events, analysis methods, alpha spending or decision boundaries, independent data monitoring committee role, unblinding procedures, and measures to maintain study integrity. Statistical analysis plan will provide greater detail.",
+          "originalHeading": "9.8. Interim [Analysis/Analyses]"
+        },
+        {
+          "title": "9.9. Sample Size Determination",
+          "summary": "Justification for the planned sample size including target number of participants to enroll/randomize, basis for calculation (primary efficacy estimand/endpoint), assumptions about response rates or effect sizes, statistical test and significance level, desired power, and assumptions about intercurrent events and dropout. May include calculations for secondary objectives.",
+          "originalHeading": "9.9. Sample Size Determination"
+        },
+        {
+          "title": "10. Supporting Documentation and Operational Considerations",
+          "summary": "Major section containing all appendices covering regulatory and ethical considerations, clinical laboratory tests, AE/SAE definitions and procedures, contraceptive guidance, genetics details, liver safety guidelines, medical device reporting procedures, country-specific requirements, and protocol amendment history.",
+          "originalHeading": "10. Supporting Documentation and Operational Considerations"
+        },
+        {
+          "title": "10.1. Appendix 1: Regulatory, Ethical, and Study Oversight Considerations",
+          "summary": "Comprehensive appendix covering regulatory and ethical requirements including compliance with Declaration of Helsinki, ICH GCP, and local laws; IRB/IEC submission and approval processes; financial disclosure; informed consent procedures; recruitment strategy; data protection; committee structures; dissemination of clinical data; data quality assurance; source documents; study/site start and closure; and publication policy.",
+          "originalHeading": "10.1. Appendix 1: Regulatory, Ethical, and Study Oversight Considerations"
+        },
+        {
+          "title": "10.1.1. Regulatory and Ethical Considerations",
+          "summary": "Requirements for conducting study in accordance with Declaration of Helsinki, CIOMS guidelines, ICH GCP, and applicable laws and regulations. IRB/IEC submission and approval requirements for protocol, amendments, informed consent, and study documents. Health authority approval requirements. Investigator responsibilities for status reporting, SAE notification, and oversight.",
+          "originalHeading": "10.1.1. Regulatory and Ethical Considerations"
+        },
+        {
+          "title": "10.1.2. Financial Disclosure",
+          "summary": "Requirements for investigators and sub-investigators to provide sufficient, accurate financial information to sponsor to enable complete and accurate financial certification or disclosure statements to regulatory authorities, documenting potential financial conflicts of interest.",
+          "originalHeading": "10.1.2. Financial Disclosure"
+        },
+        {
+          "title": "10.1.3. Informed Consent Process",
+          "summary": "Comprehensive informed consent procedures including investigator explanation of study nature, risks, and benefits; voluntary participation; signature requirements meeting 21 CFR 50, local regulations, ICH guidelines, and privacy laws; documentation in medical record; reconsent to current versions; providing copies to participants; rescreening consent requirements; optional exploratory research consent; pregnancy continuation consent; and two-step consent for complex studies.",
+          "originalHeading": "10.1.3. Informed Consent Process"
+        },
+        {
+          "title": "10.1.4. Recruitment strategy",
+          "summary": "Description of the approach and methods for recruiting participants into the study, including identification of potential participants, recruitment materials and advertisements, outreach strategies, and any specific considerations for ensuring diverse and representative enrollment.",
+          "originalHeading": "10.1.4. Recruitment strategy"
+        },
+        {
+          "title": "10.1.5. Data Protection",
+          "summary": "Participant privacy and data protection measures including unique identifier assignment, no transfer of identifying information to sponsor, participant informed about data use in accordance with local data protection law and consent requirements, medical record examination by auditors and regulators, contractual data protection responsibilities, and information technology security measures against unauthorized disclosure or access.",
+          "originalHeading": "10.1.5. Data Protection"
+        },
+        {
+          "title": "10.1.6. Committees Structure",
+          "summary": "Description of study oversight committees including data monitoring committees, safety review committees, and adjudication committees. Covers composition, responsibilities, meeting frequency, and decision-making authority. Includes subsection on early safety data review procedures.",
+          "originalHeading": "10.1.6. Committees Structure"
+        },
+        {
+          "title": "10.1.6.1. [Early Safety Data Review AND/OR Committee]",
+          "summary": "Procedures for continuous safety monitoring by sponsor internal/external safety review committee, early aggregated safety data review for initial participants (stepwise approach), specification of events that would trigger study pause/stop (deaths, SAEs, specific adverse events exceeding thresholds), decision process for resumption, and case unblinding procedures if necessary.",
+          "originalHeading": "10.1.6.1. [Early Safety Data Review AND/OR Committee]"
+        },
+        {
+          "title": "10.1.7. Dissemination of Clinical Study Data",
+          "summary": "Procedures for providing study participants the option of receiving their individual study data, with management and processes described in study data management or individual participant data return plan in accordance with sponsor policies, laws, and regulations.",
+          "originalHeading": "10.1.7. Dissemination of Clinical Study Data"
+        },
+        {
+          "title": "10.1.8. Data Quality Assurance",
+          "summary": "Data quality procedures including investigator responsibility for accurate CRF completion and signature, CRF completion guidance location, requirements for monitoring, audits, IRB/IEC review, and regulatory inspections with direct access to source documents, quality tolerance limits for identifying systematic issues, monitoring plan details (risk-based approaches, central/remote/on-site monitoring), sponsor data management responsibility, accountability for delegated actions, and record retention requirements.",
+          "originalHeading": "10.1.8. Data Quality Assurance"
+        },
+        {
+          "title": "10.1.9. Source Documents",
+          "summary": "Requirements for source documents that provide evidence of participant existence and data integrity, filing at investigator site, consistency between CRF entries and source documents or documented discrepancies, requesting previous medical records, maintaining accurate source documentation, definition of source data and origin, and monitoring to confirm accuracy, completeness, and verifiability from source documents.",
+          "originalHeading": "10.1.9. Source Documents"
+        },
+        {
+          "title": "10.1.10. Study and Site Start and Closure",
+          "summary": "Study start date definition (date open for recruitment), first act of recruitment definition (first site open or other), study/site termination procedures with sponsor and investigator authority, reasons for early closure (development discontinuation, protocol non-compliance, inadequate recruitment, target enrollment reached), site closure definition (when documents/supplies collected and closure visit performed), and requirements for notifying investigators, IRBs, authorities, and participants of premature termination/suspension with appropriate therapy and follow-up.",
+          "originalHeading": "10.1.10. Study and Site Start and Closure"
+        },
+        {
+          "title": "10.1.11. Publication Policy",
+          "summary": "Publication policies including sponsor rights to review manuscripts/abstracts before submission to protect proprietary information and provide comments, compliance with publication requirements, support for multicenter study publication in entirety rather than individual site data with coordinating investigator designation, and authorship determination by mutual agreement following International Committee of Medical Journal Editors requirements.",
+          "originalHeading": "10.1.11. Publication Policy"
+        },
+        {
+          "title": "10.2. Appendix 2: Clinical Laboratory Tests",
+          "summary": "Comprehensive appendix detailing all protocol-required laboratory tests including hematology (platelet count, RBC count and indices, reticulocytes, WBC differential, hemoglobin, hematocrit), clinical chemistry (BUN, creatinine, electrolytes, glucose, liver function tests, bilirubin, protein), routine urinalysis (specific gravity, pH, dipstick, microscopy), pregnancy testing (hCG), other screening tests (FSH, estradiol, drug/alcohol screen, serology for HIV/hepatitis), investigator review requirements, and liver chemistry stopping criteria notes.",
+          "originalHeading": "10.2. Appendix 2: Clinical Laboratory Tests"
+        },
+        {
+          "title": "10.3. Appendix 3: AEs and SAEs: Definitions and Procedures for Recording, Evaluating, Follow-up, and Reporting",
+          "summary": "Comprehensive appendix defining adverse events (untoward medical occurrence temporally associated with intervention) and serious adverse events (results in death, life-threatening, hospitalization, disability, congenital anomaly, or other important medical events), distinguishing unsolicited vs. solicited AEs, specifying events meeting and not meeting AE definition, providing intensity assessment criteria (mild/moderate/severe), causality assessment guidance (reasonable possibility), and procedures for recording, follow-up, and reporting AEs/SAEs to sponsor via electronic or paper data collection tools within specified timeframes.",
+          "originalHeading": "10.3. Appendix 3: AEs and SAEs: Definitions and Procedures for Recording, Evaluating, Follow-up, and Reporting"
+        },
+        {
+          "title": "10.3.1. Definition of AE",
+          "summary": "Detailed definition of adverse event as any untoward medical occurrence temporally associated with study intervention regardless of causality, including distinction between unsolicited AEs (spontaneously reported) and solicited AEs (predefined events participant specifically questioned about in diary), and comprehensive lists of events meeting the AE definition (abnormal labs, disease exacerbation, new conditions, drug interactions, overdose sequelae) and events not meeting the definition (underlying disease findings, expected disease progression, procedures rather than conditions, social admissions, anticipated fluctuations).",
+          "originalHeading": "10.3.1. Definition of AE"
+        },
+        {
+          "title": "10.3.2. Definition of SAE",
+          "summary": "Detailed definition of serious adverse event as untoward medical occurrence meeting one or more criteria: results in death; is life-threatening (participant at risk of death at time of event); requires inpatient hospitalization or prolongation of existing hospitalization (with notes on elective procedures); results in persistent or significant disability/incapacity (substantial disruption of normal life functions); is congenital anomaly/birth defect; is suspected transmission of infectious agent via authorized medicinal product; or other important medical events requiring medical judgment (invasive cancers, intensive emergency treatment, blood dyscrasias, convulsions, intervention dependency/abuse).",
+          "originalHeading": "10.3.2. Definition of SAE"
+        },
+        {
+          "title": "10.3.3. Recording and Follow-Up of AE and/or SAE",
+          "summary": "Procedures for AE/SAE recording including investigator review of all documentation (hospital notes, lab reports, diagnostics), recording on appropriate forms (not photocopies of medical records unless requested by sponsor with participant identifiers redacted), establishing diagnosis rather than individual signs/symptoms when possible, intensity assessment (mild/moderate/severe with detailed definitions), causality assessment using clinical judgment considering reasonable possibility and alternative causes, and follow-up requirements including supplemental investigations, postmortem findings if applicable, recording updated information on original documents, and submitting updated SAE data to sponsor within 24 hours.",
+          "originalHeading": "10.3.3. Recording and Follow-Up of AE and/or SAE"
+        },
+        {
+          "title": "10.3.4. Reporting of SAEs",
+          "summary": "SAE reporting procedures to sponsor via electronic data collection tool as primary mechanism (with paper backup if system unavailable), entry into electronic system as soon as available, procedures after site completion when system offline (paper forms or telephone to medical monitor/SAE coordinator), and contacts for SAE reporting. For paper reporting, facsimile transmission preferred with overnight mail/courier backup, noting telephone notification doesn't replace completed signed SAE form within designated timeframes.",
+          "originalHeading": "10.3.4. Reporting of SAEs"
+        },
+        {
+          "title": "10.4. Appendix 4: Contraceptive and Barrier Guidance",
+          "summary": "Appendix providing definitions of contraceptive terms and detailed guidance on acceptable contraceptive methods for study participants, including requirements for participants of childbearing potential and their partners, timing of contraceptive use relative to study intervention, and barrier methods to prevent pregnancy and disease transmission during the study.",
+          "originalHeading": "10.4. Appendix 4: Contraceptive and Barrier Guidance"
+        },
+        {
+          "title": "10.5. Appendix 5: Genetics",
+          "summary": "Detailed genetics research information including genetic variation impact on intervention response and disease, DNA sample use for research related to intervention and indication (candidate genes, genome-wide, or entire genome analysis), potential development of diagnostic tests, multi-study assessments, results reporting in CSR or separate summary, secure storage with confidentiality measures, and retention period while research continues (up to specified years or per local requirements).",
+          "originalHeading": "10.5. Appendix 5: Genetics"
+        },
+        {
+          "title": "10.6. Appendix 6: Liver Safety: Suggestions and Guidelines for Liver Events",
+          "summary": "Appendix providing detailed liver safety monitoring guidance including liver chemistry stopping criteria algorithms, management of participants meeting liver stopping criteria, follow-up requirements, rechallenge procedures if permitted, and specific monitoring for drug-induced liver injury (DILI) including Hy's Law criteria.",
+          "originalHeading": "10.6. Appendix 6: Liver Safety: Suggestions and Guidelines for Liver Events"
+        },
+        {
+          "title": "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs, USADEs and Device Deficiencies: Definitions and Procedures for Recording, Evaluating, Follow-up, and Reporting in Medical Device Studies",
+          "summary": "Comprehensive appendix for medical device studies compliant with ISO 14155 and EU MDR 2017/745, defining medical device AE (untoward occurrence in participant, users, or other persons temporally associated with device use) and ADE (adverse device effect related to device use), SAE/SADE/USADE definitions with device-specific criteria, device deficiency definition (inadequacy in identity, quality, durability, reliability, safety, or performance including malfunctions, use errors, inadequate information), and procedures for recording, intensity assessment, causality assessment, follow-up, and reporting to sponsor via electronic or paper systems within 24 hours, including special requirements for device deficiencies potentially related to SAEs.",
+          "originalHeading": "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs, USADEs and Device Deficiencies: Definitions and Procedures for Recording, Evaluating, Follow-up, and Reporting in Medical Device Studies"
+        },
+        {
+          "title": "10.7.1. Definition of Medical Device AE and ADE",
+          "summary": "Medical device AE defined as any untoward medical occurrence in participant, users, or other persons temporally associated with device use (including events related to investigational device, comparator, and procedures, with note that events in users/other persons only include device-related events). ADE defined as AE related to device use including events from insufficient instructions, deployment issues, malfunction, use error, or intentional misuse.",
+          "originalHeading": "10.7.1. Definition of Medical Device AE and ADE"
+        },
+        {
+          "title": "10.7.2. Definition of Medical Device SAE, SADE and USADE",
+          "summary": "Medical Device SAE defined as serious event that led to death, serious health deterioration (life-threatening illness/injury, permanent impairment, inpatient/prolonged hospitalization, medical/surgical intervention to prevent serious outcome, chronic disease per MDR 2017/745), fetal distress/death/congenital abnormality, or suspected infectious agent transmission. SADE defined as adverse device effect resulting in SAE consequences or device deficiency that might have led to SAE if action not taken. USADE defined as serious adverse device effect not identified in current risk analysis report (also identified as UADE in 21 CFR 813.3).",
+          "originalHeading": "10.7.2. Definition of Medical Device SAE, SADE and USADE"
+        },
+        {
+          "title": "10.7.3. Definition of Device Deficiency",
+          "summary": "Device deficiency defined as inadequacy of medical device with respect to its identity, quality, durability, reliability, safety, or performance. Includes malfunctions, use errors, and inadequacy of manufacturer-supplied information.",
+          "originalHeading": "10.7.3. Definition of Device Deficiency"
+        },
+        {
+          "title": "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE and Device Deficiencies",
+          "summary": "Procedures for recording device-related AE/SAE/deficiency including investigator review of all documentation, recording in medical records and appropriate forms (not photocopies of medical records unless requested), establishing diagnosis when possible, describing corrective/remedial actions for deficiencies, intensity assessment (mild/moderate/severe), causality assessment using clinical judgment, investigator review and causality documentation before initial transmission, ability to update causality in light of follow-up information, and follow-up requirements including supplemental investigations, postmortem findings, recording updated information with signature/date, and submitting updated SAE data to sponsor within 24 hours.",
+          "originalHeading": "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE and Device Deficiencies"
+        },
+        {
+          "title": "10.7.5. Reporting of Medical Device SAEs",
+          "summary": "Medical device SAE reporting to sponsor via electronic data collection tool as primary mechanism (with paper backup if unavailable), entry into electronic system when available, procedures after site completion when system offline (paper forms or telephone to medical monitor/SAE coordinator), and reporting contacts. Paper reporting via facsimile transmission preferred with overnight mail/courier backup, noting telephone notification doesn't replace completed signed SAE form within designated timeframes.",
+          "originalHeading": "10.7.5. Reporting of Medical Device SAEs"
+        },
+        {
+          "title": "10.7.6. Reporting of SADEs",
+          "summary": "SADE reporting with note of additional obligations for device deficiencies potentially related to SAEs to notify regulatory authorities and entities. Any device deficiency associated with SAE reported to sponsor within 24 hours after investigator determines event meets deficiency definition. Sponsor reviews all deficiencies, determines and documents in writing whether could have led to SAE, and reports to regulatory authorities and IRBs/IECs per national regulations.",
+          "originalHeading": "10.7.6. Reporting of SADEs"
+        },
+        {
+          "title": "10.8. Appendix 8: Country-specific Requirements",
+          "summary": "Appendix documenting any country-specific regulatory, ethical, or operational requirements that differ from the global protocol. Used for protocols implemented across multiple countries with varying local regulations and practices requiring protocol adaptations.",
+          "originalHeading": "10.8. Appendix 8: Country-specific Requirements"
+        },
+        {
+          "title": "10.9. Appendix 9: Protocol Amendment History",
+          "summary": "Comprehensive amendment history including reference to Protocol Amendment Summary of Changes Table before table of contents, for each amendment: amendment number, date, substantial/nonsubstantial designation per EU Regulation 536/2014, overall rationale, and detailed table of section number/name, description of change, and brief rationale. Includes examples of numbering conventions for global, country-specific, and site-specific amendments, and document history table examples showing all amendments and original protocol with dates.",
+          "originalHeading": "10.9. Appendix 9: Protocol Amendment History"
+        },
+        {
+          "title": "11. References",
+          "summary": "Comprehensive list of all references cited throughout the protocol including scientific literature, regulatory guidance documents, previous studies, investigator's brochure versions, and other supporting documentation. References formatted according to standard citation style (e.g., ICMJE format).",
+          "originalHeading": "11. References"
+        }
+      ],
+      "claudeMetadata": {
+        "claudeUsed": true,
+        "usage": {
+          "promptTokens": 46,
+          "completionTokens": 17306,
+          "totalTokens": 17352
+        },
+        "lastRefinedAt": "2025-11-02T07:06:28.589Z"
+      }
+    },
+    {
+      "id": "template_449782e7-e652-4779-aec4-9683fd3fa5cd",
+      "name": "CPT_CoreBWE_v010.pdf",
+      "originalFileName": "CPT_CoreBWE_v010.pdf",
+      "storedFile": {
+        "id": "template_449782e7-e652-4779-aec4-9683fd3fa5cd",
+        "originalName": "CPT_CoreBWE_v010.pdf",
+        "sanitizedFileName": "CPT_CoreBWE_v010.pdf",
+        "extension": ".pdf",
+        "mimeType": "application/pdf",
+        "size": 1470624,
+        "relativePath": "template_449782e7-e652-4779-aec4-9683fd3fa5cd/CPT_CoreBWE_v010.pdf",
+        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/packages/templates/template_449782e7-e652-4779-aec4-9683fd3fa5cd/CPT_CoreBWE_v010.pdf"
+      },
+      "createdAt": "2025-11-02T06:51:22.393Z",
+      "rawSections": [
+        "A study to investigate [health measurement/outcome] with [investigational intervention]",
+        "1. Protocol Summary",
+        "1.1. Synopsis",
+        "1.2. Schema",
+        "1.3. Schedule of Activities (SoA)",
+        "2. Introduction",
+        "2.1. Study Rationale",
+        "2.2. Background",
+        "2.3. Benefit/Risk Assessment",
+        "2.3.1. Risk Assessment",
+        "2.3.2. Benefit Assessment",
+        "2.3.3. Overall Benefit Risk Conclusion",
+        "3. Objectives, Endpoints, and Estimands",
+        "4. Study Design",
+        "4.1. Overall Design",
+        "4.2. Scientific Rationale for Study Design",
+        "4.2.1. Patient Input into Design",
+        "4.3. Justification for Dose",
+        "4.4. End-of-Study Definition",
+        "5. Study Population",
+        "5.1. Inclusion Criteria",
+        "5.2. Exclusion Criteria",
+        "5.3. Lifestyle Considerations",
+        "5.3.1. Meals and Dietary Restrictions",
+        "5.3.2. Caffeine, Alcohol, and Tobacco",
+        "5.3.3. Activity",
+        "5.3.4. Other Restrictions",
+        "5.4. Screen Failures",
+        "5.5. Criteria for Temporarily Delaying",
+        "6. Study Intervention(s) and Concomitant Therapy",
+        "6.1. Study Intervention(s) Administered",
+        "6.1.1. Rescue Medicine",
+        "6.1.2. Medical Devices",
+        "6.2. Preparation, Handling, Storage, and Accountability",
+        "6.3. Assignment to Study Intervention",
+        "6.4. [Blinding, Masking]",
+        "6.5. Study Intervention Compliance",
+        "6.6. Dose Modification",
+        "6.6.1. Retreatment Criteria",
+        "6.7. Continued Access to Study Intervention after the End of the",
+        "6.8. Treatment of Overdose",
+        "6.9. Prior and Concomitant Therapy",
+        "7. Discontinuation of Study Intervention and Participant",
+        "7.1. Discontinuation of Study Intervention",
+        "7.1.1. Liver Event Stopping Criteria",
+        "7.1.2. QTc Stopping Criteria",
+        "7.1.3. Temporary Discontinuation",
+        "7.1.4. Rechallenge",
+        "7.2. Participant Discontinuation/Withdrawal from the Study",
+        "7.3. Lost to Follow up",
+        "8. Study Assessments and Procedures",
+        "8.1. Administrative [and General/Baseline] Procedures",
+        "8.2. [Efficacy and/or Immunogenicity] Assessments",
+        "8.3. Safety Assessments",
+        "8.3.1. Physical Examinations",
+        "8.3.2. Vital Signs",
+        "8.3.3. Electrocardiograms",
+        "8.3.4. Clinical Safety Laboratory Tests",
+        "8.3.5. Pregnancy Testing",
+        "8.3.6. Suicidal Ideation and Behavior Risk Monitoring",
+        "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and",
+        "8.4.1. Time Period and Frequency for Collecting AE and SAE",
+        "8.4.2. Method of Detecting AEs and SAEs",
+        "8.4.3. Follow-up of AEs and SAEs",
+        "8.4.4. Regulatory Reporting Requirements for SAEs",
+        "8.4.5. Pregnancy",
+        "8.4.6. Cardiovascular and Death Events",
+        "8.4.7. Disease-related Events and/or Disease-related Outcomes Not",
+        "8.4.8. Adverse Events of Special Interest",
+        "8.4.9. Medical Device Deficiencies",
+        "8.5. Pharmacokinetics",
+        "8.6. Pharmacodynamics",
+        "8.7. Genetics",
+        "8.8. Biomarkers",
+        "8.9. Immunogenicity Assessments",
+        "8.10. [Health Economics OR Medical Resource Utilization and Health",
+        "9. Statistical Considerations",
+        "9.1. General Considerations",
+        "9.1.1. [Decision Criteria/Statistical Hypotheses]",
+        "9.1.2. Multiplicity Adjustment",
+        "9.1.3. Impact of Intercurrent Events Strategies",
+        "9.1.4. Handling of Missing Data",
+        "9.2. Analysis Sets",
+        "9.3. Analyses Supporting Primary Objective(s)",
+        "9.3.1. Primary [Endpoint(s)/Estimand(s)]",
+        "9.4. Analyses Supporting Secondary Objective(s)",
+        "9.4.1. Analyses Supporting Secondary Objective [label]",
+        "9.5. Analyses Supporting [Tertiary/Exploratory/Other] Objective(s)",
+        "9.6. [Other] Safety Analyses",
+        "9.7. Other Analyses",
+        "9.7.1. Other variables and/or parameters",
+        "9.7.2. Subgroup analyses",
+        "9.8. Interim [Analysis/Analyses]",
+        "9.9. Sample Size Determination",
+        "10. Supporting Documentation and Operational Considerations",
+        "10.1. Appendix 1: Regulatory, Ethical, and Study Oversight",
+        "10.1.1. Regulatory and Ethical Considerations",
+        "10.1.2. Financial Disclosure",
+        "10.1.3. Informed Consent Process",
+        "10.1.4. Recruitment strategy",
+        "10.1.5. Data Protection",
+        "10.1.6. Committees Structure",
+        "10.1.7. Dissemination of Clinical Study Data",
+        "10.1.8. Data Quality Assurance",
+        "10.1.9. Source Documents",
+        "10.1.10. Study and Site Start and Closure",
+        "10.1.11. Publication Policy",
+        "10.2. Appendix 2: Clinical Laboratory Tests",
+        "10.3. Appendix 3: AEs and SAEs: Definitions and Procedures for",
+        "10.3.1. Definition of AE",
+        "10.3.2. Definition of SAE",
+        "10.3.3. Recording and Follow-Up of AE and/or SAE",
+        "10.3.4. Reporting of SAEs",
+        "10.4. Appendix 4: Contraceptive and Barrier Guidance",
+        "10.4.1. Definitions",
+        "10.4.2. Contraception Guidance",
+        "10.5. Appendix 5: Genetics",
+        "10.6. Appendix 6: Liver Safety: Suggestions and Guidelines for Liver",
+        "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs,",
+        "10.7.1. Definition of Medical Device AE and ADE",
+        "10.7.2. Definition of Medical Device SAE, SADE and USADE",
+        "10.7.3. Definition of Device Deficiency",
+        "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE",
+        "10.7.5. Reporting of Medical Device SAEs",
+        "10.7.6. Reporting of SADEs",
+        "10.8. Appendix 8: Country-specific Requirements",
+        "10.9. Appendix 9: Protocol Amendment History",
+        "11. References",
+        "A maximum of [X] participants will be [enrolled / randomized / assigned to investigational",
+        "A [data monitoring committee] has been appointed for this study. The [data monitoring committee (board)]",
+        "X X X X",
+        "X ============================= X X",
+        "A detailed description of the chemistry, pharmacology, efficacy, and safety of [investigational intervention",
+        "4.2.1.1 Obtaining Study Participant Feedback (Voluntary):",
+        "A participant is considered to have completed the study if the participant has completed all",
+        "1. Participant must be [18] [or the legal age of consent in the jurisdiction in which the",
+        "2. Participants who are overtly healthy as determined by medical evaluation including",
+        "3. Participants who are [insert criteria]",
+        "4. Body weight within [insert range including units] and BMI within the range [X – X]",
+        "5. [male and/or female] assigned at birth, inclusive of all gender identities.",
+        "6. Signed informed consent as described in Appendix 1 which includes compliance with",
+        "1. [ ]",
+        "2. [ ]",
+        "3. [ ]",
+        "4. [ ]",
+        "5. [ ]",
+        "6. [ ]",
+        "1. Participants will abstain from strenuous exercise for [X hours] before each blood collection for",
+        "A screen failure occurs when a participant who has consented to participate in the clinical study",
+        "1. The [sponsor] manufactured medical devices (or devices manufactured for [sponsor] by a third",
+        "2. Other medical devices (not manufactured by or for [sponsor]) provided for use in this study are",
+        "4 cycles.]",
+        "3. Instructions for medical device use are provided [cross reference the location of such",
+        "4. All device deficiencies (including malfunction, use error and inadequate labelling) shall be",
+        "1. The investigator or designee must confirm appropriate conditions (eg, temperature) have",
+        "2. Only participants [randomized/assigned] to study intervention may receive study",
+        "3. All study intervention must be stored in a secure, environmentally controlled, and",
+        "4. The investigator, [institution, the head of the medical institution (where applicable), or",
+        "5. Further guidance and information for the final disposition of unused study interventions",
+        "A record of the quantity of [insert study intervention(s)] dispensed to and administered by each participant",
+        "6.7. Continued Access to Study Intervention after the End of the Study",
+        "7.1.4.1. Study Intervention Restart or Rechallenge After Liver Stopping Criteria Are",
+        "A participant will be considered lost to follow-up if the participant repeatedly fails to return for",
+        "5 minutes rest and will include temperature, systolic and diastolic blood pressure, and pulse [and",
+        "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and Other",
+        "8.4.1. Time Period and Frequency for Collecting AE and SAE Information",
+        "8.4.7. Disease-related Events and/or Disease-related Outcomes Not Qualifying as AEs",
+        "8.4.9.1. Time Period for Detecting Medical Device Deficiencies",
+        "8.4.9.2. Follow-up of Medical Device Deficiencies",
+        "8.4.9.3. Prompt Reporting of Device Deficiencies to the Sponsor",
+        "8.4.9.4. Regulatory Reporting Requirements for Device Deficiencies",
+        "A [X] mL [blood OR saliva] sample for DNA isolation will be collected from participants who have",
+        "A closed testing procedure that controls the family wise error rate in the strong sense at the overall [5]%",
+        "9.3.1.1. Definition of endpoint(s)",
+        "9.3.1.2. Main Analytical Approach",
+        "9.3.1.3. Sensitivity [Analysis/Analyses]",
+        "9.3.1.4. Supplementary [Analysis/Analyses]",
+        "10.1.6.1. [Early Safety Data Review AND/OR Committee]",
+        "A type of adverse event that is usually transient and may require only minimal treatment",
+        "A type of adverse event that is usually alleviated with additional specific therapeutic",
+        "A type of adverse event that interrupts usual activities of daily living, or significantly",
+        "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs, USADEs",
+        "14155 and the European Medical Device Regulation (MDR) 2017/745 for clinical device",
+        "A Medical Device SAE is an any serious adverse event that:",
+        "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE and Device",
+        "5.1. Inclusion Criteria Removed maximum age range To better reflect the age of the"
+      ],
+      "refinedSections": [],
+      "claudeMetadata": {
+        "claudeUsed": false
+      }
+    },
+    {
+      "id": "template_7c194257-0976-4366-9f46-7c81f179a5e5",
+      "name": "CPT_CoreBWE_v010.pdf",
+      "originalFileName": "CPT_CoreBWE_v010.pdf",
+      "storedFile": {
+        "id": "template_7c194257-0976-4366-9f46-7c81f179a5e5",
+        "originalName": "CPT_CoreBWE_v010.pdf",
+        "sanitizedFileName": "CPT_CoreBWE_v010.pdf",
+        "extension": ".pdf",
+        "mimeType": "application/pdf",
+        "size": 1470624,
+        "relativePath": "template_7c194257-0976-4366-9f46-7c81f179a5e5/CPT_CoreBWE_v010.pdf",
+        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/packages/templates/template_7c194257-0976-4366-9f46-7c81f179a5e5/CPT_CoreBWE_v010.pdf"
+      },
+      "createdAt": "2025-11-02T06:41:00.096Z",
+      "rawSections": [
+        "A study to investigate [health measurement/outcome] with [investigational intervention]",
+        "1. Protocol Summary",
+        "1.1. Synopsis",
+        "1.2. Schema",
+        "1.3. Schedule of Activities (SoA)",
+        "2. Introduction",
+        "2.1. Study Rationale",
+        "2.2. Background",
+        "2.3. Benefit/Risk Assessment",
+        "2.3.1. Risk Assessment",
+        "2.3.2. Benefit Assessment",
+        "2.3.3. Overall Benefit Risk Conclusion",
+        "3. Objectives, Endpoints, and Estimands",
+        "4. Study Design",
+        "4.1. Overall Design",
+        "4.2. Scientific Rationale for Study Design",
+        "4.2.1. Patient Input into Design",
+        "4.3. Justification for Dose",
+        "4.4. End-of-Study Definition",
+        "5. Study Population",
+        "5.1. Inclusion Criteria",
+        "5.2. Exclusion Criteria",
+        "5.3. Lifestyle Considerations",
+        "5.3.1. Meals and Dietary Restrictions",
+        "5.3.2. Caffeine, Alcohol, and Tobacco",
+        "5.3.3. Activity",
+        "5.3.4. Other Restrictions",
+        "5.4. Screen Failures",
+        "5.5. Criteria for Temporarily Delaying",
+        "6. Study Intervention(s) and Concomitant Therapy",
+        "6.1. Study Intervention(s) Administered",
+        "6.1.1. Rescue Medicine",
+        "6.1.2. Medical Devices",
+        "6.2. Preparation, Handling, Storage, and Accountability",
+        "6.3. Assignment to Study Intervention",
+        "6.4. [Blinding, Masking]",
+        "6.5. Study Intervention Compliance",
+        "6.6. Dose Modification",
+        "6.6.1. Retreatment Criteria",
+        "6.7. Continued Access to Study Intervention after the End of the",
+        "6.8. Treatment of Overdose",
+        "6.9. Prior and Concomitant Therapy",
+        "7. Discontinuation of Study Intervention and Participant",
+        "7.1. Discontinuation of Study Intervention",
+        "7.1.1. Liver Event Stopping Criteria",
+        "7.1.2. QTc Stopping Criteria",
+        "7.1.3. Temporary Discontinuation",
+        "7.1.4. Rechallenge",
+        "7.2. Participant Discontinuation/Withdrawal from the Study",
+        "7.3. Lost to Follow up",
+        "8. Study Assessments and Procedures",
+        "8.1. Administrative [and General/Baseline] Procedures",
+        "8.2. [Efficacy and/or Immunogenicity] Assessments",
+        "8.3. Safety Assessments",
+        "8.3.1. Physical Examinations",
+        "8.3.2. Vital Signs",
+        "8.3.3. Electrocardiograms",
+        "8.3.4. Clinical Safety Laboratory Tests",
+        "8.3.5. Pregnancy Testing",
+        "8.3.6. Suicidal Ideation and Behavior Risk Monitoring",
+        "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and",
+        "8.4.1. Time Period and Frequency for Collecting AE and SAE",
+        "8.4.2. Method of Detecting AEs and SAEs",
+        "8.4.3. Follow-up of AEs and SAEs",
+        "8.4.4. Regulatory Reporting Requirements for SAEs",
+        "8.4.5. Pregnancy",
+        "8.4.6. Cardiovascular and Death Events",
+        "8.4.7. Disease-related Events and/or Disease-related Outcomes Not",
+        "8.4.8. Adverse Events of Special Interest",
+        "8.4.9. Medical Device Deficiencies",
+        "8.5. Pharmacokinetics",
+        "8.6. Pharmacodynamics",
+        "8.7. Genetics",
+        "8.8. Biomarkers",
+        "8.9. Immunogenicity Assessments",
+        "8.10. [Health Economics OR Medical Resource Utilization and Health",
+        "9. Statistical Considerations",
+        "9.1. General Considerations",
+        "9.1.1. [Decision Criteria/Statistical Hypotheses]",
+        "9.1.2. Multiplicity Adjustment",
+        "9.1.3. Impact of Intercurrent Events Strategies",
+        "9.1.4. Handling of Missing Data",
+        "9.2. Analysis Sets",
+        "9.3. Analyses Supporting Primary Objective(s)",
+        "9.3.1. Primary [Endpoint(s)/Estimand(s)]",
+        "9.4. Analyses Supporting Secondary Objective(s)",
+        "9.4.1. Analyses Supporting Secondary Objective [label]",
+        "9.5. Analyses Supporting [Tertiary/Exploratory/Other] Objective(s)",
+        "9.6. [Other] Safety Analyses",
+        "9.7. Other Analyses",
+        "9.7.1. Other variables and/or parameters",
+        "9.7.2. Subgroup analyses",
+        "9.8. Interim [Analysis/Analyses]",
+        "9.9. Sample Size Determination",
+        "10. Supporting Documentation and Operational Considerations",
+        "10.1. Appendix 1: Regulatory, Ethical, and Study Oversight",
+        "10.1.1. Regulatory and Ethical Considerations",
+        "10.1.2. Financial Disclosure",
+        "10.1.3. Informed Consent Process",
+        "10.1.4. Recruitment strategy",
+        "10.1.5. Data Protection",
+        "10.1.6. Committees Structure",
+        "10.1.7. Dissemination of Clinical Study Data",
+        "10.1.8. Data Quality Assurance",
+        "10.1.9. Source Documents",
+        "10.1.10. Study and Site Start and Closure",
+        "10.1.11. Publication Policy",
+        "10.2. Appendix 2: Clinical Laboratory Tests",
+        "10.3. Appendix 3: AEs and SAEs: Definitions and Procedures for",
+        "10.3.1. Definition of AE",
+        "10.3.2. Definition of SAE",
+        "10.3.3. Recording and Follow-Up of AE and/or SAE",
+        "10.3.4. Reporting of SAEs",
+        "10.4. Appendix 4: Contraceptive and Barrier Guidance",
+        "10.4.1. Definitions",
+        "10.4.2. Contraception Guidance",
+        "10.5. Appendix 5: Genetics",
+        "10.6. Appendix 6: Liver Safety: Suggestions and Guidelines for Liver",
+        "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs,",
+        "10.7.1. Definition of Medical Device AE and ADE",
+        "10.7.2. Definition of Medical Device SAE, SADE and USADE",
+        "10.7.3. Definition of Device Deficiency",
+        "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE",
+        "10.7.5. Reporting of Medical Device SAEs",
+        "10.7.6. Reporting of SADEs",
+        "10.8. Appendix 8: Country-specific Requirements",
+        "10.9. Appendix 9: Protocol Amendment History",
+        "11. References",
+        "A maximum of [X] participants will be [enrolled / randomized / assigned to investigational",
+        "A [data monitoring committee] has been appointed for this study. The [data monitoring committee (board)]",
+        "X X X X",
+        "X ============================= X X",
+        "A detailed description of the chemistry, pharmacology, efficacy, and safety of [investigational intervention",
+        "4.2.1.1 Obtaining Study Participant Feedback (Voluntary):",
+        "A participant is considered to have completed the study if the participant has completed all",
+        "1. Participant must be [18] [or the legal age of consent in the jurisdiction in which the",
+        "2. Participants who are overtly healthy as determined by medical evaluation including",
+        "3. Participants who are [insert criteria]",
+        "4. Body weight within [insert range including units] and BMI within the range [X – X]",
+        "5. [male and/or female] assigned at birth, inclusive of all gender identities.",
+        "6. Signed informed consent as described in Appendix 1 which includes compliance with",
+        "1. [ ]",
+        "2. [ ]",
+        "3. [ ]",
+        "4. [ ]",
+        "5. [ ]",
+        "6. [ ]",
+        "1. Participants will abstain from strenuous exercise for [X hours] before each blood collection for",
+        "A screen failure occurs when a participant who has consented to participate in the clinical study",
+        "1. The [sponsor] manufactured medical devices (or devices manufactured for [sponsor] by a third",
+        "2. Other medical devices (not manufactured by or for [sponsor]) provided for use in this study are",
+        "4 cycles.]",
+        "3. Instructions for medical device use are provided [cross reference the location of such",
+        "4. All device deficiencies (including malfunction, use error and inadequate labelling) shall be",
+        "1. The investigator or designee must confirm appropriate conditions (eg, temperature) have",
+        "2. Only participants [randomized/assigned] to study intervention may receive study",
+        "3. All study intervention must be stored in a secure, environmentally controlled, and",
+        "4. The investigator, [institution, the head of the medical institution (where applicable), or",
+        "5. Further guidance and information for the final disposition of unused study interventions",
+        "A record of the quantity of [insert study intervention(s)] dispensed to and administered by each participant",
+        "6.7. Continued Access to Study Intervention after the End of the Study",
+        "7.1.4.1. Study Intervention Restart or Rechallenge After Liver Stopping Criteria Are",
+        "A participant will be considered lost to follow-up if the participant repeatedly fails to return for",
+        "5 minutes rest and will include temperature, systolic and diastolic blood pressure, and pulse [and",
+        "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and Other",
+        "8.4.1. Time Period and Frequency for Collecting AE and SAE Information",
+        "8.4.7. Disease-related Events and/or Disease-related Outcomes Not Qualifying as AEs",
+        "8.4.9.1. Time Period for Detecting Medical Device Deficiencies",
+        "8.4.9.2. Follow-up of Medical Device Deficiencies",
+        "8.4.9.3. Prompt Reporting of Device Deficiencies to the Sponsor",
+        "8.4.9.4. Regulatory Reporting Requirements for Device Deficiencies",
+        "A [X] mL [blood OR saliva] sample for DNA isolation will be collected from participants who have",
+        "A closed testing procedure that controls the family wise error rate in the strong sense at the overall [5]%",
+        "9.3.1.1. Definition of endpoint(s)",
+        "9.3.1.2. Main Analytical Approach",
+        "9.3.1.3. Sensitivity [Analysis/Analyses]",
+        "9.3.1.4. Supplementary [Analysis/Analyses]",
+        "10.1.6.1. [Early Safety Data Review AND/OR Committee]",
+        "A type of adverse event that is usually transient and may require only minimal treatment",
+        "A type of adverse event that is usually alleviated with additional specific therapeutic",
+        "A type of adverse event that interrupts usual activities of daily living, or significantly",
+        "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs, USADEs",
+        "14155 and the European Medical Device Regulation (MDR) 2017/745 for clinical device",
+        "A Medical Device SAE is an any serious adverse event that:",
+        "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE and Device",
+        "5.1. Inclusion Criteria Removed maximum age range To better reflect the age of the"
+      ],
+      "refinedSections": [],
+      "claudeMetadata": {
+        "claudeUsed": false
+      }
+    },
+    {
+      "id": "template_04a09f11-3401-4ab4-8cef-856f4edaf3c4",
+      "name": "CPT_CoreBWE_v010.pdf",
+      "originalFileName": "CPT_CoreBWE_v010.pdf",
+      "storedFile": {
+        "id": "template_04a09f11-3401-4ab4-8cef-856f4edaf3c4",
+        "originalName": "CPT_CoreBWE_v010.pdf",
+        "sanitizedFileName": "CPT_CoreBWE_v010.pdf",
+        "extension": ".pdf",
+        "mimeType": "application/pdf",
+        "size": 1470624,
+        "relativePath": "template_04a09f11-3401-4ab4-8cef-856f4edaf3c4/CPT_CoreBWE_v010.pdf",
+        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/packages/templates/template_04a09f11-3401-4ab4-8cef-856f4edaf3c4/CPT_CoreBWE_v010.pdf"
+      },
+      "createdAt": "2025-11-02T04:38:24.154Z",
+      "rawSections": [
+        "A study to investigate [health measurement/outcome] with [investigational intervention]",
+        "1. Protocol Summary",
+        "1.1. Synopsis",
+        "1.2. Schema",
+        "1.3. Schedule of Activities (SoA)",
+        "2. Introduction",
+        "2.1. Study Rationale",
+        "2.2. Background",
+        "2.3. Benefit/Risk Assessment",
+        "2.3.1. Risk Assessment",
+        "2.3.2. Benefit Assessment",
+        "2.3.3. Overall Benefit Risk Conclusion",
+        "3. Objectives, Endpoints, and Estimands",
+        "4. Study Design",
+        "4.1. Overall Design",
+        "4.2. Scientific Rationale for Study Design",
+        "4.2.1. Patient Input into Design",
+        "4.3. Justification for Dose",
+        "4.4. End-of-Study Definition",
+        "5. Study Population",
+        "5.1. Inclusion Criteria",
+        "5.2. Exclusion Criteria",
+        "5.3. Lifestyle Considerations",
+        "5.3.1. Meals and Dietary Restrictions",
+        "5.3.2. Caffeine, Alcohol, and Tobacco",
+        "5.3.3. Activity",
+        "5.3.4. Other Restrictions",
+        "5.4. Screen Failures",
+        "5.5. Criteria for Temporarily Delaying",
+        "6. Study Intervention(s) and Concomitant Therapy",
+        "6.1. Study Intervention(s) Administered",
+        "6.1.1. Rescue Medicine",
+        "6.1.2. Medical Devices",
+        "6.2. Preparation, Handling, Storage, and Accountability",
+        "6.3. Assignment to Study Intervention",
+        "6.4. [Blinding, Masking]",
+        "6.5. Study Intervention Compliance",
+        "6.6. Dose Modification",
+        "6.6.1. Retreatment Criteria",
+        "6.7. Continued Access to Study Intervention after the End of the",
+        "6.8. Treatment of Overdose",
+        "6.9. Prior and Concomitant Therapy",
+        "7. Discontinuation of Study Intervention and Participant",
+        "7.1. Discontinuation of Study Intervention",
+        "7.1.1. Liver Event Stopping Criteria",
+        "7.1.2. QTc Stopping Criteria",
+        "7.1.3. Temporary Discontinuation",
+        "7.1.4. Rechallenge",
+        "7.2. Participant Discontinuation/Withdrawal from the Study",
+        "7.3. Lost to Follow up",
+        "8. Study Assessments and Procedures",
+        "8.1. Administrative [and General/Baseline] Procedures",
+        "8.2. [Efficacy and/or Immunogenicity] Assessments",
+        "8.3. Safety Assessments",
+        "8.3.1. Physical Examinations",
+        "8.3.2. Vital Signs",
+        "8.3.3. Electrocardiograms",
+        "8.3.4. Clinical Safety Laboratory Tests",
+        "8.3.5. Pregnancy Testing",
+        "8.3.6. Suicidal Ideation and Behavior Risk Monitoring",
+        "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and",
+        "8.4.1. Time Period and Frequency for Collecting AE and SAE",
+        "8.4.2. Method of Detecting AEs and SAEs",
+        "8.4.3. Follow-up of AEs and SAEs",
+        "8.4.4. Regulatory Reporting Requirements for SAEs",
+        "8.4.5. Pregnancy",
+        "8.4.6. Cardiovascular and Death Events",
+        "8.4.7. Disease-related Events and/or Disease-related Outcomes Not",
+        "8.4.8. Adverse Events of Special Interest",
+        "8.4.9. Medical Device Deficiencies",
+        "8.5. Pharmacokinetics",
+        "8.6. Pharmacodynamics",
+        "8.7. Genetics",
+        "8.8. Biomarkers",
+        "8.9. Immunogenicity Assessments",
+        "8.10. [Health Economics OR Medical Resource Utilization and Health",
+        "9. Statistical Considerations",
+        "9.1. General Considerations",
+        "9.1.1. [Decision Criteria/Statistical Hypotheses]",
+        "9.1.2. Multiplicity Adjustment",
+        "9.1.3. Impact of Intercurrent Events Strategies",
+        "9.1.4. Handling of Missing Data",
+        "9.2. Analysis Sets",
+        "9.3. Analyses Supporting Primary Objective(s)",
+        "9.3.1. Primary [Endpoint(s)/Estimand(s)]",
+        "9.4. Analyses Supporting Secondary Objective(s)",
+        "9.4.1. Analyses Supporting Secondary Objective [label]",
+        "9.5. Analyses Supporting [Tertiary/Exploratory/Other] Objective(s)",
+        "9.6. [Other] Safety Analyses",
+        "9.7. Other Analyses",
+        "9.7.1. Other variables and/or parameters",
+        "9.7.2. Subgroup analyses",
+        "9.8. Interim [Analysis/Analyses]",
+        "9.9. Sample Size Determination",
+        "10. Supporting Documentation and Operational Considerations",
+        "10.1. Appendix 1: Regulatory, Ethical, and Study Oversight",
+        "10.1.1. Regulatory and Ethical Considerations",
+        "10.1.2. Financial Disclosure",
+        "10.1.3. Informed Consent Process",
+        "10.1.4. Recruitment strategy",
+        "10.1.5. Data Protection",
+        "10.1.6. Committees Structure",
+        "10.1.7. Dissemination of Clinical Study Data",
+        "10.1.8. Data Quality Assurance",
+        "10.1.9. Source Documents",
+        "10.1.10. Study and Site Start and Closure",
+        "10.1.11. Publication Policy",
+        "10.2. Appendix 2: Clinical Laboratory Tests",
+        "10.3. Appendix 3: AEs and SAEs: Definitions and Procedures for",
+        "10.3.1. Definition of AE",
+        "10.3.2. Definition of SAE",
+        "10.3.3. Recording and Follow-Up of AE and/or SAE",
+        "10.3.4. Reporting of SAEs",
+        "10.4. Appendix 4: Contraceptive and Barrier Guidance",
+        "10.4.1. Definitions",
+        "10.4.2. Contraception Guidance",
+        "10.5. Appendix 5: Genetics",
+        "10.6. Appendix 6: Liver Safety: Suggestions and Guidelines for Liver",
+        "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs,",
+        "10.7.1. Definition of Medical Device AE and ADE",
+        "10.7.2. Definition of Medical Device SAE, SADE and USADE",
+        "10.7.3. Definition of Device Deficiency",
+        "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE",
+        "10.7.5. Reporting of Medical Device SAEs",
+        "10.7.6. Reporting of SADEs",
+        "10.8. Appendix 8: Country-specific Requirements",
+        "10.9. Appendix 9: Protocol Amendment History",
+        "11. References",
+        "A maximum of [X] participants will be [enrolled / randomized / assigned to investigational",
+        "A [data monitoring committee] has been appointed for this study. The [data monitoring committee (board)]",
+        "X X X X",
+        "X ============================= X X",
+        "A detailed description of the chemistry, pharmacology, efficacy, and safety of [investigational intervention",
+        "4.2.1.1 Obtaining Study Participant Feedback (Voluntary):",
+        "A participant is considered to have completed the study if the participant has completed all",
+        "1. Participant must be [18] [or the legal age of consent in the jurisdiction in which the",
+        "2. Participants who are overtly healthy as determined by medical evaluation including",
+        "3. Participants who are [insert criteria]",
+        "4. Body weight within [insert range including units] and BMI within the range [X – X]",
+        "5. [male and/or female] assigned at birth, inclusive of all gender identities.",
+        "6. Signed informed consent as described in Appendix 1 which includes compliance with",
+        "1. [ ]",
+        "2. [ ]",
+        "3. [ ]",
+        "4. [ ]",
+        "5. [ ]",
+        "6. [ ]",
+        "1. Participants will abstain from strenuous exercise for [X hours] before each blood collection for",
+        "A screen failure occurs when a participant who has consented to participate in the clinical study",
+        "1. The [sponsor] manufactured medical devices (or devices manufactured for [sponsor] by a third",
+        "2. Other medical devices (not manufactured by or for [sponsor]) provided for use in this study are",
+        "4 cycles.]",
+        "3. Instructions for medical device use are provided [cross reference the location of such",
+        "4. All device deficiencies (including malfunction, use error and inadequate labelling) shall be",
+        "1. The investigator or designee must confirm appropriate conditions (eg, temperature) have",
+        "2. Only participants [randomized/assigned] to study intervention may receive study",
+        "3. All study intervention must be stored in a secure, environmentally controlled, and",
+        "4. The investigator, [institution, the head of the medical institution (where applicable), or",
+        "5. Further guidance and information for the final disposition of unused study interventions",
+        "A record of the quantity of [insert study intervention(s)] dispensed to and administered by each participant",
+        "6.7. Continued Access to Study Intervention after the End of the Study",
+        "7.1.4.1. Study Intervention Restart or Rechallenge After Liver Stopping Criteria Are",
+        "A participant will be considered lost to follow-up if the participant repeatedly fails to return for",
+        "5 minutes rest and will include temperature, systolic and diastolic blood pressure, and pulse [and",
+        "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and Other",
+        "8.4.1. Time Period and Frequency for Collecting AE and SAE Information",
+        "8.4.7. Disease-related Events and/or Disease-related Outcomes Not Qualifying as AEs",
+        "8.4.9.1. Time Period for Detecting Medical Device Deficiencies",
+        "8.4.9.2. Follow-up of Medical Device Deficiencies",
+        "8.4.9.3. Prompt Reporting of Device Deficiencies to the Sponsor",
+        "8.4.9.4. Regulatory Reporting Requirements for Device Deficiencies",
+        "A [X] mL [blood OR saliva] sample for DNA isolation will be collected from participants who have",
+        "A closed testing procedure that controls the family wise error rate in the strong sense at the overall [5]%",
+        "9.3.1.1. Definition of endpoint(s)",
+        "9.3.1.2. Main Analytical Approach",
+        "9.3.1.3. Sensitivity [Analysis/Analyses]",
+        "9.3.1.4. Supplementary [Analysis/Analyses]",
+        "10.1.6.1. [Early Safety Data Review AND/OR Committee]",
+        "A type of adverse event that is usually transient and may require only minimal treatment",
+        "A type of adverse event that is usually alleviated with additional specific therapeutic",
+        "A type of adverse event that interrupts usual activities of daily living, or significantly",
+        "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs, USADEs",
+        "14155 and the European Medical Device Regulation (MDR) 2017/745 for clinical device",
+        "A Medical Device SAE is an any serious adverse event that:",
+        "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE and Device",
+        "5.1. Inclusion Criteria Removed maximum age range To better reflect the age of the"
+      ],
+      "refinedSections": [],
+      "claudeMetadata": {
+        "claudeUsed": false,
+        "usage": {
+          "promptTokens": 28,
+          "completionTokens": 566,
+          "totalTokens": 594
+        }
+      },
+      "warnings": [
+        "Agent completed without returning section data."
+      ]
+    },
+    {
+      "id": "template_0b79b5bd-69c6-40e4-a22e-fed912160dc0",
+      "name": "CPT_CoreBWE_v010.pdf",
+      "originalFileName": "CPT_CoreBWE_v010.pdf",
+      "storedFile": {
+        "id": "template_0b79b5bd-69c6-40e4-a22e-fed912160dc0",
+        "originalName": "CPT_CoreBWE_v010.pdf",
+        "sanitizedFileName": "CPT_CoreBWE_v010.pdf",
+        "extension": ".pdf",
+        "mimeType": "application/pdf",
+        "size": 1470624,
+        "relativePath": "template_0b79b5bd-69c6-40e4-a22e-fed912160dc0/CPT_CoreBWE_v010.pdf",
+        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/packages/templates/template_0b79b5bd-69c6-40e4-a22e-fed912160dc0/CPT_CoreBWE_v010.pdf"
+      },
+      "createdAt": "2025-11-02T03:55:41.369Z",
+      "rawSections": [
+        "A study to investigate [health measurement/outcome] with [investigational intervention]",
+        "1. Protocol Summary",
+        "1.1. Synopsis",
+        "1.2. Schema",
+        "1.3. Schedule of Activities (SoA)",
+        "2. Introduction",
+        "2.1. Study Rationale",
+        "2.2. Background",
+        "2.3. Benefit/Risk Assessment",
+        "2.3.1. Risk Assessment",
+        "2.3.2. Benefit Assessment",
+        "2.3.3. Overall Benefit Risk Conclusion",
+        "3. Objectives, Endpoints, and Estimands",
+        "4. Study Design",
+        "4.1. Overall Design",
+        "4.2. Scientific Rationale for Study Design",
+        "4.2.1. Patient Input into Design",
+        "4.3. Justification for Dose",
+        "4.4. End-of-Study Definition",
+        "5. Study Population",
+        "5.1. Inclusion Criteria",
+        "5.2. Exclusion Criteria",
+        "5.3. Lifestyle Considerations",
+        "5.3.1. Meals and Dietary Restrictions",
+        "5.3.2. Caffeine, Alcohol, and Tobacco",
+        "5.3.3. Activity",
+        "5.3.4. Other Restrictions",
+        "5.4. Screen Failures",
+        "5.5. Criteria for Temporarily Delaying",
+        "6. Study Intervention(s) and Concomitant Therapy",
+        "6.1. Study Intervention(s) Administered",
+        "6.1.1. Rescue Medicine",
+        "6.1.2. Medical Devices",
+        "6.2. Preparation, Handling, Storage, and Accountability",
+        "6.3. Assignment to Study Intervention",
+        "6.4. [Blinding, Masking]",
+        "6.5. Study Intervention Compliance",
+        "6.6. Dose Modification",
+        "6.6.1. Retreatment Criteria",
+        "6.7. Continued Access to Study Intervention after the End of the",
+        "6.8. Treatment of Overdose",
+        "6.9. Prior and Concomitant Therapy",
+        "7. Discontinuation of Study Intervention and Participant",
+        "7.1. Discontinuation of Study Intervention",
+        "7.1.1. Liver Event Stopping Criteria",
+        "7.1.2. QTc Stopping Criteria",
+        "7.1.3. Temporary Discontinuation",
+        "7.1.4. Rechallenge",
+        "7.2. Participant Discontinuation/Withdrawal from the Study",
+        "7.3. Lost to Follow up",
+        "8. Study Assessments and Procedures",
+        "8.1. Administrative [and General/Baseline] Procedures",
+        "8.2. [Efficacy and/or Immunogenicity] Assessments",
+        "8.3. Safety Assessments",
+        "8.3.1. Physical Examinations",
+        "8.3.2. Vital Signs",
+        "8.3.3. Electrocardiograms",
+        "8.3.4. Clinical Safety Laboratory Tests",
+        "8.3.5. Pregnancy Testing",
+        "8.3.6. Suicidal Ideation and Behavior Risk Monitoring",
+        "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and",
+        "8.4.1. Time Period and Frequency for Collecting AE and SAE",
+        "8.4.2. Method of Detecting AEs and SAEs",
+        "8.4.3. Follow-up of AEs and SAEs",
+        "8.4.4. Regulatory Reporting Requirements for SAEs",
+        "8.4.5. Pregnancy",
+        "8.4.6. Cardiovascular and Death Events",
+        "8.4.7. Disease-related Events and/or Disease-related Outcomes Not",
+        "8.4.8. Adverse Events of Special Interest",
+        "8.4.9. Medical Device Deficiencies",
+        "8.5. Pharmacokinetics",
+        "8.6. Pharmacodynamics",
+        "8.7. Genetics",
+        "8.8. Biomarkers",
+        "8.9. Immunogenicity Assessments",
+        "8.10. [Health Economics OR Medical Resource Utilization and Health",
+        "9. Statistical Considerations",
+        "9.1. General Considerations",
+        "9.1.1. [Decision Criteria/Statistical Hypotheses]",
+        "9.1.2. Multiplicity Adjustment",
+        "9.1.3. Impact of Intercurrent Events Strategies",
+        "9.1.4. Handling of Missing Data",
+        "9.2. Analysis Sets",
+        "9.3. Analyses Supporting Primary Objective(s)",
+        "9.3.1. Primary [Endpoint(s)/Estimand(s)]",
+        "9.4. Analyses Supporting Secondary Objective(s)",
+        "9.4.1. Analyses Supporting Secondary Objective [label]",
+        "9.5. Analyses Supporting [Tertiary/Exploratory/Other] Objective(s)",
+        "9.6. [Other] Safety Analyses",
+        "9.7. Other Analyses",
+        "9.7.1. Other variables and/or parameters",
+        "9.7.2. Subgroup analyses",
+        "9.8. Interim [Analysis/Analyses]",
+        "9.9. Sample Size Determination",
+        "10. Supporting Documentation and Operational Considerations",
+        "10.1. Appendix 1: Regulatory, Ethical, and Study Oversight",
+        "10.1.1. Regulatory and Ethical Considerations",
+        "10.1.2. Financial Disclosure",
+        "10.1.3. Informed Consent Process",
+        "10.1.4. Recruitment strategy",
+        "10.1.5. Data Protection",
+        "10.1.6. Committees Structure",
+        "10.1.7. Dissemination of Clinical Study Data",
+        "10.1.8. Data Quality Assurance",
+        "10.1.9. Source Documents",
+        "10.1.10. Study and Site Start and Closure",
+        "10.1.11. Publication Policy",
+        "10.2. Appendix 2: Clinical Laboratory Tests",
+        "10.3. Appendix 3: AEs and SAEs: Definitions and Procedures for",
+        "10.3.1. Definition of AE",
+        "10.3.2. Definition of SAE",
+        "10.3.3. Recording and Follow-Up of AE and/or SAE",
+        "10.3.4. Reporting of SAEs",
+        "10.4. Appendix 4: Contraceptive and Barrier Guidance",
+        "10.4.1. Definitions",
+        "10.4.2. Contraception Guidance",
+        "10.5. Appendix 5: Genetics",
+        "10.6. Appendix 6: Liver Safety: Suggestions and Guidelines for Liver",
+        "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs,",
+        "10.7.1. Definition of Medical Device AE and ADE",
+        "10.7.2. Definition of Medical Device SAE, SADE and USADE",
+        "10.7.3. Definition of Device Deficiency",
+        "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE",
+        "10.7.5. Reporting of Medical Device SAEs",
+        "10.7.6. Reporting of SADEs",
+        "10.8. Appendix 8: Country-specific Requirements",
+        "10.9. Appendix 9: Protocol Amendment History",
+        "11. References",
+        "A maximum of [X] participants will be [enrolled / randomized / assigned to investigational",
+        "A [data monitoring committee] has been appointed for this study. The [data monitoring committee (board)]",
+        "X X X X",
+        "X ============================= X X",
+        "A detailed description of the chemistry, pharmacology, efficacy, and safety of [investigational intervention",
+        "4.2.1.1 Obtaining Study Participant Feedback (Voluntary):",
+        "A participant is considered to have completed the study if the participant has completed all",
+        "1. Participant must be [18] [or the legal age of consent in the jurisdiction in which the",
+        "2. Participants who are overtly healthy as determined by medical evaluation including",
+        "3. Participants who are [insert criteria]",
+        "4. Body weight within [insert range including units] and BMI within the range [X – X]",
+        "5. [male and/or female] assigned at birth, inclusive of all gender identities.",
+        "6. Signed informed consent as described in Appendix 1 which includes compliance with",
+        "1. [ ]",
+        "2. [ ]",
+        "3. [ ]",
+        "4. [ ]",
+        "5. [ ]",
+        "6. [ ]",
+        "1. Participants will abstain from strenuous exercise for [X hours] before each blood collection for",
+        "A screen failure occurs when a participant who has consented to participate in the clinical study",
+        "1. The [sponsor] manufactured medical devices (or devices manufactured for [sponsor] by a third",
+        "2. Other medical devices (not manufactured by or for [sponsor]) provided for use in this study are",
+        "4 cycles.]",
+        "3. Instructions for medical device use are provided [cross reference the location of such",
+        "4. All device deficiencies (including malfunction, use error and inadequate labelling) shall be",
+        "1. The investigator or designee must confirm appropriate conditions (eg, temperature) have",
+        "2. Only participants [randomized/assigned] to study intervention may receive study",
+        "3. All study intervention must be stored in a secure, environmentally controlled, and",
+        "4. The investigator, [institution, the head of the medical institution (where applicable), or",
+        "5. Further guidance and information for the final disposition of unused study interventions",
+        "A record of the quantity of [insert study intervention(s)] dispensed to and administered by each participant",
+        "6.7. Continued Access to Study Intervention after the End of the Study",
+        "7.1.4.1. Study Intervention Restart or Rechallenge After Liver Stopping Criteria Are",
+        "A participant will be considered lost to follow-up if the participant repeatedly fails to return for",
+        "5 minutes rest and will include temperature, systolic and diastolic blood pressure, and pulse [and",
+        "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and Other",
+        "8.4.1. Time Period and Frequency for Collecting AE and SAE Information",
+        "8.4.7. Disease-related Events and/or Disease-related Outcomes Not Qualifying as AEs",
+        "8.4.9.1. Time Period for Detecting Medical Device Deficiencies",
+        "8.4.9.2. Follow-up of Medical Device Deficiencies",
+        "8.4.9.3. Prompt Reporting of Device Deficiencies to the Sponsor",
+        "8.4.9.4. Regulatory Reporting Requirements for Device Deficiencies",
+        "A [X] mL [blood OR saliva] sample for DNA isolation will be collected from participants who have",
+        "A closed testing procedure that controls the family wise error rate in the strong sense at the overall [5]%",
+        "9.3.1.1. Definition of endpoint(s)",
+        "9.3.1.2. Main Analytical Approach",
+        "9.3.1.3. Sensitivity [Analysis/Analyses]",
+        "9.3.1.4. Supplementary [Analysis/Analyses]",
+        "10.1.6.1. [Early Safety Data Review AND/OR Committee]",
+        "A type of adverse event that is usually transient and may require only minimal treatment",
+        "A type of adverse event that is usually alleviated with additional specific therapeutic",
+        "A type of adverse event that interrupts usual activities of daily living, or significantly",
+        "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs, USADEs",
+        "14155 and the European Medical Device Regulation (MDR) 2017/745 for clinical device",
+        "A Medical Device SAE is an any serious adverse event that:",
+        "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE and Device",
+        "5.1. Inclusion Criteria Removed maximum age range To better reflect the age of the"
+      ],
+      "refinedSections": [],
+      "claudeMetadata": {
+        "claudeUsed": false,
+        "usage": {
+          "promptTokens": 0,
+          "completionTokens": 0,
+          "totalTokens": 0
+        }
+      },
+      "warnings": [
+        "Claude Agent not available; cannot perform agentic refinement."
+      ]
+    },
+    {
       "id": "template_fcd85a52-f60c-4b33-9501-3246dc825660",
       "name": "CPT_CoreBWE_v010.pdf",
       "originalFileName": "CPT_CoreBWE_v010.pdf",

@@ -130,11 +130,11 @@ PORT=4000                                    # API server port
 SOURCE_ROOT=/absolute/path/to/data          # Optional, defaults to packages/backend/data
 TEMPLATE_ROOT=/absolute/path/to/templates   # Optional, defaults to packages/backend/templates
 
-# Claude Authentication (pick one method)
-ANTHROPIC_API_KEY=sk-ant-...                # Direct API authentication
-ANTHROPIC_AUTH_TOKEN=sk-proxy-...           # Proxy/custom endpoint auth
-CLAUDE_CODE_USE_BEDROCK=0                   # AWS Bedrock (credentials via AWS config)
-CLAUDE_CODE_USE_VERTEX=0                    # Google Vertex AI (credentials via GCP config)
+# Claude Authentication (ALL OPTIONAL - SDK uses default provider if not specified)
+ANTHROPIC_API_KEY=sk-ant-...                # Optional: Direct API authentication
+ANTHROPIC_AUTH_TOKEN=sk-proxy-...           # Optional: Proxy/custom endpoint auth
+CLAUDE_CODE_USE_BEDROCK=0                   # Optional: AWS Bedrock (credentials via AWS config)
+CLAUDE_CODE_USE_VERTEX=0                    # Optional: Google Vertex AI (credentials via GCP config)
 
 # Optional Claude configuration
 ANTHROPIC_BASE_URL=https://.../             # Custom endpoint (include trailing slash)
@@ -166,10 +166,11 @@ Initial implementation used simple single-turn text generation with pre-extracte
 - **Mode**: Autonomous multi-turn agent with file access and tool usage
 - **Configuration**:
   - Uses `query()` function with streaming response handling
-  - Multi-turn conversations (configurable via `AGENT_MAX_TURNS`, default: 5)
+  - Multi-turn conversations (configurable via `AGENT_MAX_TURNS`, default: 15)
   - Tools enabled: `Read`, `Glob`, `Bash` for file operations and semtools
   - Model automatically selected by SDK (uses latest available)
   - Extracts token usage: input, cached input, output tokens
+  - Note: Large templates (100+ sections) may require increasing `AGENT_MAX_TURNS` to 20-25
 - **Graceful Fallback**: Returns diagnostic messages when Claude unavailable
 - **Authentication Priority**: API key → auth token → cloud integrations → fallback
 

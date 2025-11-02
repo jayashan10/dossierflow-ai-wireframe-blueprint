@@ -87,46 +87,22 @@ if (typeof appConfig.claudeUseVertex === 'boolean') {
  * Build fallback message with diagnostics
  */
 function buildFallbackMessage(): string {
-  const hasCredential =
-    Boolean(appConfig.anthropicApiKey) ||
-    Boolean(process.env.ANTHROPIC_API_KEY) ||
-    Boolean(appConfig.anthropicAuthToken) ||
-    Boolean(process.env.ANTHROPIC_AUTH_TOKEN);
+  return `Claude Agent SDK encountered an error.
 
-  if (!hasCredential) {
-    return `Claude Agent SDK not configured. No ANTHROPIC_API_KEY found.
-
-To enable AI content generation:
-1. Get your API key from: https://console.anthropic.com/
-2. Set ANTHROPIC_API_KEY (or configure ANTHROPIC_AUTH_TOKEN with a proxy) in your .env file
-3. Restart the server`;
-  }
-  
-  return `Claude Agent SDK encountered an error. Please check your configuration.`;
+The SDK uses its default authentication provider unless custom credentials are configured.
+If you need to use a custom provider, configure one of:
+- ANTHROPIC_API_KEY for direct API access
+- ANTHROPIC_AUTH_TOKEN for proxy authentication
+- CLAUDE_CODE_USE_BEDROCK for AWS Bedrock
+- CLAUDE_CODE_USE_VERTEX for Google Vertex AI`;
 }
 
 /**
  * Check if Claude is available
+ * The SDK handles authentication with its default provider - only check if feature is enabled
  */
 function isClaudeAvailable(): boolean {
-  if (!appConfig.enableClaudeAgent) {
-    return false;
-  }
-
-  if (
-    appConfig.anthropicApiKey ||
-    process.env.ANTHROPIC_API_KEY ||
-    appConfig.anthropicAuthToken ||
-    process.env.ANTHROPIC_AUTH_TOKEN
-  ) {
-    return true;
-  }
-
-  if (appConfig.claudeUseBedrock || appConfig.claudeUseVertex) {
-    return true;
-  }
-
-  return false;
+  return appConfig.enableClaudeAgent;
 }
 
 /**
@@ -157,13 +133,13 @@ export function logClaudeAuthStatus(): void {
     console.log(`  Auth Token: ${hasAuthToken ? '***' + appConfig.anthropicAuthToken?.slice(-10) : 'not set'}`);
   } else if (appConfig.claudeUseBedrock) {
     // eslint-disable-next-line no-console
-    console.log('✓ Claude Agent: Bedrock integration toggled on (credentials must be provided via AWS config)');
+    console.log('✓ Claude Agent: Bedrock integration enabled (using AWS credentials)');
   } else if (appConfig.claudeUseVertex) {
     // eslint-disable-next-line no-console
-    console.log('✓ Claude Agent: Vertex AI integration toggled on (credentials must be provided via GCP config)');
+    console.log('✓ Claude Agent: Vertex AI integration enabled (using GCP credentials)');
   } else {
     // eslint-disable-next-line no-console
-    console.warn('⚠ Claude Agent: No Anthropic credentials found. Set ANTHROPIC_API_KEY or configure proxy credentials (ANTHROPIC_AUTH_TOKEN).');
+    console.log('✓ Claude Agent: Enabled (using default SDK authentication)');
   }
 }
 
@@ -876,23 +852,34 @@ export async function refineTemplateSections(templatePath: string): Promise<Sect
  * Simple prompt for when Skills are enabled - delegates detailed workflow to the Skill
  */
 function buildSimpleRefinementPrompt(templatePath: string): string {
-  return `Parse this regulatory document template and extract all section headings with summaries.
+  return `Analyze regulatory template to extract section headings with summaries.
 
-Template File: ${templatePath}
+**Template:** ${templatePath}
 
-Task: Extract ALL sections from this template and return structured JSON with:
-- title: The section heading as it appears
-- summary: 2-3 sentence description of what this section should contain
-- originalHeading: Copy of the heading
+**Critical:** Use your **regulatory-document-parser** skill and follow its search-first workflow.
 
-Return ONLY a JSON object with this structure:
+**Required Process:**
+1. Parse template to markdown using semtools parse command
+2. Use SEMANTIC SEARCH (search command) for section discovery:
+   - Start broad: "table of contents sections modules"
+   - Refine: "module 2 clinical nonclinical quality"
+   - Target: specific section types as needed
+3. Use grep for EXACT pattern extraction (after search identifies areas)
+4. Combine semantic findings + exact patterns into complete section list
+
+**Output Format:**
 {
   "sections": [
     {"title": "...", "summary": "...", "originalHeading": "..."}
   ]
 }
 
-No markdown code fences, no explanations - just the JSON object.`;
+**Requirements:**
+- Return ONLY the JSON object (no markdown fences, no explanatory text)
+- If extraction fails, return {"sections": []}
+- Follow the skill's search → grep pattern
+
+Invoke your regulatory-document-parser skill now.`;
 }
 
 /**
