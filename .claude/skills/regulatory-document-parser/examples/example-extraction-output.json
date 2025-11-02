@@ -1,0 +1,99 @@
+{
+  "sections": [
+    {
+      "title": "1. Synopsis",
+      "summary": "Provides a high-level overview of the clinical study including study objectives, design, patient population, primary and secondary endpoints, and key statistical methods. Serves as a concise summary for regulatory reviewers to quickly understand the trial's purpose, methodology, and design approach.",
+      "originalHeading": "1. Synopsis"
+    },
+    {
+      "title": "2. Introduction",
+      "summary": "Establishes the scientific and medical rationale for the study, including background on the disease or condition, prior research, unmet medical needs, and the investigational product's proposed mechanism of action. Provides regulatory context for why this study is being conducted.",
+      "originalHeading": "2. Introduction"
+    },
+    {
+      "title": "3. Objectives",
+      "summary": "States the primary and secondary objectives of the clinical study in clear, measurable terms. Objectives define what the study aims to demonstrate or evaluate regarding efficacy, safety, pharmacokinetics, or other endpoints.",
+      "originalHeading": "3. Objectives"
+    },
+    {
+      "title": "3.1 Primary Objectives",
+      "summary": "Specifies the main research question or hypothesis that the study is designed to address. Primary objectives typically focus on the most critical efficacy endpoint or safety assessment that will determine the study's success.",
+      "originalHeading": "3.1 Primary Objectives"
+    },
+    {
+      "title": "3.2 Secondary Objectives",
+      "summary": "Lists additional research questions beyond the primary objective, including supportive efficacy analyses, safety assessments, pharmacokinetic evaluations, biomarker studies, or quality of life measures. Secondary objectives provide comprehensive understanding of the investigational product.",
+      "originalHeading": "3.2 Secondary Objectives"
+    },
+    {
+      "title": "4. Investigational Plan",
+      "summary": "Describes the overall study design including study type (randomized, controlled, open-label, etc.), study phases, treatment arms, randomization scheme, blinding procedures, duration of treatment and follow-up, and planned interim analyses. Provides the methodological framework for the entire clinical trial.",
+      "originalHeading": "4. Investigational Plan"
+    },
+    {
+      "title": "4.1 Study Design",
+      "summary": "Details the fundamental design characteristics such as parallel group vs crossover, randomization ratio, control type (placebo, active comparator, dose comparison), and any adaptive design features. Explains how the design addresses the study objectives.",
+      "originalHeading": "4.1 Study Design"
+    },
+    {
+      "title": "4.2 Randomization and Blinding",
+      "summary": "Describes the randomization methodology including stratification factors, block sizes, and allocation concealment procedures. Explains blinding/masking procedures for patients, investigators, and assessors, and any measures to maintain treatment assignment confidentiality throughout the study.",
+      "originalHeading": "4.2 Randomization and Blinding"
+    },
+    {
+      "title": "5. Study Patients",
+      "summary": "Characterizes the patient population including key inclusion and exclusion criteria, baseline demographics, disease characteristics, prior treatments, and concomitant medications. Demonstrates that enrolled patients represent the target population and meet protocol-specified eligibility requirements.",
+      "originalHeading": "5. Study Patients"
+    },
+    {
+      "title": "5.1 Inclusion Criteria",
+      "summary": "Lists the criteria that patients must meet to be eligible for enrollment, such as age range, diagnosis requirements, disease severity, laboratory parameters, and consent requirements. Defines who can participate in the study.",
+      "originalHeading": "5.1 Inclusion Criteria"
+    },
+    {
+      "title": "5.2 Exclusion Criteria",
+      "summary": "Specifies conditions, characteristics, or factors that preclude enrollment or continued participation, including contraindications, significant comorbidities, prohibited medications, safety concerns, or factors that may confound efficacy assessments. Ensures patient safety and data interpretability.",
+      "originalHeading": "5.2 Exclusion Criteria"
+    },
+    {
+      "title": "6. Efficacy Evaluation",
+      "summary": "Presents the primary and secondary efficacy endpoints, measurement methodologies, assessment schedules, and statistical analysis of treatment effects. Demonstrates whether the investigational product achieved its intended therapeutic benefit in the target population.",
+      "originalHeading": "6. Efficacy Evaluation"
+    },
+    {
+      "title": "6.1 Primary Efficacy Endpoint",
+      "summary": "Defines the principal measure used to evaluate treatment effect, including the specific assessment tool, measurement timing, and clinical relevance. Primary endpoint results typically determine whether the study meets its primary objective and supports regulatory approval.",
+      "originalHeading": "6.1 Primary Efficacy Endpoint"
+    },
+    {
+      "title": "6.2 Secondary Efficacy Endpoints",
+      "summary": "Describes additional efficacy measures that provide supportive evidence of treatment benefit, characterize the therapeutic effect profile, or assess different aspects of disease response. May include composite endpoints, patient-reported outcomes, biomarkers, or time-to-event analyses.",
+      "originalHeading": "6.2 Secondary Efficacy Endpoints"
+    },
+    {
+      "title": "7. Safety Evaluation",
+      "summary": "Summarizes adverse events, serious adverse events, deaths, laboratory abnormalities, vital signs, ECG findings, and other safety assessments. Characterizes the safety profile of the investigational product and identifies important identified risks, important potential risks, and missing information.",
+      "originalHeading": "7. Safety Evaluation"
+    },
+    {
+      "title": "7.1 Adverse Events",
+      "summary": "Presents the incidence, severity, and relationship of treatment-emergent adverse events (TEAEs) by system organ class and preferred term. Includes summary tables, narratives of serious adverse events and deaths, and discussion of adverse events leading to discontinuation or dose modification.",
+      "originalHeading": "7.1 Adverse Events"
+    },
+    {
+      "title": "7.2 Laboratory Evaluations",
+      "summary": "Reports clinical laboratory parameters including hematology, chemistry, urinalysis, and specialty labs collected throughout the study. Identifies clinically significant abnormalities, shifts from baseline, and potential drug-induced laboratory changes that may indicate safety concerns.",
+      "originalHeading": "7.2 Laboratory Evaluations"
+    },
+    {
+      "title": "8. Discussion and Overall Conclusions",
+      "summary": "Integrates efficacy and safety findings to provide an overall assessment of the benefit-risk profile. Discusses results in context of study limitations, relevance to the target population, clinical significance, and implications for future development or regulatory decision-making.",
+      "originalHeading": "8. Discussion and Overall Conclusions"
+    },
+    {
+      "title": "9. Tables, Figures, and Listings",
+      "summary": "Contains comprehensive tabular data, graphical representations, and detailed patient listings supporting the clinical study report. Includes demographics, disposition, efficacy analyses, safety summaries, protocol deviations, and individual patient data as required by ICH E3 guidelines.",
+      "originalHeading": "9. Tables, Figures, and Listings"
+    }
+  ]
+}

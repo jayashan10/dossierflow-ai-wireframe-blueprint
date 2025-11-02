@@ -6,10 +6,13 @@
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
     "build": "tsc --project tsconfig.json",
     "start": "node dist/index.js",
-    "test": "vitest run"
+    "test": "vitest run",
+    "claude:refine": "ts-node src/scripts/debug-claude-refine.ts",
+    "test:agent-template": "ts-node src/scripts/test-agent-template.ts"
   },
   "dependencies": {
-    "@openai/codex-sdk": "^0.47.0",
+    "@anthropic-ai/claude-agent-sdk": "^0.1.28",
+    "@anthropic-ai/sdk": "^0.68.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "mammoth": "^1.8.0",
@@ -19,8 +22,8 @@
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
-    "@types/node": "^20.10.0",
     "@types/multer": "^1.4.11",
+    "@types/node": "^20.10.0",
     "@types/pdf-parse": "^1.1.4",
     "@types/supertest": "^2.0.16",
     "nodemon": "^3.1.7",

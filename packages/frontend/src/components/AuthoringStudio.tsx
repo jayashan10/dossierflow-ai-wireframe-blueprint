@@ -1,18 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
-import { 
-  Bold, 
-  Italic, 
-  Underline, 
-  List, 
-  Link, 
-  Table, 
-  MessageSquare, 
-  Clock, 
+import {
+  MessageSquare,
+  Clock,
   Sparkles,
   X,
   FileText,
   ChevronLeft,
-  Search
+  Search,
+  Bold,
+  Italic,
+  Underline,
+  List,
+  Table,
+  Link
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -21,6 +21,7 @@ import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
 import { Separator } from './ui/separator';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { RichTextEditor } from './RichTextEditor';
 import { sourceDocs, reviewers } from '../data/mockData';
 import type { Document, DocumentComment } from '../data/mockData';
 import { fetchSources, generateContent } from '../lib/api';
@@ -135,9 +136,9 @@ export function AuthoringStudio({
     'In Review': 'bg-blue-100 text-blue-800 border-blue-300',
     'Changes Requested': 'bg-orange-100 text-orange-800 border-orange-300'
   };
-  
-  // Use sections from config if available, otherwise use default sections
-  const sections = documentConfig?.sections || existingDocSections;
+
+  // Use sections from config if available, otherwise use the current document's name as a single section
+  const sections = documentConfig?.sections || (currentDocument?.name ? [currentDocument.name] : existingDocSections);
   const isNewDocument = documentConfig !== null;
 
   useEffect(() => {
@@ -152,6 +153,13 @@ export function AuthoringStudio({
     setGenerationError(null);
     setNewCommentText('');
   }, [documentId]);
+
+  // Auto-select the first section when sections are available
+  useEffect(() => {
+    if (sections.length > 0 && !selectedSection) {
+      setSelectedSection(sections[0]);
+    }
+  }, [sections, selectedSection]);
 
   useEffect(() => {
     let cancelled = false;
@@ -457,66 +465,46 @@ export function AuthoringStudio({
 
             {selectedSection ? (
               <>
-                <h3 className="mb-4">{selectedSection}</h3>
+                <div className="flex items-center justify-between mb-4">
+                  <h3>{selectedSection}</h3>
+                  {generatedDraftForSection && (generationResult?.metadata.claudeUsed ?? generationResult?.metadata.codexUsed) && (
+                    <Badge
+                      variant="outline"
+                      className="text-emerald-700 border-emerald-200 bg-emerald-50"
+                    >
+                      Claude Generated
+                    </Badge>
+                  )}
+                </div>
                 <div className="space-y-4">
-                  {generatedDraftForSection ? (
-                    <div className="border rounded-md p-4 bg-muted/30">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-sm font-medium">Latest Draft</h4>
-                        {generationResult?.metadata.codexUsed ? (
-                          <Badge variant="outline" className="text-emerald-700 border-emerald-200 bg-emerald-50">
-                            Codex
-                          </Badge>
-                        ) : (
-                          <Badge variant="outline" className="text-slate-700 border-slate-200 bg-slate-50">
-                            Preview
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="prose prose-sm max-w-none whitespace-pre-wrap text-sm leading-relaxed">
-                        {generatedDraftForSection}
-                      </div>
-                    </div>
-                  ) : !isNewDocument && selectedSection === '2.6.2.1 Brief Summary' ? (
-                    // Show existing content for the first section of existing documents
-                    <>
-                      <p className="leading-relaxed">
-                        This section provides a comprehensive overview of the pharmacological properties 
-                        of the investigational compound. The primary pharmacodynamics studies demonstrate 
-                        the mechanism of action and dose-response relationships in relevant biological systems.
-                      </p>
-                      <p className="leading-relaxed bg-blue-50 p-4 rounded-md border border-blue-200">
-                        <span className="inline-flex items-center gap-2 text-blue-800 mb-2">
-                          <Sparkles className="h-4 w-4" />
-                          <span>AI-generated content</span>
-                        </span>
-                        <br />
-                        The compound exhibited significant activity in target receptor binding assays 
-                        with an IC50 of 2.3 nM. In vitro studies confirmed selective antagonism of the 
-                        target pathway with minimal off-target effects observed at concentrations up to 
-                        1000-fold above the therapeutic range.
-                      </p>
-                      <p className="leading-relaxed">
-                        Additional studies evaluating secondary pharmacodynamics are described in 
-                        subsequent sections, along with comprehensive safety pharmacology assessments.
-                      </p>
-                    </>
-                  ) : (
-                    <div className="border-2 border-dashed border-muted rounded-lg p-8 text-center">
-                      <Sparkles className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-                      <p className="text-muted-foreground mb-4">
-                        No content yet for this section
-                      </p>
-                      <p className="text-muted-foreground mb-4">
-                        Use the AI Assistant panel on the right to generate content, or start writing manually
-                      </p>
-                      <Button className="gap-2" disabled={isReadOnly} onClick={() => {
-                        // Scroll to generate tab
-                        const generateTab = document.querySelector('[value="generate"]') as HTMLElement;
-                        generateTab?.click();
-                      }}>
-                        <Sparkles className="h-4 w-4" />
-                        Generate Content
+                  <RichTextEditor
+                    content={generatedDraftForSection || ''}
+                    onChange={(content) => {
+                      setSectionDrafts((prev) => ({
+                        ...prev,
+                        [selectedSection]: content
+                      }));
+                    }}
+                    placeholder="Start writing your content here, or use the AI Assistant panel on the right to generate content..."
+                    disabled={isReadOnly}
+                  />
+                  {generatedDraftForSection && (
+                    <div className="flex justify-end">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          // Clear the current draft
+                          setSectionDrafts((prev) => {
+                            const updated = { ...prev };
+                            delete updated[selectedSection];
+                            return updated;
+                          });
+                          setGenerationResult(null);
+                        }}
+                        disabled={isReadOnly}
+                      >
+                        Clear Content
                       </Button>
                     </div>
                   )}
@@ -664,15 +652,18 @@ export function AuthoringStudio({
               <div className="border rounded-md p-3 space-y-2 bg-background">
                 <div className="flex items-center justify-between">
                   <h4 className="text-sm font-medium">Preview</h4>
-                  {generationResult.metadata.codexUsed ? (
-                    <Badge variant="outline" className="text-emerald-700 border-emerald-200 bg-emerald-50">
-                      Codex
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="text-slate-700 border-slate-200 bg-slate-50">
-                      Preview
-                    </Badge>
-                  )}
+                  <Badge
+                    variant="outline"
+                    className={
+                      (generationResult.metadata.claudeUsed ?? generationResult.metadata.codexUsed)
+                        ? 'text-emerald-700 border-emerald-200 bg-emerald-50'
+                        : 'text-slate-700 border-slate-200 bg-slate-50'
+                    }
+                  >
+                    {(generationResult.metadata.claudeUsed ?? generationResult.metadata.codexUsed)
+                      ? 'Claude'
+                      : 'Preview'}
+                  </Badge>
                 </div>
                 <div className="text-sm whitespace-pre-wrap leading-relaxed max-h-64 overflow-auto">
                   {generationResult.content}

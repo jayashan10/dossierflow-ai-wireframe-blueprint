@@ -17,8 +17,10 @@ const serviceMocks = vi.hoisted(() => {
   const generateDraftMock = vi.fn().mockImplementation(async ({ snippets }) => ({
     content: 'Generated content',
     metadata: {
-      codexUsed: false,
-      snippetCount: snippets.length
+      agentUsed: false,
+      snippetCount: snippets.length,
+      toolsUsed: [],
+      turnsCompleted: 0
     },
     usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
   }));
@@ -31,7 +33,7 @@ vi.mock('../src/services/text-extraction', () => ({
   extractTextFromPdf: serviceMocks.pdfMock
 }));
 
-vi.mock('../src/services/codex-service', () => ({
+vi.mock('../src/services/claude-agent-service', () => ({
   generateDraft: serviceMocks.generateDraftMock
 }));
 
@@ -53,8 +55,10 @@ describe('Sources API', () => {
     serviceMocks.generateDraftMock.mockImplementation(async ({ snippets }) => ({
       content: 'Generated content',
       metadata: {
-        codexUsed: false,
-        snippetCount: snippets.length
+        agentUsed: false,
+        snippetCount: snippets.length,
+        toolsUsed: [],
+        turnsCompleted: 0
       },
       usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
     }));

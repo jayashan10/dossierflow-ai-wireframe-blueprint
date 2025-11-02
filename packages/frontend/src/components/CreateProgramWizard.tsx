@@ -6,7 +6,7 @@ import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
-import { Plus, ArrowLeft, ArrowRight, Users, Upload, FileText, CheckCircle2, Sparkles, AlertTriangle, Wand2 } from 'lucide-react';
+import { Plus, ArrowLeft, ArrowRight, Users, Upload, FileText, CheckCircle2, Sparkles, AlertTriangle, AlertCircle, Wand2 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import type { Program } from '../data/mockData';
 import { uploadTemplate, refineTemplate, type TemplateDetails, type TemplateRefinedSection } from '../lib/api';
@@ -270,7 +270,7 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
         warnings: result.warnings ?? prev.warnings
       }));
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Codex refinement failed.';
+      const message = error instanceof Error ? error.message : 'Claude refinement failed.';
       setRefineError(message);
     } finally {
       setIsRefining(false);
@@ -480,46 +480,12 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
                   </Card>
                 )}
 
-                {uploadState.status === 'success' && rawHeadings.length > 0 && (
-                  <Card className="p-3">
-                    <div className="flex items-center justify-between gap-4 mb-2">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-muted-foreground" />
-                        <h3 className="text-sm font-medium">Extracted Headings</h3>
-                      </div>
-                      <Badge variant="outline" className="whitespace-nowrap">
-                        {rawHeadings.length} sections
-                      </Badge>
-                    </div>
-                    <Separator className="mb-2" />
-                    <div className="space-y-1.5" style={{ maxHeight: '220px', overflowY: 'auto' }}>
-                      {rawHeadings.map((heading, index) => (
-                        <div key={`${heading}-${index}`} className="border rounded-md p-2 text-xs bg-muted/40">
-                          {heading}
-                        </div>
-                      ))}
-                    </div>
-                    <Button
-                      className="mt-3 gap-2"
-                      variant="secondary"
-                      onClick={handleRefine}
-                      disabled={isRefining || !templateId}
-                    >
-                      <Wand2 className="h-4 w-4" />
-                      {isRefining ? 'Refining...' : 'Refine with Codex'}
-                    </Button>
-                    {refineError && (
-                      <p className="mt-2 text-xs text-destructive">{refineError}</p>
-                    )}
-                  </Card>
-                )}
-
-                {refinedSections.length > 0 && (
+                {uploadState.status === 'success' && refinedSections.length > 0 && (
                   <Card className="p-3">
                     <div className="flex items-center justify-between gap-4 mb-2">
                       <div className="flex items-center gap-2">
                         <Wand2 className="h-5 w-5 text-primary" />
-                        <h3 className="text-sm font-medium">Codex-Refined Sections</h3>
+                        <h3 className="text-sm font-medium">Claude-Refined Sections</h3>
                       </div>
                       <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300 whitespace-nowrap">
                         {refinedSections.length} sections
@@ -546,6 +512,26 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
                           </p>
                         </div>
                       ))}
+                    </div>
+                  </Card>
+                )}
+
+                {uploadState.status === 'success' && refinedSections.length === 0 && (
+                  <Card className="p-3 border-yellow-200 bg-yellow-50">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <h3 className="text-sm font-medium text-yellow-900 mb-1">Template Uploaded Without Refinement</h3>
+                        <p className="text-xs text-yellow-800 leading-relaxed">
+                          The template was uploaded successfully, but Claude-based section refinement did not complete.
+                          {rawHeadings.length > 0 ? ` Found ${rawHeadings.length} sections using basic extraction.` : ' No sections were extracted.'}
+                        </p>
+                        {uploadState.warnings && uploadState.warnings.length > 0 && (
+                          <p className="text-xs text-yellow-700 mt-2 font-medium">
+                            {uploadState.warnings.join(' ')}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </Card>
                 )}

@@ -2,7 +2,8 @@ import express from 'express';
 import multer from 'multer';
 import { z } from 'zod';
 import { FileValidationError } from '../services/file-service';
-import { saveTemplate, listTemplates, getTemplate, refineTemplateRecord } from '../services/template-service';
+import { saveTemplate, listTemplates, getTemplate, refineTemplateRecord, refineTemplateWithSections, refineTemplateRecordWithAgent } from '../services/template-service';
+import { appConfig } from '../config';
 
 const memoryStorage = multer.memoryStorage();
 
@@ -26,12 +27,29 @@ templatesRouter.post('/upload', upload.single('file'), async (req, res, next) =>
       });
     }
 
+    // Upload without auto-refinement first (regex extraction only)
     const template = await saveTemplate({
       originalName: req.file.originalname,
       mimeType: req.file.mimetype,
       size: req.file.size,
       buffer: req.file.buffer
     }, { autoRefine: false });
+
+    // Use full agentic workflow with semtools for proper section extraction
+    if (appConfig.enableClaudeAgent) {
+      try {
+        const refinedTemplate = await refineTemplateRecordWithAgent(template.id);
+        return res.status(201).json({ template: refinedTemplate });
+      } catch (refineError) {
+        // Fall back to returning template with regex-extracted sections and error warning
+        const warning = refineError instanceof Error ? refineError.message : 'Agent refinement failed.';
+        const templateWithWarning = {
+          ...template,
+          warnings: template.warnings ? [...template.warnings, warning] : [warning]
+        };
+        return res.status(201).json({ template: templateWithWarning });
+      }
+    }
 
     res.status(201).json({ template });
   } catch (error) {
@@ -90,3 +108,18 @@ templatesRouter.post('/:id/refine', async (req, res, next) => {
   }
 });
 
+templatesRouter.post('/:id/refine-with-agent', async (req, res, next) => {
+  try {
+    const params = getTemplateParamsSchema.parse(req.params);
+    const template = await refineTemplateRecordWithAgent(params.id);
+    res.json({ template });
+  } catch (error) {
+    if (error instanceof Error && error.message === 'Template not found') {
+      return res.status(404).json({
+        error: 'NotFound',
+        message: 'Template not found.'
+      });
+    }
+    next(error);
+  }
+});

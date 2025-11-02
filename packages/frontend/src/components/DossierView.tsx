@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronRight, ChevronDown, Home, Sparkles } from 'lucide-react';
+import { ChevronRight, ChevronDown, Home, Sparkles, FileText } from 'lucide-react';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 import { Badge } from './ui/badge';
@@ -23,6 +23,7 @@ interface DossierViewProps {
   programId: string;
   onBack: () => void;
   onOpenDocument: (documentId: string, mode?: 'author' | 'reviewer') => void;
+  onViewFullReport: () => void;
   documents: Record<string, Document>;
   structure: ModuleNode[];
   dataVaultFolders: DataVaultFolder[];
@@ -33,6 +34,7 @@ export function DossierView({
   programId,
   onBack,
   onOpenDocument,
+  onViewFullReport,
   documents,
   structure,
   dataVaultFolders,
@@ -112,6 +114,7 @@ export function DossierView({
     const isExpanded = expandedNodes.has(node.id);
     const isSelected = selectedNode === node.id;
     const hasChildren = node.children && node.children.length > 0;
+    const documentCount = node.documents?.length ?? 0;
 
     return (
       <div key={node.id}>
@@ -135,7 +138,12 @@ export function DossierView({
           ) : (
             <div className="w-4" />
           )}
-          <span className={cn('text-sm', !hasChildren && 'text-muted-foreground')}>{node.name}</span>
+          <span className={cn('text-sm flex-1', !hasChildren && 'text-muted-foreground')}>{node.name}</span>
+          {documentCount > 0 && (
+            <Badge variant="outline" className="ml-auto text-xs px-1.5 py-0">
+              {documentCount}
+            </Badge>
+          )}
         </div>
         {isExpanded && node.children && node.children.map((child) => renderNode(child, level + 1))}
       </div>
@@ -160,7 +168,7 @@ export function DossierView({
   };
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-screen">
       <div className="w-72 border-r bg-muted/20 p-6 overflow-auto">
         <h3 className="mb-4 text-sm font-medium">Program {programId.toUpperCase()}</h3>
         <div className="space-y-1">
@@ -169,7 +177,7 @@ export function DossierView({
       </div>
 
       <div className="flex-1 overflow-hidden flex flex-col">
-        <div className="border-b p-4 bg-white">
+        <div className="border-b p-4 bg-white flex-shrink-0">
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -186,23 +194,29 @@ export function DossierView({
           </Breadcrumb>
         </div>
 
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="flex-1 flex flex-col">
-          <TabsList className="border-b rounded-none justify-start bg-muted/40 px-6">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="flex-1 flex flex-col overflow-hidden">
+          <TabsList className="border-b rounded-none justify-start bg-muted/40 px-6 flex-shrink-0">
             <TabsTrigger value="dossier">Dossier</TabsTrigger>
             <TabsTrigger value="data-vault">Data Vault</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dossier" className="flex-1 overflow-auto px-6 py-6">
-            <div className="flex flex-col gap-6">
-              <div>
-                <h2 className="text-lg font-semibold">{selectedNodeData?.name}</h2>
-                <p className="text-sm text-muted-foreground">
-                  Manage drafting status and jump into authoring from here.
-                </p>
+          <TabsContent value="dossier" className="flex-1 overflow-auto px-6 py-6 data-[state=active]:flex data-[state=active]:flex-col">
+            <div className="flex flex-col gap-6 min-h-0">
+              <div className="flex-shrink-0 flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-semibold">{selectedNodeData?.name}</h2>
+                  <p className="text-sm text-muted-foreground">
+                    Manage drafting status and jump into authoring from here.
+                  </p>
+                </div>
+                <Button onClick={onViewFullReport} variant="outline" className="gap-2">
+                  <FileText className="h-4 w-4" />
+                  View Full Report
+                </Button>
               </div>
 
-              <div className="border rounded-lg overflow-hidden">
+              <div className="border rounded-lg overflow-auto flex-1 min-h-0">
                 <table className="w-full">
                   <thead className="border-b bg-muted/30">
                     <tr>
@@ -285,7 +299,7 @@ export function DossierView({
                                 </Button>
                               )}
                               {docState.status === 'To Do' && (
-                                <Button size="sm" variant="outline" className="gap-2">
+                                <Button size="sm" variant="outline" className="gap-2" onClick={() => onOpenDocument(doc.id, 'author')}>
                                   <Sparkles className="h-4 w-4" />
                                   Generate
                                 </Button>

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { fetchSourceSnippets } from '../services/source-service';
-import { generateDraft } from '../services/codex-service';
+import { generateDraft } from '../services/claude-agent-service';
 
 const requestSchema = z.object({
   sectionId: z.string().min(1),

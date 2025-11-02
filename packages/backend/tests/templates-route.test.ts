@@ -24,7 +24,7 @@ const refinementMock = vi.hoisted(() => vi.fn().mockResolvedValue({
     { title: '2. Introduction', summary: 'Summary details', originalHeading: '2. Introduction' }
   ],
   warnings: undefined,
-  codexUsed: false,
+  claudeUsed: false,
   usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
 }));
 
@@ -33,10 +33,11 @@ vi.mock('../src/services/text-extraction', () => ({
   extractTextFromPdf: extractionMocks.pdfMock
 }));
 
-vi.mock('../src/services/codex-service', async () => {
-  const actual = await vi.importActual<typeof import('../src/services/codex-service')>('../src/services/codex-service');
+vi.mock('../src/services/claude-agent-service', async () => {
+  const actual = await vi.importActual<typeof import('../src/services/claude-agent-service')>('../src/services/claude-agent-service');
   return {
     ...actual,
+    refineExtractedSections: refinementMock,
     refineTemplateSections: refinementMock
   };
 });
@@ -62,7 +63,7 @@ describe('Templates API', () => {
         { title: '2. Introduction', summary: 'Summary details', originalHeading: '2. Introduction' }
       ],
       warnings: undefined,
-      codexUsed: true,
+      claudeUsed: true,
       usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
     });
 
@@ -83,8 +84,11 @@ describe('Templates API', () => {
 
     expect(response.status).toBe(201);
     expect(response.body.template).toBeDefined();
-    expect(refinementMock).not.toHaveBeenCalled();
-    expect(response.body.template.refinedSections).toEqual([]);
+    expect(refinementMock).toHaveBeenCalled();
+    expect(response.body.template.refinedSections).toEqual([
+      expect.objectContaining({ title: '1. Executive Summary', originalHeading: '1. Executive Summary' }),
+      expect.objectContaining({ title: '2. Introduction', originalHeading: '2. Introduction' })
+    ]);
     expect(response.body.template.rawSections).toEqual(['1. Executive Summary', '2. Introduction']);
     expect(response.body.template.warnings).toContain('Test warning');
   });
@@ -103,8 +107,8 @@ describe('Templates API', () => {
         { title: 'Executive Summary Refined', summary: 'Summary details', originalHeading: '1. Executive Summary' },
         { title: 'Introduction Refined', summary: 'Summary details', originalHeading: '2. Introduction' }
       ],
-      warnings: ['Codex warning'],
-      codexUsed: true,
+      warnings: ['Claude warning'],
+      claudeUsed: true,
       usage: { promptTokens: 20, completionTokens: 10, totalTokens: 30 }
     });
 
@@ -118,8 +122,8 @@ describe('Templates API', () => {
       expect.objectContaining({ title: 'Introduction Refined', originalHeading: '2. Introduction' })
     ]);
     expect(refineResponse.body.template.warnings).toContain('Test warning');
-    expect(refineResponse.body.template.warnings).toContain('Codex warning');
-    expect(refineResponse.body.template.codexUsed).toBe(true);
+    expect(refineResponse.body.template.warnings).toContain('Claude warning');
+    expect(refineResponse.body.template.claudeUsed).toBe(true);
   });
 
   it('rejects unsupported file types', async () => {

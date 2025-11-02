@@ -29,6 +29,7 @@ export interface GenerateResponseBody {
     sectionId: string;
     sectionTitle: string;
     sources: Array<{ id: string; name: string; warnings?: string[] | undefined }>;
+    claudeUsed?: boolean;
     codexUsed?: boolean;
     snippetCount?: number;
   };
@@ -40,7 +41,7 @@ export interface TemplateSummary {
   name: string;
   sectionCount: number;
   createdAt: string;
-  codexUsed: boolean;
+  claudeUsed: boolean;
 }
 
 export interface TemplateRefinedSection {
@@ -52,7 +53,7 @@ export interface TemplateRefinedSection {
 export interface TemplateDetails extends TemplateSummary {
   rawSections: string[];
   refinedSections: TemplateRefinedSection[];
-  codexUsage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+  claudeUsage?: { promptTokens: number; completionTokens: number; totalTokens: number };
   warnings?: string[];
   originalFileName: string;
   relativePath: string;

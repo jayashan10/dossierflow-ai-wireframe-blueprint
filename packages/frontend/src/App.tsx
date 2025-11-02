@@ -329,18 +329,11 @@ export default function App() {
   };
 
   const seedAuthoringFromTemplate = (config: TemplateConfigForAuthoring) => {
-    const sections = config.refinedSections.length
-      ? config.refinedSections.map((section) => section.title)
-      : [...config.rawSections];
-
-    setDocumentConfig({
-      documentType: config.documentType,
-      templateUploaded: config.templateUploaded,
-      sections
-    });
+    // After template upload, go directly to dossier view instead of authoring
+    setDocumentConfig(null);
     setSelectedDocument(null);
     setAuthoringMode('author');
-    setCurrentView('authoring');
+    setCurrentView('dossier');
     setProgramWizardOpen(false);
   };
 
@@ -382,6 +375,35 @@ export default function App() {
     setAuthoringMode('author');
   };
 
+  const handleViewFullReport = () => {
+    // Extract all document/section names from the current structure
+    const allSections: string[] = [];
+    const traverse = (nodes: ModuleNode[]) => {
+      nodes.forEach((node) => {
+        if (node.documents) {
+          node.documents.forEach((doc) => {
+            const docState = documents[doc.id] ?? doc;
+            allSections.push(docState.name);
+          });
+        }
+        if (node.children) {
+          traverse(node.children);
+        }
+      });
+    };
+    traverse(currentStructure);
+
+    // Show authoring view with all sections in the table of contents
+    setDocumentConfig({
+      documentType: selectedProgram || 'Document',
+      templateUploaded: true,
+      sections: allSections
+    });
+    setSelectedDocument(null);
+    setAuthoringMode('author');
+    setCurrentView('authoring');
+  };
+
   const authoringDocument = useMemo(() => (selectedDocument ? documents[selectedDocument] : null), [documents, selectedDocument]);
   const activeUserId = authoringMode === 'author' ? 'mark' : currentReviewerId;
   const currentStructure = selectedProgram ? structuresByProgram[selectedProgram] ?? [] : [];
@@ -391,7 +413,7 @@ export default function App() {
       {currentView !== 'authoring' && currentView !== 'setup' && (
         <Header onLogoClick={handleBackToDashboard} />
       )}
-      
+
       <div className="flex-1 overflow-hidden">
         {currentView === 'dashboard' && (
           <Dashboard 
@@ -413,13 +435,14 @@ export default function App() {
             programId={selectedProgram}
             onBack={handleBackToDashboard}
             onOpenDocument={handleOpenDocument}
+            onViewFullReport={handleViewFullReport}
             documents={documents}
             structure={currentStructure}
             dataVaultFolders={dataVaultFolders}
             dataVaultFiles={dataVaultFiles}
           />
         )}
-        
+
         {currentView === 'authoring' && (
           <AuthoringStudio
             documentId={selectedDocument || 'new'}

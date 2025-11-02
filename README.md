@@ -40,7 +40,7 @@ The `packages/data/`, `packages/templates/`, and `packages/backend/data/` direct
 
 - Node.js 20+
 - npm 10+
-- Optional: Codex CLI (`npm install -g @openai/codex-cli`) if you want to authenticate without a raw API key
+- Anthropic API key from https://console.anthropic.com/
 
 ---
 
@@ -64,7 +64,14 @@ This pulls dependencies for both `packages/frontend` and `packages/backend` usin
 PORT=4000
 SOURCE_ROOT=/absolute/path/to/data       # optional; defaults to packages/backend/data
 TEMPLATE_ROOT=/absolute/path/to/templates # optional; defaults to packages/backend/templates
-CODEX_API_KEY=your_codex_key             # optional; prefer `codex login`
+ANTHROPIC_API_KEY=sk-ant-...             # required for AI generation unless using a proxy
+ANTHROPIC_BASE_URL=https://.../          # optional; proxy / gateway endpoint (include trailing slash)
+ANTHROPIC_AUTH_TOKEN=sk-proxy-...        # optional; bearer token used by a proxy service
+ANTHROPIC_CUSTOM_HEADERS=X-Forwarded-For: 203.0.113.10  # optional; additional headers for compatible gateways
+CLAUDE_CODE_USE_BEDROCK=0                # optional; toggle if using AWS Bedrock (credentials via AWS config)
+CLAUDE_CODE_USE_VERTEX=0                 # optional; toggle if using Vertex AI (credentials via GCP config)
+ENABLE_CLAUDE_AGENT=true                 # optional; defaults to true
+USE_SEMTOOLS=false                       # optional; for future semantic parsing (not yet implemented)
 ```
 
 The backend creates the source/template directories automatically if they are missing.
@@ -91,13 +98,13 @@ This launches:
 - Vite dev server (defaults to `http://localhost:3000`, auto-bumps if the port is taken)
 - Express API on `http://localhost:4000`
 
-To surface detailed Codex request/response logging while avoiding port collisions, run the dev command with the matching environment overrides:
+To enable detailed Claude API request/response logging while avoiding port collisions, run the dev command with environment overrides:
 
 ```bash
-PORT=4001 CODEX_DEBUG=1 VITE_API_PROXY_TARGET=http://localhost:4001 npm run dev
+PORT=4001 CLAUDE_DEBUG=1 VITE_API_PROXY_TARGET=http://localhost:4001 npm run dev
 ```
 
-The backend moves to `http://localhost:4001`, emits `[Codex Debug]` entries for each refinement/generation call, and the Vite proxy forwards API traffic to the updated port automatically.
+The backend moves to `http://localhost:4001`, emits `[Claude Debug]` entries for each refinement/generation call, and the Vite proxy forwards API traffic to the updated port automatically.
 
 You can also run them individually:
 
@@ -117,6 +124,16 @@ npm run test         # runs backend unit tests (Vitest)
 
 Backend build output lives in `packages/backend/dist/`. Frontend production assets are emitted to `packages/frontend/build/`.
 
+### Claude Refinement Debug Script
+
+If you need to verify refinement output outside the UI, run the helper script from `packages/backend`:
+
+```bash
+npm run claude:refine -- "1. Introduction" "1.1 Synopsis" "2. Methods"
+```
+
+It prints the raw refinement result (including warnings) so you can confirm the Claude Agent SDK is reachable with your current environment variables. Enable `CLAUDE_DEBUG=1` to log the raw assistant output when parsing fails.
+
 ---
 
 ## Key Frontend Features
@@ -130,7 +147,7 @@ Backend build output lives in `packages/backend/dist/`. Frontend production asse
 Located in `packages/frontend/src/lib/api.ts`:
 - `uploadTemplate()` – multipart upload for templates
 - `listTemplates()` – fetch stored templates
-- `fetchSources()` / `generateContent()` – call backend source discovery and Codex generation endpoints
+- `fetchSources()` / `generateContent()` – call backend source discovery and Claude generation endpoints
 
 ---
 
@@ -142,16 +159,24 @@ Located in `packages/frontend/src/lib/api.ts`:
   - `POST /api/sources/upload`
   - `GET /api/sources`
   - `POST /api/generate`
-- Services in `src/services` handle file storage, text extraction (`mammoth`, `pdf-parse`), section extraction, and Codex prompting.
-- Tests in `packages/backend/tests` (Vitest + Supertest) cover upload flows and Codex fallbacks.
+- Services in `src/services` handle file storage, text extraction (`mammoth`, `pdf-parse`), section extraction, and Claude AI prompting.
+- Tests in `packages/backend/tests` (Vitest + Supertest) cover upload flows and Claude integration.
 
 ---
 
-## Codex Integration Notes
+## Claude Agent SDK Integration
 
-- Preferred authentication is via `codex login`; the backend will use the Codex SDK if credentials are available and fall back to a helpful message otherwise.
-- The API never logs prompt contents or secrets. Uploaded files stay inside the configured `SOURCE_ROOT`/`TEMPLATE_ROOT`.
-- Requests are validated with `zod`, and file paths are sandboxed to prevent traversal.
+- **Model**: Automatically selected by SDK (uses latest available Claude model)
+- **Authentication**: API key via `ANTHROPIC_API_KEY` environment variable (or proxy/cloud integrations)
+- **Features**:
+  - Agentic draft generation with multi-turn conversations and source document access
+  - Template section refinement with file parsing and structured JSON output
+  - Multi-turn workflows (configurable via `AGENT_MAX_TURNS`, default: 5)
+  - File operations (`Read`, `Bash`) for accessing templates and sources
+  - Token usage tracking (input/cached/output tokens)
+  - Graceful fallback when API key not configured
+- **API Documentation**: https://docs.anthropic.com/claude/reference/
+- **Security**: API key loaded from environment only; no secrets in logs or code
 
 ---
 
@@ -167,4 +192,10 @@ npm run build --workspace frontend  # Vite production build
 
 ## Questions?
 
-Feel free to open an issue or reach out if you need help extending the frontend, adding new API endpoints, or tightening the integration with Codex.
+Feel free to open an issue or reach out if you need help extending the frontend, adding new API endpoints, or enhancing the Claude Agent SDK integration.
+
+---
+
+## Migration Notes
+
+**v0.2.0 - Claude Agent SDK Migration**: The backend has been migrated from OpenAI Codex SDK to Anthropic Claude Agent SDK. See `tmp/claude-migration-summary.md` for full migration details and `tmp/claude-agent-integration-plan.md` for the integration roadmap.

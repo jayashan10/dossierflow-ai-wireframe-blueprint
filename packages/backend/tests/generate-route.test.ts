@@ -21,8 +21,10 @@ const serviceMocks = vi.hoisted(() => {
     .mockImplementation(async ({ snippets }) => ({
       content: 'Generated content',
       metadata: {
-        codexUsed: false,
-        snippetCount: snippets.length
+        agentUsed: false,
+        snippetCount: snippets.length,
+        toolsUsed: [],
+        turnsCompleted: 0
       },
       usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
     }));
@@ -35,8 +37,10 @@ const serviceMocks = vi.hoisted(() => {
     generateDraft.mockImplementation(async ({ snippets }) => ({
       content: 'Generated content',
       metadata: {
-        codexUsed: false,
-        snippetCount: snippets.length
+        agentUsed: false,
+        snippetCount: snippets.length,
+        toolsUsed: [],
+        turnsCompleted: 0
       },
       usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
     }));
@@ -61,7 +65,7 @@ vi.mock('../src/services/text-extraction', () => ({
   extractTextFromPdf: vi.fn()
 }));
 
-vi.mock('../src/services/codex-service', () => ({
+vi.mock('../src/services/claude-agent-service', () => ({
   generateDraft: serviceMocks.generateDraft
 }));
 
@@ -93,7 +97,9 @@ describe('POST /api/generate', () => {
         warnings: expect.arrayContaining(['Mock extraction warning'])
       })
     ]);
-    expect(response.body.metadata.codexUsed).toBe(false);
+    expect(response.body.metadata.agentUsed).toBe(false);
+    expect(response.body.metadata.toolsUsed).toEqual([]);
+    expect(response.body.metadata.turnsCompleted).toBe(0);
     expect(typeof response.body.content).toBe('string');
   });
 
