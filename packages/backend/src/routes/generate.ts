@@ -1,13 +1,21 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { fetchSourceSnippets } from '../services/source-service';
-import { generateDraft } from '../services/claude-agent-service';
+import { fetchSourceSnippets, getSourceFilePaths } from '../services/source-service';
+import { generateDraft, generateDraftStream } from '../services/claude-agent-service';
 
 const requestSchema = z.object({
   sectionId: z.string().min(1),
   sectionTitle: z.string().min(1),
   prompt: z.string().min(1),
   selectedSourceIds: z.array(z.string()).default([])
+});
+
+const streamRequestSchema = z.object({
+  sectionId: z.string().min(1),
+  sectionTitle: z.string().min(1),
+  prompt: z.string().min(1),
+  selectedSourceIds: z.array(z.string()).default([]),
+  mentionedFileIds: z.array(z.string()).default([])
 });
 
 export const generateRouter = Router();
@@ -39,5 +47,45 @@ generateRouter.post('/', async (req, res, next) => {
     });
   } catch (error) {
     next(error);
+  }
+});
+
+// Streaming generation endpoint using SSE
+generateRouter.post('/stream', async (req, res) => {
+  // Set SSE headers
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no'); // Disable nginx buffering
+  res.flushHeaders();
+
+  try {
+    const payload = streamRequestSchema.parse(req.body);
+
+    // Get file paths for selected sources
+    const sourceFiles = await getSourceFilePaths(payload.selectedSourceIds);
+
+    // Get file paths for mentioned files (from @file references)
+    const mentionedFiles = payload.mentionedFileIds.length > 0
+      ? await getSourceFilePaths(payload.mentionedFileIds)
+      : [];
+
+    // Stream events from agent
+    for await (const event of generateDraftStream({
+      sectionTitle: payload.sectionTitle,
+      userPrompt: payload.prompt,
+      sourceFiles,
+      mentionedFiles
+    })) {
+      res.write(`data: ${JSON.stringify(event)}\n\n`);
+    }
+
+    res.write('data: [DONE]\n\n');
+    res.end();
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.write(`data: ${JSON.stringify({ type: 'error', error: errorMessage })}\n\n`);
+    res.write('data: [DONE]\n\n');
+    res.end();
   }
 });

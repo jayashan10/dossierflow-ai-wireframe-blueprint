@@ -18,6 +18,7 @@ export interface SourceSummary {
   mimeType?: string;
   relativePath: string;
   createdAt: string;
+  tags: string[];
 }
 
 export interface SourceSnippet extends SourceSummary {
@@ -36,6 +37,13 @@ interface SourceIndex {
 export interface SaveSourceResult {
   sources: SourceSummary[];
   warnings?: string[];
+}
+
+export interface SourceFileRef {
+  id: string;
+  name: string;
+  absolutePath: string;
+  relativePath: string;
 }
 
 function getIndexPath(): string {
@@ -87,6 +95,7 @@ export async function saveSources(uploads: UploadedFile[]): Promise<SaveSourceRe
         mimeType: storedFile.mimeType,
         relativePath: storedFile.relativePath,
         createdAt: new Date().toISOString(),
+        tags: [],
         storedFile
       };
 
@@ -164,6 +173,67 @@ export async function fetchSourceSnippets(ids: string[]): Promise<SourceSnippet[
   return snippets;
 }
 
+export async function getSourceById(id: string): Promise<SourceSummary | null> {
+  const index = await loadIndex();
+  const record = index.sources.find((source) => source.id === id);
+  return record ? toSourceSummary(record) : null;
+}
+
+export async function updateSourceTags(
+  id: string,
+  tags: string[]
+): Promise<SourceSummary | null> {
+  const index = await loadIndex();
+  const recordIndex = index.sources.findIndex((source) => source.id === id);
+
+  if (recordIndex === -1) {
+    return null;
+  }
+
+  // Normalize and deduplicate tags
+  const normalizedTags = [...new Set(
+    tags.map((tag) => tag.trim()).filter((tag) => tag.length > 0)
+  )];
+
+  index.sources[recordIndex] = {
+    ...index.sources[recordIndex],
+    tags: normalizedTags
+  };
+
+  await saveIndex(index);
+  return toSourceSummary(index.sources[recordIndex]);
+}
+
+export async function getSourceFilePaths(ids: string[]): Promise<SourceFileRef[]> {
+  if (!ids.length) {
+    return [];
+  }
+
+  const index = await loadIndex();
+  const byId = new Map(index.sources.map((source) => [source.id, source] as const));
+  const seen = new Set<string>();
+  const refs: SourceFileRef[] = [];
+
+  for (const id of ids) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+
+    const record = byId.get(id);
+    if (!record) {
+      continue;
+    }
+
+    refs.push({
+      id: record.id,
+      name: record.name,
+      absolutePath: record.storedFile.absolutePath,
+      relativePath: record.relativePath
+    });
+  }
+
+  return refs;
+}
+
 async function extractSourceText(storedFile: StoredFileInfo): Promise<{ text: string; warnings?: string[] }> {
   const buffer = await fs.readFile(storedFile.absolutePath);
 
@@ -185,7 +255,8 @@ function toSourceSummary(record: SourceRecord): SourceSummary {
     type: record.type,
     mimeType: record.mimeType,
     relativePath: record.relativePath,
-    createdAt: record.createdAt
+    createdAt: record.createdAt,
+    tags: record.tags || []
   };
 }
 

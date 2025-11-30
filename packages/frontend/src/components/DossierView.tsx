@@ -28,6 +28,8 @@ interface DossierViewProps {
   structure: ModuleNode[];
   dataVaultFolders: DataVaultFolder[];
   dataVaultFiles: DataVaultFile[];
+  onUploadFiles: (files: Array<{ id: string; name: string; type: string }>, folderPath: string) => void;
+  onCreateFolder: (folderName: string, parentPath: string) => void;
 }
 
 export function DossierView({
@@ -38,7 +40,9 @@ export function DossierView({
   documents,
   structure,
   dataVaultFolders,
-  dataVaultFiles
+  dataVaultFiles,
+  onUploadFiles,
+  onCreateFolder
 }: DossierViewProps) {
   const flattenStructure = (nodes: ModuleNode[]): ModuleNode[] =>
     nodes.flatMap((node) => [node, ...(node.children ? flattenStructure(node.children) : [])]);
@@ -323,7 +327,13 @@ export function DossierView({
           </TabsContent>
 
           <TabsContent value="data-vault" className="flex-1 overflow-hidden">
-            <DataVaultView folders={dataVaultFolders} files={dataVaultFiles} documents={documents} />
+            <DataVaultView
+              folders={dataVaultFolders}
+              files={dataVaultFiles}
+              documents={documents}
+              onUploadFiles={onUploadFiles}
+              onCreateFolder={onCreateFolder}
+            />
           </TabsContent>
 
           <TabsContent value="settings" className="flex-1 overflow-auto p-6">

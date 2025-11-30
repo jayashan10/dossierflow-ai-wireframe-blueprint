@@ -1,6 +1,43 @@
 {
   "sources": [
     {
+      "id": "source_3955d659-6065-46c4-aa35-07703114841a",
+      "name": "clinical_trial_protocol_example.pdf",
+      "type": "pdf",
+      "mimeType": "application/pdf",
+      "relativePath": "source_3955d659-6065-46c4-aa35-07703114841a/clinical_trial_protocol_example.pdf",
+      "createdAt": "2025-11-30T02:09:31.394Z",
+      "tags": [],
+      "storedFile": {
+        "id": "source_3955d659-6065-46c4-aa35-07703114841a",
+        "originalName": "clinical_trial_protocol_example.pdf",
+        "sanitizedFileName": "clinical_trial_protocol_example.pdf",
+        "extension": ".pdf",
+        "mimeType": "application/pdf",
+        "size": 970039,
+        "relativePath": "source_3955d659-6065-46c4-aa35-07703114841a/clinical_trial_protocol_example.pdf",
+        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/packages/data/source_3955d659-6065-46c4-aa35-07703114841a/clinical_trial_protocol_example.pdf"
+      }
+    },
+    {
+      "id": "source_e7decdcc-77e1-4ca4-94da-cf5715b52a08",
+      "name": "clinical_trial_protocol_example.pdf",
+      "type": "pdf",
+      "mimeType": "application/pdf",
+      "relativePath": "source_e7decdcc-77e1-4ca4-94da-cf5715b52a08/clinical_trial_protocol_example.pdf",
+      "createdAt": "2025-11-29T23:18:23.683Z",
+      "storedFile": {
+        "id": "source_e7decdcc-77e1-4ca4-94da-cf5715b52a08",
+        "originalName": "clinical_trial_protocol_example.pdf",
+        "sanitizedFileName": "clinical_trial_protocol_example.pdf",
+        "extension": ".pdf",
+        "mimeType": "application/pdf",
+        "size": 970039,
+        "relativePath": "source_e7decdcc-77e1-4ca4-94da-cf5715b52a08/clinical_trial_protocol_example.pdf",
+        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/packages/data/source_e7decdcc-77e1-4ca4-94da-cf5715b52a08/clinical_trial_protocol_example.pdf"
+      }
+    },
+    {
       "id": "source_1b53b10d-ec8f-45f1-9072-303bc81ff9a3",
       "name": "sample-source.docx",
       "type": "docx",

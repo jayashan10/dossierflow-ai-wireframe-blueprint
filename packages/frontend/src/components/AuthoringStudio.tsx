@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   MessageSquare,
   Clock,
@@ -12,20 +12,25 @@ import {
   Underline,
   List,
   Table,
-  Link
+  Link,
+  StopCircle,
+  Plus
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
 import { Separator } from './ui/separator';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { MentionableTextarea } from './ui/mentionable-textarea';
+import { StreamingPreview } from './StreamingPreview';
 import { RichTextEditor } from './RichTextEditor';
 import { sourceDocs, reviewers } from '../data/mockData';
 import type { Document, DocumentComment } from '../data/mockData';
-import { fetchSources, generateContent } from '../lib/api';
-import type { GenerateResponseBody, SourceSummary } from '../lib/api';
+import { fetchSources, streamGenerateContent } from '../lib/api';
+import type { SourceSummary, StreamEvent } from '../lib/api';
 import { SubmitForReviewDialog } from './review/SubmitForReviewDialog';
 import { CommentThread } from './review/CommentThread';
 import { VersionHistoryDrawer } from './VersionHistoryDrawer';
@@ -34,6 +39,7 @@ interface DocumentConfig {
   documentType: string;
   templateUploaded: boolean;
   sections: string[];
+  sectionContent?: Record<string, string>;
 }
 
 interface AuthoringStudioProps {
@@ -111,7 +117,6 @@ export function AuthoringStudio({
   const [sourceSearch, setSourceSearch] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
-  const [generationResult, setGenerationResult] = useState<GenerateResponseBody | null>(null);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [promptValue, setPromptValue] = useState(defaultPromptTemplate);
   const [sectionDrafts, setSectionDrafts] = useState<Record<string, string>>({});
@@ -119,6 +124,13 @@ export function AuthoringStudio({
   const [isSubmitDialogOpen, setSubmitDialogOpen] = useState(false);
   const [isVersionDrawerOpen, setVersionDrawerOpen] = useState(false);
   const [newCommentText, setNewCommentText] = useState('');
+
+  // Streaming state
+  const [streamingContent, setStreamingContent] = useState('');
+  const [streamingEvents, setStreamingEvents] = useState<StreamEvent[]>([]);
+  const [mentionedFileIds, setMentionedFileIds] = useState<string[]>([]);
+  const [fileSearchQuery, setFileSearchQuery] = useState('');
+  const cancelStreamRef = useRef<(() => void) | null>(null);
   const docStatus = currentDocument?.status ?? 'Drafting';
   const assignedReviewerNames = currentDocument?.assignedReviewers?.map((id) => reviewerLookup.get(id) ?? id) ?? [];
   const isInReview = docStatus === 'In Review';
@@ -148,10 +160,17 @@ export function AuthoringStudio({
   }, [mode]);
 
   useEffect(() => {
+    // Cancel any ongoing generation when document changes
+    if (cancelStreamRef.current) {
+      cancelStreamRef.current();
+      cancelStreamRef.current = null;
+    }
     setSelectedSection(null);
-    setGenerationResult(null);
     setGenerationError(null);
+    setStreamingContent('');
+    setStreamingEvents([]);
     setNewCommentText('');
+    setIsGenerating(false);
   }, [documentId]);
 
   // Auto-select the first section when sections are available
@@ -160,6 +179,36 @@ export function AuthoringStudio({
       setSelectedSection(sections[0]);
     }
   }, [sections, selectedSection]);
+
+  // Pre-populate source selection from document's linkedSources
+  useEffect(() => {
+    if (currentDocument?.linkedSources?.length) {
+      setSelectedSources((prev) => {
+        const combined = new Set([...prev, ...currentDocument.linkedSources!]);
+        return Array.from(combined);
+      });
+    }
+  }, [currentDocument?.id, currentDocument?.linkedSources]);
+
+  // Load saved content from document (single document mode)
+  useEffect(() => {
+    if (currentDocument?.content && currentDocument.name) {
+      setSectionDrafts((prev) => ({
+        ...prev,
+        [currentDocument.name]: currentDocument.content!
+      }));
+    }
+  }, [currentDocument?.id, currentDocument?.content, currentDocument?.name]);
+
+  // Load saved content from documentConfig (full report mode)
+  useEffect(() => {
+    if (documentConfig?.sectionContent) {
+      setSectionDrafts((prev) => ({
+        ...prev,
+        ...documentConfig.sectionContent
+      }));
+    }
+  }, [documentConfig]);
 
   useEffect(() => {
     let cancelled = false;
@@ -210,13 +259,35 @@ export function AuthoringStudio({
     return baseSources.filter((source) => source.name.toLowerCase().includes(query));
   }, [baseSources, sourceSearch]);
 
+  // Partition sources into linked (to current document) and unlinked
+  const { linkedSourcesList, unlinkedSourcesList } = useMemo(() => {
+    const linkedIds = new Set(currentDocument?.linkedSources || []);
+    const linked: SourceSummary[] = [];
+    const unlinked: SourceSummary[] = [];
+    for (const source of filteredSources) {
+      if (linkedIds.has(source.id)) {
+        linked.push(source);
+      } else {
+        unlinked.push(source);
+      }
+    }
+    return { linkedSourcesList: linked, unlinkedSourcesList: unlinked };
+  }, [filteredSources, currentDocument?.linkedSources]);
+
   const generatedDraftForSection = selectedSection ? sectionDrafts[selectedSection] : undefined;
   const canGenerate = Boolean(selectedSection && promptValue.trim());
 
   const handleSectionSelect = (section: string) => {
+    // Cancel any ongoing generation when switching sections
+    if (cancelStreamRef.current) {
+      cancelStreamRef.current();
+      cancelStreamRef.current = null;
+      setIsGenerating(false);
+    }
     setSelectedSection(section);
     setGenerationError(null);
-    setGenerationResult(null);
+    setStreamingContent('');
+    setStreamingEvents([]);
   };
 
   const handleAddSource = (sourceId: string) => {
@@ -224,32 +295,88 @@ export function AuthoringStudio({
     setSelectedSources((prev) => (prev.includes(sourceId) ? prev : [...prev, sourceId]));
   };
 
-  const handleGenerate = async () => {
+  const handleGenerate = useCallback(() => {
     if (!selectedSection || !canGenerate || isReadOnly) {
       return;
     }
 
+    // Cancel any existing stream
+    if (cancelStreamRef.current) {
+      cancelStreamRef.current();
+    }
+
     setIsGenerating(true);
     setGenerationError(null);
+    setStreamingContent('');
+    setStreamingEvents([]);
 
-    try {
-      const response = await generateContent({
+    const cancel = streamGenerateContent(
+      {
         sectionId: toSectionId(selectedSection),
         sectionTitle: selectedSection,
         prompt: promptValue,
-        selectedSourceIds: selectedSources
-      });
-      setGenerationResult(response);
-      setSectionDrafts((prev) => ({
-        ...prev,
-        [selectedSection]: response.content
-      }));
-    } catch (error) {
-      setGenerationError(error instanceof Error ? error.message : 'Failed to generate content.');
-    } finally {
+        selectedSourceIds: selectedSources,
+        mentionedFileIds
+      },
+      {
+        onEvent: (event) => {
+          setStreamingEvents((prev) => [...prev, event]);
+
+          if (event.type === 'text' && event.content) {
+            setStreamingContent((prev) => prev + event.content);
+          }
+
+          if (event.type === 'complete') {
+            // Stop the loading state immediately upon complete event
+            setIsGenerating(false);
+
+            if (event.content) {
+              // Save the final content to local state
+              setSectionDrafts((prev) => ({
+                ...prev,
+                [selectedSection]: event.content!
+              }));
+              setStreamingContent(event.content);
+
+              // Persist content and linked sources to document
+              if (onUpdateDocument) {
+                onUpdateDocument((doc) => ({
+                  ...doc,
+                  content: event.content,
+                  status: doc.status === 'To Do' ? 'Drafting' : doc.status,
+                  linkedSources: [...new Set([...(doc.linkedSources || []), ...selectedSources, ...mentionedFileIds])],
+                  lastUpdated: formatTimestamp()
+                }));
+              }
+            }
+          }
+
+          if (event.type === 'error' && event.error) {
+            setGenerationError(event.error);
+          }
+        },
+        onComplete: () => {
+          setIsGenerating(false);
+          cancelStreamRef.current = null;
+        },
+        onError: (error) => {
+          setGenerationError(error);
+          setIsGenerating(false);
+          cancelStreamRef.current = null;
+        }
+      }
+    );
+
+    cancelStreamRef.current = cancel;
+  }, [selectedSection, canGenerate, isReadOnly, promptValue, selectedSources, mentionedFileIds, onUpdateDocument]);
+
+  const handleCancelGeneration = useCallback(() => {
+    if (cancelStreamRef.current) {
+      cancelStreamRef.current();
+      cancelStreamRef.current = null;
       setIsGenerating(false);
     }
-  };
+  }, []);
 
   const removeSource = (sourceId: string) => {
     if (isReadOnly) return;
@@ -467,7 +594,7 @@ export function AuthoringStudio({
               <>
                 <div className="flex items-center justify-between mb-4">
                   <h3>{selectedSection}</h3>
-                  {generatedDraftForSection && (generationResult?.metadata.claudeUsed ?? generationResult?.metadata.codexUsed) && (
+                  {generatedDraftForSection && streamingEvents.some(e => e.type === 'complete') && (
                     <Badge
                       variant="outline"
                       className="text-emerald-700 border-emerald-200 bg-emerald-50"
@@ -494,13 +621,15 @@ export function AuthoringStudio({
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                          // Clear the current draft
+                          // Clear the current draft and streaming state
                           setSectionDrafts((prev) => {
                             const updated = { ...prev };
                             delete updated[selectedSection];
                             return updated;
                           });
-                          setGenerationResult(null);
+                          setStreamingContent('');
+                          setStreamingEvents([]);
+                          setGenerationError(null);
                         }}
                         disabled={isReadOnly}
                       >
@@ -521,7 +650,7 @@ export function AuthoringStudio({
 
         {/* Right Side - AI Assistant Panel */}
         <div className="w-96 border-l bg-muted/10 flex flex-col">
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="flex-1 flex flex-col">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="flex-1 flex flex-col min-h-0">
             <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
               <TabsTrigger value="generate" className="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
                 <Sparkles className="h-4 w-4" />
@@ -544,13 +673,57 @@ export function AuthoringStudio({
               </div>
 
               <div>
-                <label className="block mb-2">Prompt</label>
-                <Textarea
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block">Prompt</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="ghost" size="sm" className="gap-1 h-7 text-xs" disabled={isGenerating || isReadOnly}>
+                        <Plus className="h-3 w-3" />
+                        @file
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-72 p-2" align="end">
+                      <div className="space-y-2">
+                        <Input
+                          placeholder="Search files..."
+                          value={fileSearchQuery}
+                          onChange={(e) => setFileSearchQuery(e.target.value)}
+                          className="h-8 text-sm"
+                        />
+                        <div className="max-h-40 overflow-auto space-y-0.5">
+                          {availableSources
+                            .filter(s => s.name.toLowerCase().includes(fileSearchQuery.toLowerCase()))
+                            .slice(0, 10)
+                            .map(source => (
+                              <button
+                                key={source.id}
+                                type="button"
+                                className="w-full flex items-center gap-2 px-2 py-1.5 text-left text-sm hover:bg-accent rounded-sm"
+                                onClick={() => {
+                                  setPromptValue(prev => `${prev} @${source.name}`);
+                                  setFileSearchQuery('');
+                                }}
+                              >
+                                <FileText className="h-3 w-3 text-muted-foreground" />
+                                <span className="truncate">{source.name}</span>
+                              </button>
+                            ))}
+                          {availableSources.filter(s => s.name.toLowerCase().includes(fileSearchQuery.toLowerCase())).length === 0 && (
+                            <div className="text-sm text-muted-foreground text-center py-2">No files found</div>
+                          )}
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                <MentionableTextarea
                   className="min-h-[120px]"
                   value={promptValue}
-                  onChange={(event) => setPromptValue(event.target.value)}
+                  onChange={setPromptValue}
+                  sources={availableSources}
                   disabled={isGenerating || isReadOnly}
-                  placeholder="Describe what Codex should generate..."
+                  placeholder="Describe what the agent should generate... Use @ to mention files"
+                  onMentionedFilesChange={setMentionedFileIds}
                 />
               </div>
 
@@ -624,60 +797,40 @@ export function AuthoringStudio({
                 </div>
               </div>
 
-              <Button
-                className="w-full gap-2"
-                onClick={handleGenerate}
-                disabled={isGenerating || !canGenerate || isReadOnly}
-              >
-                <Sparkles className="h-4 w-4" />
-                {isGenerating ? 'Generating...' : 'Generate Content'}
-              </Button>
-
-              {isGenerating && (
-                <div className="text-center text-muted-foreground">
-                  <div className="inline-flex items-center gap-2">
-                    <div className="h-4 w-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-                    <span>This may take a moment...</span>
-                  </div>
-                </div>
+              {isGenerating ? (
+                <Button
+                  variant="destructive"
+                  className="w-full gap-2"
+                  onClick={handleCancelGeneration}
+                >
+                  <StopCircle className="h-4 w-4" />
+                  Stop Generation
+                </Button>
+              ) : (
+                <Button
+                  className="w-full gap-2"
+                  onClick={handleGenerate}
+                  disabled={!canGenerate || isReadOnly}
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Generate Content
+                </Button>
               )}
 
-            {generationError && (
-              <div className="text-center text-sm text-destructive">
-                {generationError}
-              </div>
-            )}
-
-            {generationResult && !generationError && (
-              <div className="border rounded-md p-3 space-y-2 bg-background">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-sm font-medium">Preview</h4>
-                  <Badge
-                    variant="outline"
-                    className={
-                      (generationResult.metadata.claudeUsed ?? generationResult.metadata.codexUsed)
-                        ? 'text-emerald-700 border-emerald-200 bg-emerald-50'
-                        : 'text-slate-700 border-slate-200 bg-slate-50'
-                    }
-                  >
-                    {(generationResult.metadata.claudeUsed ?? generationResult.metadata.codexUsed)
-                      ? 'Claude'
-                      : 'Preview'}
-                  </Badge>
-                </div>
-                <div className="text-sm whitespace-pre-wrap leading-relaxed max-h-64 overflow-auto">
-                  {generationResult.content}
-                </div>
-                <div className="text-xs text-muted-foreground">
-                  Sources used: {generationResult.metadata.sources.length}
-                </div>
-              </div>
-            )}
+            {/* Streaming Preview */}
+              {(isGenerating || streamingContent || generationError) && (
+                <StreamingPreview
+                  content={streamingContent}
+                  events={streamingEvents}
+                  isStreaming={isGenerating}
+                  error={generationError}
+                />
+              )}
             </TabsContent>
 
             <TabsContent value="sources" className="flex-1 p-4 space-y-4 overflow-auto mt-0">
-              <h4 className="mb-2">Linked Sources</h4>
-              
+              <h4 className="mb-2">Document Sources</h4>
+
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -689,22 +842,51 @@ export function AuthoringStudio({
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-4">
                 {isLoadingSources && (
                   <div className="p-2 text-sm text-muted-foreground">Loading sources...</div>
                 )}
                 {!isLoadingSources && filteredSources.length === 0 && (
                   <div className="p-2 text-sm text-muted-foreground">No sources found.</div>
                 )}
-                {filteredSources.map(source => (
-                  <div
-                    key={source.id}
-                    className="flex items-center gap-3 p-3 rounded-md border hover:bg-accent cursor-pointer"
-                  >
-                    {getFileIcon(source.type)}
-                    <span className="flex-1 truncate">{source.name}</span>
+
+                {/* Linked sources section */}
+                {linkedSourcesList.length > 0 && (
+                  <div className="space-y-2">
+                    <h5 className="text-sm font-medium text-primary">Linked to this document</h5>
+                    {linkedSourcesList.map(source => (
+                      <div
+                        key={source.id}
+                        className="flex items-center gap-3 p-3 rounded-md border border-primary/30 bg-primary/5"
+                      >
+                        {getFileIcon(source.type)}
+                        <span className="flex-1 truncate">{source.name}</span>
+                        <Badge variant="outline" className="text-primary border-primary text-xs">
+                          Linked
+                        </Badge>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {/* Other sources section */}
+                {unlinkedSourcesList.length > 0 && (
+                  <div className="space-y-2">
+                    {linkedSourcesList.length > 0 && (
+                      <h5 className="text-sm font-medium text-muted-foreground">Other sources</h5>
+                    )}
+                    {unlinkedSourcesList.map(source => (
+                      <div
+                        key={source.id}
+                        className="flex items-center gap-3 p-3 rounded-md border hover:bg-accent cursor-pointer"
+                        onClick={() => handleAddSource(source.id)}
+                      >
+                        {getFileIcon(source.type)}
+                        <span className="flex-1 truncate">{source.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </TabsContent>
 

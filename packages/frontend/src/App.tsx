@@ -159,6 +159,7 @@ interface DocumentConfig {
   documentType: string;
   templateUploaded: boolean;
   sections: string[];
+  sectionContent?: Record<string, string>;
 }
 
 export default function App() {
@@ -202,6 +203,8 @@ export default function App() {
   const [authoringMode, setAuthoringMode] = useState<'author' | 'reviewer'>('author');
   const [currentReviewerId, setCurrentReviewerId] = useState<string>('regina');
   const [isProgramWizardOpen, setProgramWizardOpen] = useState(false);
+  const [vaultFolders, setVaultFolders] = useState(dataVaultFolders);
+  const [vaultFiles, setVaultFiles] = useState(dataVaultFiles);
 
   const mutateDocument = (documentId: string, mutator: (doc: Document) => Document) => {
     setDocuments((prev) => {
@@ -263,6 +266,56 @@ export default function App() {
       addReplyToComments(doc.comments, parentId, reply);
       doc.lastUpdated = formatTimestamp();
       return doc;
+    });
+  };
+
+  const handleUploadFiles = (newFiles: Array<{ id: string; name: string; type: string }>, folderPath: string) => {
+    setVaultFiles((prev) => [
+      ...newFiles.map((file) => ({
+        id: file.id,
+        name: file.name,
+        type: file.type,
+        lastUpdated: formatTimestamp(),
+        tags: [],
+        folderPath,
+        status: 'Draft' as const,
+        versions: [{ id: `${file.id}-v1`, label: 'v1.0 (current)', date: formatTimestamp() }],
+        linkedDocuments: []
+      })),
+      ...prev
+    ]);
+  };
+
+  const handleCreateFolder = (folderName: string, parentPath: string) => {
+    const newPath = parentPath === '/' ? `/${folderName}` : `${parentPath}/${folderName}`;
+    const newFolderId = `folder-${Date.now()}`;
+
+    setVaultFolders((prev) => {
+      const addToFolder = (folders: typeof dataVaultFolders): typeof dataVaultFolders => {
+        return folders.map((folder) => {
+          if (folder.path === parentPath) {
+            return {
+              ...folder,
+              children: [
+                ...(folder.children ?? []),
+                {
+                  id: newFolderId,
+                  name: folderName,
+                  path: newPath
+                }
+              ]
+            };
+          }
+          if (folder.children) {
+            return {
+              ...folder,
+              children: addToFolder(folder.children)
+            };
+          }
+          return folder;
+        });
+      };
+      return addToFolder(prev);
     });
   };
 
@@ -376,14 +429,18 @@ export default function App() {
   };
 
   const handleViewFullReport = () => {
-    // Extract all document/section names from the current structure
+    // Extract all document/section names and content from the current structure
     const allSections: string[] = [];
+    const sectionContent: Record<string, string> = {};
     const traverse = (nodes: ModuleNode[]) => {
       nodes.forEach((node) => {
         if (node.documents) {
           node.documents.forEach((doc) => {
             const docState = documents[doc.id] ?? doc;
             allSections.push(docState.name);
+            if (docState.content) {
+              sectionContent[docState.name] = docState.content;
+            }
           });
         }
         if (node.children) {
@@ -397,7 +454,8 @@ export default function App() {
     setDocumentConfig({
       documentType: selectedProgram || 'Document',
       templateUploaded: true,
-      sections: allSections
+      sections: allSections,
+      sectionContent
     });
     setSelectedDocument(null);
     setAuthoringMode('author');
@@ -438,8 +496,10 @@ export default function App() {
             onViewFullReport={handleViewFullReport}
             documents={documents}
             structure={currentStructure}
-            dataVaultFolders={dataVaultFolders}
-            dataVaultFiles={dataVaultFiles}
+            dataVaultFolders={vaultFolders}
+            dataVaultFiles={vaultFiles}
+            onUploadFiles={handleUploadFiles}
+            onCreateFolder={handleCreateFolder}
           />
         )}
 

@@ -1,6 +1,6 @@
 import { query } from '@anthropic-ai/claude-agent-sdk';
 import { appConfig } from '../config';
-import type { SourceSnippet } from './source-service';
+import type { SourceSnippet, SourceFileRef } from './source-service';
 
 export interface TemplateRefinedSection {
   title: string;
@@ -25,6 +25,24 @@ interface GenerateResult {
   content: string;
   metadata: Record<string, unknown>;
   usage: { promptTokens: number; completionTokens: number; totalTokens: number };
+}
+
+// Streaming generation types
+export interface StreamGenerateParams {
+  sectionTitle: string;
+  userPrompt: string;
+  sourceFiles: SourceFileRef[];
+  mentionedFiles?: SourceFileRef[];
+}
+
+export interface StreamEvent {
+  type: 'text' | 'tool_start' | 'tool_result' | 'thinking' | 'complete' | 'error';
+  content?: string;
+  tool?: string;
+  input?: unknown;
+  output?: string;
+  usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+  error?: string;
 }
 
 type ClaudeUsagePayload = {
@@ -368,7 +386,8 @@ export async function generateDraft(params: GenerateParams): Promise<GenerateRes
         allowedTools: appConfig.agentEnableTools && params.snippets.length > 0 ? ['Skill', 'Read', 'Bash'] : [],
         settingSources: ['project'],
         cwd: appConfig.sourceRoot,
-        additionalDirectories: [appConfig.sourceRoot]
+        additionalDirectories: [appConfig.sourceRoot],
+        permissionMode: 'bypassPermissions'
       }
     });
 
@@ -477,6 +496,193 @@ export async function generateDraft(params: GenerateParams): Promise<GenerateRes
 }
 
 /**
+ * Build prompt for streaming agentic content generation with direct file paths
+ */
+function buildStreamingGeneratePrompt({ sectionTitle, userPrompt, sourceFiles, mentionedFiles }: StreamGenerateParams): string {
+  const sourceContext = sourceFiles.length > 0
+    ? sourceFiles.map((f) => `- ${f.name}: ${f.absolutePath}`).join('\n')
+    : 'No source documents selected.';
+
+  const mentionedContext = mentionedFiles?.length
+    ? `\n\nSpecifically mentioned files (prioritize these):\n${mentionedFiles.map((f) => `- ${f.name}: ${f.absolutePath}`).join('\n')}`
+    : '';
+
+  return `You are an expert regulatory affairs writer assisting with drafting section "${sectionTitle}" for a regulatory dossier.
+
+Task: Generate well-structured markdown content for this section based on the analyst's instructions and available source documents.
+
+Section: ${sectionTitle}
+
+Analyst Instructions:
+${userPrompt}
+
+Available Source Documents:
+${sourceContext}${mentionedContext}
+
+You have access to the following tools:
+- Read: Read source document files to extract relevant information. Use this to read the full content of any source file.
+- Bash: Execute commands for document processing (e.g., semtools parse for PDFs)
+- Glob: Search for files if needed
+
+IMPORTANT: Use the Read tool to access source document content. The files are at the paths listed above - read them directly to get the full content.
+
+Process:
+1. Review the analyst instructions and understand what content is needed
+2. Read the relevant source documents using the Read tool to gather information
+3. If a file is a PDF, you can use 'parse <filepath>' via Bash to convert it to markdown first
+4. Draft clear, concise, and well-structured content that addresses the requirements
+5. Ensure all claims are grounded in the source materials
+6. Format the output as clean markdown
+
+Important:
+- Read the source files to get actual content - don't make up information
+- When using source information, ensure accuracy and proper context
+- If sources are missing key information, note this in your response
+- Keep the tone professional and appropriate for regulatory documentation
+
+Return your generated content as markdown. Do not include explanations about the process - only the final section content.`;
+}
+
+/**
+ * Streaming content generation using agentic workflow
+ * Yields events as the agent processes
+ */
+export async function* generateDraftStream(params: StreamGenerateParams): AsyncGenerator<StreamEvent> {
+  if (!isClaudeAvailable()) {
+    yield {
+      type: 'error',
+      error: 'Claude Agent not available. Check configuration.'
+    };
+    return;
+  }
+
+  const prompt = buildStreamingGeneratePrompt(params);
+
+  try {
+    claudeDebugLog('Streaming generate prompt', prompt.slice(0, 2000));
+
+    const agentQuery = query({
+      prompt,
+      options: {
+        maxTurns: appConfig.agentMaxTurns,
+        allowedTools: ['Skill', 'Read', 'Glob', 'Bash'],
+        settingSources: ['project'],
+        cwd: appConfig.sourceRoot,
+        additionalDirectories: [appConfig.sourceRoot, appConfig.templateRoot],
+        permissionMode: 'bypassPermissions'
+      }
+    });
+
+    const fragments: string[] = [];
+    let usage: ClaudeUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
+
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const message of agentQuery as AsyncIterable<Record<string, unknown>>) {
+      const messageType = typeof message?.type === 'string' ? (message.type as string) : 'unknown';
+      claudeDebugLog('Stream message type', messageType);
+
+      if (messageType === 'assistant') {
+        const assistantMessage = message as {
+          message?: {
+            content?: Array<{ type?: string; text?: string; name?: string; input?: unknown }>;
+          };
+        };
+        const assistantContent = assistantMessage.message?.content;
+
+        if (Array.isArray(assistantContent)) {
+          for (const block of assistantContent) {
+            if (block?.type === 'text' && typeof block.text === 'string') {
+              fragments.push(block.text);
+              yield { type: 'text', content: block.text };
+            }
+            if (block?.type === 'tool_use' && typeof block.name === 'string') {
+              yield {
+                type: 'tool_start',
+                tool: block.name,
+                input: block.input
+              };
+              claudeDebugLog(`Stream tool use: ${block.name}`, block.input);
+            }
+          }
+        }
+      }
+
+      if (messageType === 'tool_result') {
+        const toolMessage = message as {
+          tool?: string;
+          output?: string;
+        };
+        yield {
+          type: 'tool_result',
+          tool: toolMessage.tool,
+          output: typeof toolMessage.output === 'string' ? toolMessage.output.slice(0, 500) : undefined
+        };
+      }
+
+      if (messageType === 'result') {
+        const resultMessage = message as {
+          subtype?: string;
+          result?: string;
+          usage?: ClaudeUsagePayload;
+          error?: { message?: string };
+        };
+
+        if (resultMessage.usage) {
+          const turnUsage = normalizeUsage(resultMessage.usage);
+          usage.promptTokens += turnUsage.promptTokens;
+          usage.completionTokens += turnUsage.completionTokens;
+          usage.totalTokens += turnUsage.totalTokens;
+        }
+
+        if (resultMessage.subtype === 'success') {
+          const content = typeof resultMessage.result === 'string' && resultMessage.result.trim().length
+            ? resultMessage.result.trim()
+            : fragments.join('').trim();
+
+          yield {
+            type: 'complete',
+            content: content || 'Claude returned an empty response.',
+            usage
+          };
+          return;
+        }
+
+        if (resultMessage.subtype === 'error') {
+          yield {
+            type: 'error',
+            error: resultMessage.error?.message ?? 'Agent returned an error.'
+          };
+          return;
+        }
+
+        if (resultMessage.subtype === 'interrupted') {
+          yield {
+            type: 'error',
+            error: 'Agent run was interrupted before completion.'
+          };
+          return;
+        }
+      }
+    }
+
+    // Fallback if no result received
+    const content = fragments.join('').trim();
+    yield {
+      type: 'complete',
+      content: content || 'Claude completed but returned no content.',
+      usage
+    };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Streaming generation failed:', error);
+    yield {
+      type: 'error',
+      error: error instanceof Error ? error.message : 'Unknown error occurred'
+    };
+  }
+}
+
+/**
  * Refine extracted template sections using agentic workflow
  * Takes already-extracted headings and refines them with contextual summaries
  */
@@ -522,7 +728,8 @@ export async function refineExtractedSections(headings: string[]): Promise<Secti
       options: {
         maxTurns: appConfig.agentMaxTurns,
         allowedTools: appConfig.agentEnableTools ? ['Skill'] : [],
-        settingSources: ['project']
+        settingSources: ['project'],
+        permissionMode: 'bypassPermissions'
       }
     });
 
@@ -712,7 +919,8 @@ export async function refineTemplateSections(templatePath: string): Promise<Sect
         allowedTools,
         settingSources: ['project'],
         cwd: appConfig.templateRoot,
-        additionalDirectories: [appConfig.templateRoot]
+        additionalDirectories: [appConfig.templateRoot],
+        permissionMode: 'bypassPermissions'
       }
     });
 

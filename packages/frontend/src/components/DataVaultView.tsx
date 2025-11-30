@@ -1,17 +1,22 @@
-import { useMemo, useState } from 'react';
-import { Folder, FolderOpen, Plus, Upload, X } from 'lucide-react';
+import { useMemo, useRef, useState } from 'react';
+import { Folder, FolderOpen, Plus, Upload, X, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
+import { Label } from './ui/label';
+import { uploadSources, updateSourceTags } from '../lib/api';
 import type { DataVaultFolder, DataVaultFile, Document } from '../data/mockData';
 
 interface DataVaultViewProps {
   folders: DataVaultFolder[];
   files: DataVaultFile[];
   documents: Record<string, Document>;
+  onUploadFiles: (files: Array<{ id: string; name: string; type: string }>, folderPath: string) => void;
+  onCreateFolder: (folderName: string, parentPath: string) => void;
 }
 
 interface FileState extends DataVaultFile {
@@ -28,11 +33,17 @@ const flattenFolders = (folders: DataVaultFolder[]) => {
   return list as Array<DataVaultFolder & { depth?: number }>;
 };
 
-export function DataVaultView({ folders, files, documents }: DataVaultViewProps) {
+export function DataVaultView({ folders, files, documents, onUploadFiles, onCreateFolder }: DataVaultViewProps) {
   const [selectedFolder, setSelectedFolder] = useState<string>('/');
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [selectedFileIds, setSelectedFileIds] = useState<Set<string>>(new Set());
   const [tagDraft, setTagDraft] = useState('');
+  const [isUploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [isNewFolderDialogOpen, setNewFolderDialogOpen] = useState(false);
+  const [newFolderName, setNewFolderName] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [fileState, setFileState] = useState<Record<string, FileState>>(() => {
     const map: Record<string, FileState> = {};
@@ -77,28 +88,103 @@ export function DataVaultView({ folders, files, documents }: DataVaultViewProps)
     }));
   };
 
-  const handleAddTag = (fileId: string) => {
+  const handleAddTag = async (fileId: string) => {
     if (!tagDraft.trim()) return;
+
+    const currentFile = fileState[fileId];
+    if (!currentFile) return;
+
+    const newTag = tagDraft.trim();
+    if (currentFile.tags.includes(newTag)) {
+      setTagDraft('');
+      return;
+    }
+
+    const newTags = [...currentFile.tags, newTag];
+
+    // Optimistically update UI
     setFileState((prev) => ({
       ...prev,
-      [fileId]: {
-        ...prev[fileId],
-        tags: prev[fileId].tags.includes(tagDraft.trim())
-          ? prev[fileId].tags
-          : [...prev[fileId].tags, tagDraft.trim()]
-      }
+      [fileId]: { ...prev[fileId], tags: newTags }
     }));
     setTagDraft('');
+
+    try {
+      await updateSourceTags(fileId, newTags);
+    } catch (error) {
+      // Revert on error
+      console.error('Failed to add tag:', error);
+      setFileState((prev) => ({
+        ...prev,
+        [fileId]: { ...prev[fileId], tags: currentFile.tags }
+      }));
+    }
   };
 
-  const handleRemoveTag = (fileId: string, tag: string) => {
+  const handleRemoveTag = async (fileId: string, tag: string) => {
+    const currentFile = fileState[fileId];
+    if (!currentFile) return;
+
+    const newTags = currentFile.tags.filter((existing) => existing !== tag);
+
+    // Optimistically update UI
     setFileState((prev) => ({
       ...prev,
-      [fileId]: {
-        ...prev[fileId],
-        tags: prev[fileId].tags.filter((existing) => existing !== tag)
-      }
+      [fileId]: { ...prev[fileId], tags: newTags }
     }));
+
+    try {
+      await updateSourceTags(fileId, newTags);
+    } catch (error) {
+      // Revert on error
+      console.error('Failed to remove tag:', error);
+      setFileState((prev) => ({
+        ...prev,
+        [fileId]: { ...prev[fileId], tags: currentFile.tags }
+      }));
+    }
+  };
+
+  const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = event.target.files;
+    if (!selectedFiles || selectedFiles.length === 0) return;
+
+    setIsUploading(true);
+    setUploadError(null);
+
+    try {
+      const fileArray = Array.from(selectedFiles);
+      const result = await uploadSources(fileArray);
+
+      // Convert backend response to the format expected by the parent component
+      const uploadedFiles = result.sources.map((source) => ({
+        id: source.id,
+        name: source.name,
+        type: source.type
+      }));
+
+      onUploadFiles(uploadedFiles, selectedFolder);
+      setUploadDialogOpen(false);
+
+      // Reset the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Upload failed';
+      setUploadError(message);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleCreateFolder = () => {
+    const trimmedName = newFolderName.trim();
+    if (!trimmedName) return;
+
+    onCreateFolder(trimmedName, selectedFolder);
+    setNewFolderName('');
+    setNewFolderDialogOpen(false);
   };
 
   return (
@@ -135,11 +221,19 @@ export function DataVaultView({ folders, files, documents }: DataVaultViewProps)
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" className="gap-2">
-              <Upload className="h-4 w-4" />
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <Button variant="outline" className="gap-2" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+              {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               Upload Files
             </Button>
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2" onClick={() => setNewFolderDialogOpen(true)}>
               <Plus className="h-4 w-4" />
               New Folder
             </Button>
@@ -296,6 +390,57 @@ export function DataVaultView({ folders, files, documents }: DataVaultViewProps)
           )}
         </SheetContent>
       </Sheet>
+
+      <Dialog open={isNewFolderDialogOpen} onOpenChange={setNewFolderDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Folder</DialogTitle>
+            <DialogDescription>
+              Create a new folder in {selectedFolder === '/' ? 'root' : selectedFolder}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="folder-name">Folder Name</Label>
+              <Input
+                id="folder-name"
+                placeholder="Enter folder name"
+                value={newFolderName}
+                onChange={(e) => setNewFolderName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && newFolderName.trim()) {
+                    handleCreateFolder();
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setNewFolderDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateFolder} disabled={!newFolderName.trim()}>
+              Create Folder
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {uploadError && (
+        <Dialog open={Boolean(uploadError)} onOpenChange={() => setUploadError(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Upload Error</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">
+              <p className="text-sm text-destructive">{uploadError}</p>
+            </div>
+            <DialogFooter>
+              <Button onClick={() => setUploadError(null)}>Close</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }

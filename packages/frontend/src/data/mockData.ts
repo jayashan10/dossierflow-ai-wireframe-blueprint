@@ -24,6 +24,7 @@ export interface Document {
   comments?: DocumentComment[];
   versionHistory?: DocumentVersion[];
   linkedSources?: string[];
+  content?: string;
 }
 
 export interface DocumentComment {

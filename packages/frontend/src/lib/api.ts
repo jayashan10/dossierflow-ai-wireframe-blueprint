@@ -14,6 +14,7 @@ export interface SourceSummary {
   name: string;
   type: string;
   path?: string;
+  tags?: string[];
 }
 
 export interface GenerateRequestBody {
@@ -112,4 +113,127 @@ export async function refineTemplate(templateId: string): Promise<TemplateDetail
 
   const data = await handleResponse<RefineTemplateResponse>(response);
   return data.template;
+}
+
+export interface UploadSourcesResponse {
+  sources: SourceSummary[];
+  warnings?: string[];
+}
+
+export async function uploadSources(files: File[]): Promise<UploadSourcesResponse> {
+  const formData = new FormData();
+  files.forEach((file) => {
+    formData.append('files', file);
+  });
+
+  const response = await fetch(`${API_BASE_URL}/api/sources/upload`, {
+    method: 'POST',
+    body: formData
+  });
+
+  return handleResponse<UploadSourcesResponse>(response);
+}
+
+export async function updateSourceTags(
+  sourceId: string,
+  tags: string[]
+): Promise<SourceSummary> {
+  const response = await fetch(`${API_BASE_URL}/api/sources/${sourceId}/tags`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tags })
+  });
+
+  const data = await handleResponse<{ source: SourceSummary }>(response);
+  return data.source;
+}
+
+// Streaming generation types
+export interface StreamEvent {
+  type: 'text' | 'tool_start' | 'tool_result' | 'thinking' | 'complete' | 'error';
+  content?: string;
+  tool?: string;
+  input?: unknown;
+  output?: string;
+  usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+  error?: string;
+}
+
+export interface StreamGenerateRequest {
+  sectionId: string;
+  sectionTitle: string;
+  prompt: string;
+  selectedSourceIds: string[];
+  mentionedFileIds: string[];
+}
+
+export function streamGenerateContent(
+  body: StreamGenerateRequest,
+  callbacks: {
+    onEvent: (event: StreamEvent) => void;
+    onComplete: () => void;
+    onError: (error: string) => void;
+  }
+): () => void {
+  const controller = new AbortController();
+
+  fetch(`${API_BASE_URL}/api/generate/stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal: controller.signal
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `Request failed with status ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No response body');
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        // Process complete lines
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep incomplete line in buffer
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') {
+            callbacks.onComplete();
+            return;
+          }
+
+          try {
+            const event = JSON.parse(data) as StreamEvent;
+            callbacks.onEvent(event);
+          } catch {
+            // Ignore parse errors for incomplete chunks
+          }
+        }
+      }
+
+      callbacks.onComplete();
+    })
+    .catch((error) => {
+      if (error.name === 'AbortError') {
+        return; // Ignore abort errors
+      }
+      callbacks.onError(error instanceof Error ? error.message : 'Unknown error');
+    });
+
+  // Return cancel function
+  return () => controller.abort();
 }
