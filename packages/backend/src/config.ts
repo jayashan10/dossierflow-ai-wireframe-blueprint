@@ -51,6 +51,7 @@ const envSchema = z.object({
     .transform((value) => toOptionalBoolean(value)),
   SOURCE_ROOT: z.string().trim().optional(),
   TEMPLATE_ROOT: z.string().trim().optional(),
+  OUTPUTS_ROOT: z.string().trim().optional(),
   // Feature flags for Claude Agent SDK integration
   ENABLE_CLAUDE_AGENT: z.coerce.boolean().default(true),
   USE_SEMTOOLS: z.coerce.boolean().default(false),
@@ -66,6 +67,7 @@ const parsed = envSchema.parse(process.env);
 
 const defaultSourceRoot = path.resolve(process.cwd(), '..', 'data');
 const defaultTemplateRoot = path.resolve(process.cwd(), '..', 'templates');
+const defaultOutputsRoot = path.resolve(process.cwd(), '..', '..', 'outputs');
 
 function ensureDirectoryExists(absolutePath: string) {
   if (!fs.existsSync(absolutePath)) {
@@ -83,6 +85,7 @@ export const appConfig = {
   claudeUseVertex: parsed.CLAUDE_CODE_USE_VERTEX,
   sourceRoot: parsed.SOURCE_ROOT ? path.resolve(parsed.SOURCE_ROOT) : defaultSourceRoot,
   templateRoot: parsed.TEMPLATE_ROOT ? path.resolve(parsed.TEMPLATE_ROOT) : defaultTemplateRoot,
+  outputsRoot: parsed.OUTPUTS_ROOT ? path.resolve(parsed.OUTPUTS_ROOT) : defaultOutputsRoot,
   enableClaudeAgent: parsed.ENABLE_CLAUDE_AGENT,
   useSemtools: parsed.USE_SEMTOOLS,
   llamaCloudApiKey: parsed.LLAMA_CLOUD_API_KEY,
@@ -93,5 +96,6 @@ export const appConfig = {
 
 ensureDirectoryExists(appConfig.sourceRoot);
 ensureDirectoryExists(appConfig.templateRoot);
+ensureDirectoryExists(appConfig.outputsRoot);
 
 export type AppConfig = typeof appConfig;

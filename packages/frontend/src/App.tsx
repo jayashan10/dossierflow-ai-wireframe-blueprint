@@ -510,6 +510,8 @@ export default function App() {
             document={authoringDocument}
             mode={authoringMode}
             currentUserId={activeUserId}
+            programId={selectedProgram ?? undefined}
+            programName={selectedProgram ? programs.find(p => p.id === selectedProgram)?.title : undefined}
             onBack={selectedDocument ? handleBackToDossier : handleBackToDashboard}
             onSubmitForReview={(payload) => {
               if (selectedDocument) {

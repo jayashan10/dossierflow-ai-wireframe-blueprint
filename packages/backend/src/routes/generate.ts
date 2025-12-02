@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { fetchSourceSnippets, getSourceFilePaths } from '../services/source-service';
 import { generateDraft, generateDraftStream } from '../services/claude-agent-service';
+import { getProgramAbsolutePath, getProgram } from '../services/program-service';
 
 const requestSchema = z.object({
   sectionId: z.string().min(1),
@@ -15,7 +16,10 @@ const streamRequestSchema = z.object({
   sectionTitle: z.string().min(1),
   prompt: z.string().min(1),
   selectedSourceIds: z.array(z.string()).default([]),
-  mentionedFileIds: z.array(z.string()).default([])
+  mentionedFileIds: z.array(z.string()).default([]),
+  // Optional: write to program file
+  programId: z.string().optional(),
+  targetPath: z.string().optional()
 });
 
 export const generateRouter = Router();
@@ -70,14 +74,38 @@ generateRouter.post('/stream', async (req, res) => {
       ? await getSourceFilePaths(payload.mentionedFileIds)
       : [];
 
+    // Resolve program path if programId is provided
+    let programPath: string | undefined;
+    if (payload.programId) {
+      const program = await getProgram(payload.programId);
+      if (!program) {
+        res.write(`data: ${JSON.stringify({ type: 'error', error: `Program "${payload.programId}" not found` })}\n\n`);
+        res.write('data: [DONE]\n\n');
+        res.end();
+        return;
+      }
+      programPath = getProgramAbsolutePath(payload.programId);
+    }
+
     // Stream events from agent
     for await (const event of generateDraftStream({
       sectionTitle: payload.sectionTitle,
       userPrompt: payload.prompt,
       sourceFiles,
-      mentionedFiles
+      mentionedFiles,
+      programPath,
+      targetPath: payload.targetPath
     })) {
       res.write(`data: ${JSON.stringify(event)}\n\n`);
+
+      // If this is a 'complete' event and we wrote to a file, add file_written info
+      if (event.type === 'complete' && payload.programId && payload.targetPath) {
+        res.write(`data: ${JSON.stringify({
+          type: 'file_written',
+          path: payload.targetPath,
+          programId: payload.programId
+        })}\n\n`);
+      }
     }
 
     res.write('data: [DONE]\n\n');

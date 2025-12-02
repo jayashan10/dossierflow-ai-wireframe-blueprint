@@ -237,3 +237,265 @@ export function streamGenerateContent(
   // Return cancel function
   return () => controller.abort();
 }
+
+// ============================================================================
+// Program API
+// ============================================================================
+
+export interface ProgramSummary {
+  id: string;
+  name: string;
+  folderName: string;
+  createdAt: string;
+  sectionCount: number;
+  hasTemplate: boolean;
+}
+
+export interface ProgramSection {
+  title: string;
+  path: string;
+  status: 'pending' | 'draft' | 'reviewed' | 'approved';
+  generatedAt?: string;
+  tokenUsage?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
+}
+
+export interface ProgramMetadata {
+  id: string;
+  name: string;
+  folderName: string;
+  createdAt: string;
+  updatedAt: string;
+  templateFile?: string;
+  sectionRoot?: string;
+  sections: Record<string, ProgramSection>;
+  linkedSources: string[];
+}
+
+export interface FileNode {
+  name: string;
+  path: string;
+  type: 'file' | 'directory';
+  size?: number;
+  modifiedAt?: string;
+  children?: FileNode[];
+}
+
+export async function listPrograms(): Promise<ProgramSummary[]> {
+  const response = await fetch(`${API_BASE_URL}/api/programs`);
+  const data = await handleResponse<{ programs: ProgramSummary[] }>(response);
+  return data.programs;
+}
+
+export async function createProgram(name: string): Promise<ProgramMetadata> {
+  const response = await fetch(`${API_BASE_URL}/api/programs`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name })
+  });
+  const data = await handleResponse<{ program: ProgramMetadata }>(response);
+  return data.program;
+}
+
+export async function getProgram(programId: string): Promise<ProgramMetadata> {
+  const response = await fetch(`${API_BASE_URL}/api/programs/${encodeURIComponent(programId)}`);
+  const data = await handleResponse<{ program: ProgramMetadata }>(response);
+  return data.program;
+}
+
+export async function deleteProgram(programId: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/programs/${encodeURIComponent(programId)}`, {
+    method: 'DELETE'
+  });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Failed to delete program');
+  }
+}
+
+export async function fetchProgramFiles(programId: string): Promise<FileNode[]> {
+  const response = await fetch(`${API_BASE_URL}/api/programs/${encodeURIComponent(programId)}/files`);
+  const data = await handleResponse<{ files: FileNode[] }>(response);
+  return data.files;
+}
+
+export async function fetchFileContent(programId: string, filePath: string): Promise<string> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/programs/${encodeURIComponent(programId)}/files/${encodeURIComponent(filePath)}`
+  );
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Failed to fetch file');
+  }
+  return response.text();
+}
+
+export async function saveFileContent(programId: string, filePath: string, content: string): Promise<void> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/programs/${encodeURIComponent(programId)}/files/${encodeURIComponent(filePath)}`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    }
+  );
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Failed to save file');
+  }
+}
+
+export async function uploadProgramTemplate(programId: string, file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/programs/${encodeURIComponent(programId)}/template`,
+    {
+      method: 'POST',
+      body: formData
+    }
+  );
+  const data = await handleResponse<{ success: boolean; path: string }>(response);
+  return data.path;
+}
+
+export async function uploadProgramSource(programId: string, file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/programs/${encodeURIComponent(programId)}/sources`,
+    {
+      method: 'POST',
+      body: formData
+    }
+  );
+  const data = await handleResponse<{ success: boolean; path: string }>(response);
+  return data.path;
+}
+
+// Extended stream generate request with program support
+export interface StreamGenerateWithProgramRequest extends StreamGenerateRequest {
+  programId?: string;
+  targetPath?: string;
+}
+
+export interface FileWrittenEvent {
+  type: 'file_written';
+  path: string;
+  programId: string;
+}
+
+export function streamGenerateContentWithProgram(
+  body: StreamGenerateWithProgramRequest,
+  callbacks: {
+    onEvent: (event: StreamEvent | FileWrittenEvent) => void;
+    onComplete: () => void;
+    onError: (error: string) => void;
+  }
+): () => void {
+  const controller = new AbortController();
+
+  fetch(`${API_BASE_URL}/api/generate/stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal: controller.signal
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `Request failed with status ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No response body');
+      }
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        // Process complete lines
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep incomplete line in buffer
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') {
+            callbacks.onComplete();
+            return;
+          }
+
+          try {
+            const event = JSON.parse(data) as StreamEvent | FileWrittenEvent;
+            callbacks.onEvent(event);
+          } catch {
+            // Ignore parse errors for incomplete chunks
+          }
+        }
+      }
+
+      callbacks.onComplete();
+    })
+    .catch((error) => {
+      if (error.name === 'AbortError') {
+        return; // Ignore abort errors
+      }
+      callbacks.onError(error instanceof Error ? error.message : 'Unknown error');
+    });
+
+  // Return cancel function
+  return () => controller.abort();
+}
+
+// ============================================================================
+// Structure Creation
+// ============================================================================
+
+export interface CreateStructureRequest {
+  sections: Array<{ title: string; summary?: string; originalHeading?: string }>;
+}
+
+export interface CreateStructureResponse {
+  success: boolean;
+  filesCreated: Array<{ path: string; section: string }>;
+  sectionRoot?: string;
+  warnings?: string[];
+  usage: { promptTokens: number; completionTokens: number; totalTokens: number };
+}
+
+export async function createProgramStructure(
+  programId: string,
+  sections: CreateStructureRequest['sections']
+): Promise<CreateStructureResponse> {
+  const response = await fetch(`${API_BASE_URL}/api/programs/${encodeURIComponent(programId)}/structure`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sections })
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    try {
+      const error = JSON.parse(text);
+      throw new Error(error.message || `Failed to create structure: ${response.status}`);
+    } catch {
+      throw new Error(text || `Failed to create structure: ${response.status}`);
+    }
+  }
+
+  return response.json();
+}

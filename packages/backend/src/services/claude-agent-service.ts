@@ -33,6 +33,23 @@ export interface StreamGenerateParams {
   userPrompt: string;
   sourceFiles: SourceFileRef[];
   mentionedFiles?: SourceFileRef[];
+  // Optional: write to program file
+  programPath?: string;  // Absolute path to program folder
+  targetPath?: string;   // Relative path within program (e.g., "1-Introduction/content.md")
+}
+
+// Structure creation types
+export interface StructureCreationParams {
+  programPath: string;
+  sections: Array<{ title: string; summary?: string; originalHeading?: string }>;
+}
+
+export interface StructureCreationResult {
+  success: boolean;
+  filesCreated: Array<{ path: string; section: string }>;
+  sectionRoot?: string;
+  warnings?: string[];
+  usage: { promptTokens: number; completionTokens: number; totalTokens: number };
 }
 
 export interface StreamEvent {
@@ -498,13 +515,34 @@ export async function generateDraft(params: GenerateParams): Promise<GenerateRes
 /**
  * Build prompt for streaming agentic content generation with direct file paths
  */
-function buildStreamingGeneratePrompt({ sectionTitle, userPrompt, sourceFiles, mentionedFiles }: StreamGenerateParams): string {
+function buildStreamingGeneratePrompt({ sectionTitle, userPrompt, sourceFiles, mentionedFiles, programPath, targetPath }: StreamGenerateParams): string {
   const sourceContext = sourceFiles.length > 0
     ? sourceFiles.map((f) => `- ${f.name}: ${f.absolutePath}`).join('\n')
     : 'No source documents selected.';
 
   const mentionedContext = mentionedFiles?.length
     ? `\n\nSpecifically mentioned files (prioritize these):\n${mentionedFiles.map((f) => `- ${f.name}: ${f.absolutePath}`).join('\n')}`
+    : '';
+
+  // Add file write instructions if targetPath is provided
+  const writeInstructions = targetPath && programPath
+    ? `
+
+**IMPORTANT - WRITE OUTPUT TO FILE:**
+After generating the content, you MUST write it to:
+  ${programPath}/${targetPath}
+
+Use the Write tool to save the complete markdown content to this file.
+The file should include YAML frontmatter:
+---
+title: "${sectionTitle}"
+status: draft
+generatedAt: "${new Date().toISOString()}"
+sources: [${sourceFiles.map(f => `"${f.name}"`).join(', ')}]
+---
+
+Then include the generated content after the frontmatter.
+`
     : '';
 
   return `You are an expert regulatory affairs writer assisting with drafting section "${sectionTitle}" for a regulatory dossier.
@@ -521,6 +559,7 @@ ${sourceContext}${mentionedContext}
 
 You have access to the following tools:
 - Read: Read source document files to extract relevant information. Use this to read the full content of any source file.
+- Write: Write content to files
 - Bash: Execute commands for document processing (e.g., semtools parse for PDFs)
 - Glob: Search for files if needed
 
@@ -532,7 +571,7 @@ Process:
 3. If a file is a PDF, you can use 'parse <filepath>' via Bash to convert it to markdown first
 4. Draft clear, concise, and well-structured content that addresses the requirements
 5. Ensure all claims are grounded in the source materials
-6. Format the output as clean markdown
+6. Format the output as clean markdown${writeInstructions}
 
 Important:
 - Read the source files to get actual content - don't make up information
@@ -558,6 +597,18 @@ export async function* generateDraftStream(params: StreamGenerateParams): AsyncG
 
   const prompt = buildStreamingGeneratePrompt(params);
 
+  // Build directories list - include programPath if provided
+  const directories = [appConfig.sourceRoot, appConfig.templateRoot];
+  if (params.programPath) {
+    directories.push(params.programPath);
+  }
+
+  // Include Write tool if we need to write to a file
+  const tools: string[] = ['Skill', 'Read', 'Glob', 'Bash'];
+  if (params.programPath && params.targetPath) {
+    tools.push('Write');
+  }
+
   try {
     claudeDebugLog('Streaming generate prompt', prompt.slice(0, 2000));
 
@@ -565,10 +616,10 @@ export async function* generateDraftStream(params: StreamGenerateParams): AsyncG
       prompt,
       options: {
         maxTurns: appConfig.agentMaxTurns,
-        allowedTools: ['Skill', 'Read', 'Glob', 'Bash'],
+        allowedTools: tools,
         settingSources: ['project'],
-        cwd: appConfig.sourceRoot,
-        additionalDirectories: [appConfig.sourceRoot, appConfig.templateRoot],
+        cwd: params.programPath || appConfig.sourceRoot,
+        additionalDirectories: directories,
         permissionMode: 'bypassPermissions'
       }
     });
@@ -1143,3 +1194,230 @@ IMPORTANT REQUIREMENTS:
 Begin by using the 'parse' command to read the template.`;
 }
 
+/**
+ * Create folder structure for a program based on refined sections
+ * Uses the agent to analyze sections and create appropriate folder hierarchy with Write tool
+ */
+export async function createProgramStructure(params: StructureCreationParams): Promise<StructureCreationResult> {
+  if (!isClaudeAvailable()) {
+    return {
+      success: false,
+      filesCreated: [],
+      warnings: ['Claude Agent not available. Cannot create folder structure.'],
+      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
+    };
+  }
+
+  const prompt = buildStructureCreationPrompt(params);
+
+  try {
+    claudeDebugLog('Structure creation prompt', prompt.slice(0, 2000));
+
+    // eslint-disable-next-line no-console
+    console.log('[Claude Agent] Creating program folder structure...');
+    // eslint-disable-next-line no-console
+    console.log('[Claude Agent] Program path:', params.programPath);
+    // eslint-disable-next-line no-console
+    console.log('[Claude Agent] Sections to create:', params.sections.length);
+
+    const agentQuery = query({
+      prompt,
+      options: {
+        maxTurns: Math.min(params.sections.length + 10, 50), // More turns for more sections
+        allowedTools: ['Skill', 'Read', 'Write', 'Glob', 'Bash'],
+        settingSources: ['project'],
+        cwd: params.programPath,
+        additionalDirectories: [params.programPath],
+        permissionMode: 'bypassPermissions'
+      }
+    });
+
+    const fragments: string[] = [];
+    let usage: ClaudeUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
+    const toolsUsed = new Set<string>();
+    let turnsCompleted = 0;
+
+    // eslint-disable-next-line no-restricted-syntax
+    for await (const message of agentQuery as AsyncIterable<Record<string, unknown>>) {
+      const messageType = typeof message?.type === 'string' ? (message.type as string) : 'unknown';
+      claudeDebugLog('Structure creation message type', messageType);
+
+      if (messageType === 'assistant') {
+        turnsCompleted += 1;
+        const assistantMessage = message as {
+          message?: {
+            content?: Array<{ type?: string; text?: string; name?: string; input?: unknown }>;
+          };
+        };
+        const assistantContent = assistantMessage.message?.content;
+
+        if (Array.isArray(assistantContent)) {
+          for (const block of assistantContent) {
+            if (block?.type === 'text' && typeof block.text === 'string') {
+              fragments.push(block.text);
+            }
+            if (block?.type === 'tool_use' && typeof block.name === 'string') {
+              toolsUsed.add(block.name);
+              claudeDebugLog(`Structure creation tool: ${block.name}`, block.input);
+            }
+          }
+        }
+      }
+
+      if (messageType === 'result') {
+        const resultMessage = message as {
+          subtype?: string;
+          result?: string;
+          usage?: ClaudeUsagePayload;
+          error?: { message?: string };
+        };
+
+        if (resultMessage.usage) {
+          const turnUsage = normalizeUsage(resultMessage.usage);
+          usage.promptTokens += turnUsage.promptTokens;
+          usage.completionTokens += turnUsage.completionTokens;
+          usage.totalTokens += turnUsage.totalTokens;
+        }
+
+        if (resultMessage.subtype === 'success') {
+          const output = typeof resultMessage.result === 'string' && resultMessage.result.trim().length
+            ? resultMessage.result
+            : fragments.join('');
+
+          claudeDebugLog('Structure creation output', output);
+
+          // Parse the JSON output to get created files
+          const parsed = parseStructureOutput(output);
+
+          // eslint-disable-next-line no-console
+          console.log(`[Claude Agent] ✓ Structure creation complete`);
+          // eslint-disable-next-line no-console
+          console.log(`[Claude Agent] Files created: ${parsed.filesCreated.length}`);
+          // eslint-disable-next-line no-console
+          console.log(`[Claude Agent] Tools used: ${Array.from(toolsUsed).join(', ') || 'none'}`);
+          // eslint-disable-next-line no-console
+          console.log(`[Claude Agent] Turns completed: ${turnsCompleted}`);
+
+          return {
+            success: true,
+            filesCreated: parsed.filesCreated,
+            sectionRoot: parsed.sectionRoot,
+            warnings: parsed.warnings,
+            usage
+          };
+        }
+
+        if (resultMessage.subtype === 'error') {
+          const reason = resultMessage.error?.message ?? 'Agent returned an error result.';
+          throw new Error(reason);
+        }
+
+        if (resultMessage.subtype === 'interrupted') {
+          throw new Error('Agent run was interrupted before completion.');
+        }
+      }
+    }
+
+    // Fallback if no result received
+    return {
+      success: false,
+      filesCreated: [],
+      warnings: ['Agent completed without returning structure data.'],
+      usage
+    };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Structure creation failed:', error);
+    return {
+      success: false,
+      filesCreated: [],
+      warnings: [error instanceof Error ? `Structure creation failed: ${error.message}` : 'Structure creation failed with unknown error'],
+      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
+    };
+  }
+}
+
+function buildStructureCreationPrompt(params: StructureCreationParams): string {
+  const sectionsJson = JSON.stringify(params.sections, null, 2);
+  const timestamp = new Date().toISOString();
+
+  return `You are setting up the folder structure for a regulatory dossier program.
+
+PROGRAM FOLDER: ${params.programPath}
+SECTIONS TO CREATE: ${params.sections.length}
+
+Here are the sections extracted from the template:
+${sectionsJson}
+
+TASK: Create an appropriate folder hierarchy for these sections.
+
+INSTRUCTIONS:
+1. Analyze the section hierarchy (depth, groupings, total count)
+2. Decide on structure based on complexity:
+   - Simple templates (<20 sections): flat structure with files like "1.1-synopsis.md"
+   - Complex templates (20+ sections): nested folders mirroring module hierarchy
+   - Example nested: "1-Introduction/1.1-Synopsis/content.md"
+3. For each section, create a content.md file with YAML frontmatter:
+
+---
+title: "{section title}"
+originalHeading: "{original heading from template}"
+status: pending
+createdAt: "${timestamp}"
+---
+
+# {section title}
+
+{summary from the section data}
+
+<!-- Content will be generated here -->
+
+4. Use the Write tool to create each file at the appropriate path within ${params.programPath}
+
+After creating all files, output a JSON summary:
+{
+  "structure": "flat" or "nested",
+  "sectionRoot": "name of root folder if nested, or null if flat",
+  "files": [
+    {"path": "relative/path/to/content.md", "section": "1.1 Synopsis"}
+  ]
+}
+
+IMPORTANT:
+- Create files directly in ${params.programPath}, not in a subdirectory unless using nested structure
+- Use Write tool for each file
+- Output ONLY the final JSON summary after creating all files
+- Start JSON with { and end with }`;
+}
+
+function parseStructureOutput(output: string): {
+  filesCreated: Array<{ path: string; section: string }>;
+  sectionRoot?: string;
+  warnings?: string[];
+} {
+  try {
+    const jsonMatch = output.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      return { filesCreated: [], warnings: ['No JSON found in output'] };
+    }
+
+    const parsed = JSON.parse(jsonMatch[0]) as {
+      structure?: string;
+      sectionRoot?: string;
+      files?: Array<{ path: string; section: string }>;
+    };
+
+    return {
+      filesCreated: Array.isArray(parsed.files) ? parsed.files : [],
+      sectionRoot: parsed.sectionRoot || undefined,
+      warnings: undefined
+    };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Failed to parse structure output:', error);
+    return {
+      filesCreated: [],
+      warnings: ['Failed to parse structure creation output']
+    };
+  }
+}

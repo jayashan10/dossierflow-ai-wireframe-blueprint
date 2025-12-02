@@ -14,7 +14,8 @@ import {
   Table,
   Link,
   StopCircle,
-  Plus
+  Plus,
+  FolderOpen
 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
@@ -34,6 +35,7 @@ import type { SourceSummary, StreamEvent } from '../lib/api';
 import { SubmitForReviewDialog } from './review/SubmitForReviewDialog';
 import { CommentThread } from './review/CommentThread';
 import { VersionHistoryDrawer } from './VersionHistoryDrawer';
+import { BackendPane } from './backend-pane';
 
 interface DocumentConfig {
   documentType: string;
@@ -48,6 +50,8 @@ interface AuthoringStudioProps {
   document?: Document | null;
   mode: 'author' | 'reviewer';
   currentUserId: string;
+  programId?: string;
+  programName?: string;
   onBack: () => void;
   onSubmitForReview: (payload: { reviewers: string[]; note?: string }) => void;
   onWithdrawSubmission: () => void;
@@ -100,6 +104,8 @@ export function AuthoringStudio({
   document: documentProp,
   mode,
   currentUserId,
+  programId,
+  programName,
   onBack,
   onSubmitForReview,
   onWithdrawSubmission,
@@ -120,7 +126,7 @@ export function AuthoringStudio({
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [promptValue, setPromptValue] = useState(defaultPromptTemplate);
   const [sectionDrafts, setSectionDrafts] = useState<Record<string, string>>({});
-  const [activeTab, setActiveTab] = useState<'generate' | 'sources' | 'comments'>(mode === 'reviewer' ? 'comments' : 'generate');
+  const [activeTab, setActiveTab] = useState<'generate' | 'sources' | 'comments' | 'files'>(mode === 'reviewer' ? 'comments' : 'generate');
   const [isSubmitDialogOpen, setSubmitDialogOpen] = useState(false);
   const [isVersionDrawerOpen, setVersionDrawerOpen] = useState(false);
   const [newCommentText, setNewCommentText] = useState('');
@@ -566,90 +572,131 @@ export function AuthoringStudio({
         </div>
       </div>
 
-      {/* Two Panel Layout */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left Side - Document Editor */}
-        <div className="flex-1 overflow-auto p-8 bg-white">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="mb-6">TABLE OF CONTENTS</h2>
-            <div className="space-y-2 mb-8 max-h-96 overflow-y-auto pr-4">
-              {sections.map((section, index) => (
-                <div
-                  key={index}
-                  onClick={() => handleSectionSelect(section)}
-                  className={`p-3 rounded-md cursor-pointer transition-colors ${
-                    selectedSection === section
-                      ? 'bg-primary/10 text-primary'
-                      : 'text-muted-foreground hover:bg-muted/50'
-                  }`}
-                >
-                  {section}
-                </div>
-              ))}
+      {/* Main Content Area - Either Files view or Document Editor + Sidebar */}
+      {activeTab === 'files' && programId && programName ? (
+        /* Full-width Files/Backend Pane */
+        <div className="flex flex-1 overflow-hidden flex-col">
+          {/* Tab bar for switching back */}
+          <div className="border-b bg-muted/10">
+            <div className="flex items-center px-4">
+              <button
+                onClick={() => setActiveTab('generate')}
+                className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Sparkles className="h-4 w-4" />
+                Generate
+              </button>
+              <button
+                onClick={() => setActiveTab('sources')}
+                className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Sources
+              </button>
+              <button
+                onClick={() => setActiveTab('comments')}
+                className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Comments
+              </button>
+              <button
+                className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-primary border-b-2 border-primary"
+              >
+                <FolderOpen className="h-4 w-4" />
+                Files
+              </button>
             </div>
-
-            <Separator className="my-8" />
-
-            {selectedSection ? (
-              <>
-                <div className="flex items-center justify-between mb-4">
-                  <h3>{selectedSection}</h3>
-                  {generatedDraftForSection && streamingEvents.some(e => e.type === 'complete') && (
-                    <Badge
-                      variant="outline"
-                      className="text-emerald-700 border-emerald-200 bg-emerald-50"
-                    >
-                      Claude Generated
-                    </Badge>
-                  )}
-                </div>
-                <div className="space-y-4">
-                  <RichTextEditor
-                    content={generatedDraftForSection || ''}
-                    onChange={(content) => {
-                      setSectionDrafts((prev) => ({
-                        ...prev,
-                        [selectedSection]: content
-                      }));
-                    }}
-                    placeholder="Start writing your content here, or use the AI Assistant panel on the right to generate content..."
-                    disabled={isReadOnly}
-                  />
-                  {generatedDraftForSection && (
-                    <div className="flex justify-end">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          // Clear the current draft and streaming state
-                          setSectionDrafts((prev) => {
-                            const updated = { ...prev };
-                            delete updated[selectedSection];
-                            return updated;
-                          });
-                          setStreamingContent('');
-                          setStreamingEvents([]);
-                          setGenerationError(null);
-                        }}
-                        disabled={isReadOnly}
-                      >
-                        Clear Content
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              </>
-            ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <FileText className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                <p>Select a section from the table of contents to begin</p>
-              </div>
-            )}
           </div>
+          <BackendPane
+            programId={programId}
+            programName={programName}
+            className="flex-1"
+          />
         </div>
+      ) : (
+        /* Normal Two Panel Layout */
+        <div className="flex flex-1 overflow-hidden">
+          {/* Left Side - Document Editor */}
+          <div className="flex-1 overflow-auto p-8 bg-white">
+            <div className="max-w-4xl mx-auto">
+              <h2 className="mb-6">TABLE OF CONTENTS</h2>
+              <div className="space-y-2 mb-8 max-h-96 overflow-y-auto pr-4">
+                {sections.map((section, index) => (
+                  <div
+                    key={index}
+                    onClick={() => handleSectionSelect(section)}
+                    className={`p-3 rounded-md cursor-pointer transition-colors ${
+                      selectedSection === section
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-muted-foreground hover:bg-muted/50'
+                    }`}
+                  >
+                    {section}
+                  </div>
+                ))}
+              </div>
 
-        {/* Right Side - AI Assistant Panel */}
-        <div className="w-96 border-l bg-muted/10 flex flex-col">
+              <Separator className="my-8" />
+
+              {selectedSection ? (
+                <>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3>{selectedSection}</h3>
+                    {generatedDraftForSection && streamingEvents.some(e => e.type === 'complete') && (
+                      <Badge
+                        variant="outline"
+                        className="text-emerald-700 border-emerald-200 bg-emerald-50"
+                      >
+                        Claude Generated
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="space-y-4">
+                    <RichTextEditor
+                      content={generatedDraftForSection || ''}
+                      onChange={(content) => {
+                        setSectionDrafts((prev) => ({
+                          ...prev,
+                          [selectedSection]: content
+                        }));
+                      }}
+                      placeholder="Start writing your content here, or use the AI Assistant panel on the right to generate content..."
+                      disabled={isReadOnly}
+                    />
+                    {generatedDraftForSection && (
+                      <div className="flex justify-end">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            // Clear the current draft and streaming state
+                            setSectionDrafts((prev) => {
+                              const updated = { ...prev };
+                              delete updated[selectedSection];
+                              return updated;
+                            });
+                            setStreamingContent('');
+                            setStreamingEvents([]);
+                            setGenerationError(null);
+                          }}
+                          disabled={isReadOnly}
+                        >
+                          Clear Content
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <FileText className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                  <p>Select a section from the table of contents to begin</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Side - AI Assistant Panel */}
+          <div className="w-96 border-l bg-muted/10 flex flex-col">
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="flex-1 flex flex-col min-h-0">
             <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
               <TabsTrigger value="generate" className="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
@@ -662,6 +709,12 @@ export function AuthoringStudio({
               <TabsTrigger value="comments" className="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
                 Comments
               </TabsTrigger>
+              {programId && (
+                <TabsTrigger value="files" className="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
+                  <FolderOpen className="h-4 w-4" />
+                  Files
+                </TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="generate" className="flex-1 p-4 space-y-4 overflow-auto mt-0">
@@ -925,6 +978,7 @@ export function AuthoringStudio({
           </Tabs>
         </div>
       </div>
+      )}
 
       <SubmitForReviewDialog
         open={isSubmitDialogOpen}

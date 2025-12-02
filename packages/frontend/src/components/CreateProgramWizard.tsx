@@ -9,7 +9,15 @@ import { Badge } from './ui/badge';
 import { Plus, ArrowLeft, ArrowRight, Users, Upload, FileText, CheckCircle2, Sparkles, AlertTriangle, AlertCircle, Wand2 } from 'lucide-react';
 import { Separator } from './ui/separator';
 import type { Program } from '../data/mockData';
-import { uploadTemplate, refineTemplate, type TemplateDetails, type TemplateRefinedSection } from '../lib/api';
+import {
+  uploadTemplate,
+  refineTemplate,
+  createProgram,
+  uploadProgramTemplate,
+  createProgramStructure,
+  type TemplateDetails,
+  type TemplateRefinedSection
+} from '../lib/api';
 
 export interface TemplateConfigForAuthoring {
   documentType: string;
@@ -117,6 +125,9 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
     setInviteDraft({ email: '', role: 'Author' });
     setIsRefining(false);
     setRefineError(null);
+    setIsCreating(false);
+    setCreateError(null);
+    setCreateStatus('');
   };
 
   const handleClose = () => {
@@ -130,40 +141,105 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
     setInviteDraft({ email: '', role: 'Author' });
   };
 
-  const handleCreate = () => {
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+  const [createStatus, setCreateStatus] = useState<string>('');
+
+  const handleCreate = async () => {
     const finalSections = rawHeadings.length
       ? rawHeadings
       : refinedSections.map((section) => section.title);
     const sectionCount = finalSections.length;
-    const newProgram: Program = {
-      id: `program-${Date.now()}`,
-      title: programName || 'Untitled Program',
-      status: 'In Progress',
-      progress: 0,
-      defaultDocumentType: selectedDocType || 'custom',
-      defaultSections: sectionCount ? finalSections : undefined,
-      templateUploaded: uploadState.status === 'success',
-      templateId: templateId ?? undefined,
-      sectionCount,
-      isSample: false
-    };
-    const templateConfig: TemplateConfigForAuthoring | undefined =
-      sectionCount > 0
-        ? {
-            documentType: selectedDocType || 'custom',
-            templateUploaded: uploadState.status === 'success',
-            refinedSections,
-            rawSections: finalSections,
-            templateId: templateId ?? undefined,
-            warnings: uploadState.warnings
-          }
-        : undefined;
 
-    onCreate({
-      program: newProgram,
-      templateConfig
-    });
-    handleClose();
+    setIsCreating(true);
+    setCreateError(null);
+    setCreateStatus('Creating program folder...');
+
+    try {
+      // 1. Create the program folder on the backend
+      const backendProgram = await createProgram(programName || 'Untitled Program');
+
+      // 2. Upload template to program folder (if a template file was uploaded)
+      if (templateFile && uploadState.status === 'success') {
+        setCreateStatus('Saving template to program...');
+        try {
+          await uploadProgramTemplate(backendProgram.folderName, templateFile);
+        } catch (templateError) {
+          console.warn('Failed to save template to program folder:', templateError);
+          // Non-fatal: continue with structure creation
+        }
+      }
+
+      // 3. Create folder structure from sections
+      if (sectionCount > 0) {
+        setCreateStatus('Creating folder structure...');
+        try {
+          const sectionsToCreate = refinedSections.length > 0
+            ? refinedSections.map(s => ({
+                title: s.title,
+                summary: s.summary,
+                originalHeading: s.originalHeading
+              }))
+            : finalSections.map(heading => ({
+                title: heading,
+                originalHeading: heading
+              }));
+
+          const structureResult = await createProgramStructure(
+            backendProgram.folderName,
+            sectionsToCreate
+          );
+
+          if (structureResult.warnings && structureResult.warnings.length > 0) {
+            console.warn('Structure creation warnings:', structureResult.warnings);
+          }
+
+          console.log(`Created ${structureResult.filesCreated.length} section files`);
+        } catch (structureError) {
+          console.warn('Failed to create folder structure:', structureError);
+          // Non-fatal: program still created, user can create structure later
+        }
+      }
+
+      setCreateStatus('Finalizing...');
+
+      const newProgram: Program = {
+        id: backendProgram.folderName, // Use the folderName as ID (backend expects this)
+        title: programName || 'Untitled Program',
+        status: 'In Progress',
+        progress: 0,
+        defaultDocumentType: selectedDocType || 'custom',
+        defaultSections: sectionCount ? finalSections : undefined,
+        templateUploaded: uploadState.status === 'success',
+        templateId: templateId ?? undefined,
+        sectionCount,
+        isSample: false
+      };
+
+      const templateConfig: TemplateConfigForAuthoring | undefined =
+        sectionCount > 0
+          ? {
+              documentType: selectedDocType || 'custom',
+              templateUploaded: uploadState.status === 'success',
+              refinedSections,
+              rawSections: finalSections,
+              templateId: templateId ?? undefined,
+              warnings: uploadState.warnings
+            }
+          : undefined;
+
+      onCreate({
+        program: newProgram,
+        templateConfig
+      });
+      handleClose();
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to create program';
+      setCreateError(message);
+    } finally {
+      setIsCreating(false);
+      setCreateStatus('');
+    }
   };
 
   const fallbackHeadings = ['1. Introduction', '2. Methods', '3. Results', '4. Discussion', '5. Conclusion'];
@@ -610,6 +686,14 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
             {step === 5 && (
               <section className="space-y-4">
                 <h3 className="text-sm font-medium">Review & Create</h3>
+                {createError && (
+                  <Card className="p-3 border-destructive/40 bg-destructive/5 text-sm text-destructive">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="h-4 w-4 mt-0.5" />
+                      <p>{createError}</p>
+                    </div>
+                  </Card>
+                )}
                 <div className="rounded-md border p-4 bg-muted/30 space-y-3 text-sm">
                   <div>
                     <span className="font-medium">Program:</span> {programName || 'Untitled Program'}
@@ -707,8 +791,15 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
                 </Button>
               )}
               {step === 5 && (
-                <Button onClick={handleCreate}>
-                  Create Program
+                <Button onClick={handleCreate} disabled={isCreating}>
+                  {isCreating ? (
+                    <>
+                      <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                      {createStatus || 'Creating...'}
+                    </>
+                  ) : (
+                    'Create Program'
+                  )}
                 </Button>
               )}
             </div>
