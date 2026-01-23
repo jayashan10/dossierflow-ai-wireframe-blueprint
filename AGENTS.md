@@ -1,6 +1,6 @@
 ## Purpose
 
-This file summarizes operating guidelines for agents collaborating on the DossierFlow Codex integration project.
+This file summarizes operating guidelines for agents collaborating on the DossierFlow Claude Agent integration project.
 
 ## Workflow Expectations
 
@@ -13,15 +13,30 @@ This file summarizes operating guidelines for agents collaborating on the Dossie
 
 - Match existing TypeScript/React conventions and keep comments minimal.
 - Verify libraries are already present before introducing new dependencies.
-- Store backend code in `/server` (Node.js + TypeScript) and frontend code under `/src` (Vite React).
+- Store backend code in `/packages/backend` (Node.js + TypeScript) and frontend code under `/packages/frontend` (Vite React).
 
-## Codex Integration Notes
+## Claude Agent SDK Integration Notes
 
-- Backend endpoints: `GET /api/sources` and `POST /api/generate`.
+- Backend endpoints:
+  - `GET /api/sources` - List available source documents
+  - `POST /api/generate` - Generate draft content with Claude
+  - `POST /api/programs` - Create a new program
+  - `GET /api/programs` - List all programs
+  - `GET /api/programs/:programId` - Get program metadata
+  - `DELETE /api/programs/:programId` - Delete a program
+  - `GET /api/programs/:programId/files` - List program files (recursive tree)
+  - `GET/PUT/POST/DELETE /api/programs/:programId/files/*` - File CRUD operations
+  - `POST /api/programs/:programId/sources` - Upload source to program
+  - `POST /api/programs/:programId/template` - Upload template to program
+  - `POST /api/programs/:programId/structure` - Create folder structure using Claude Agent
 - Gather context by reading allowed files on the backend; never request arbitrary paths from the client.
-- Authenticate Codex with the local CLI login flow (`codex login`) whenever possible. Copy an authorized `~/.codex/auth.json` into the runtime if interactive login is unavailable.
-- Keep `CODEX_API_KEY` support as a fallback only; avoid storing raw keys in repo files or logs.
-- Manage sensitive configuration via environment variables (e.g., `CODEX_API_KEY`, `SOURCE_ROOT`).
+- The Claude Agent SDK uses its default authentication provider. Configure custom providers via environment variables:
+  - `ANTHROPIC_API_KEY` for direct API access
+  - `ANTHROPIC_AUTH_TOKEN` for proxy authentication
+  - `CLAUDE_CODE_USE_BEDROCK` for AWS Bedrock
+  - `CLAUDE_CODE_USE_VERTEX` for Google Vertex AI
+- Keep `ANTHROPIC_API_KEY` support as a fallback only; avoid storing raw keys in repo files or logs.
+- Manage sensitive configuration via environment variables (e.g., `ANTHROPIC_API_KEY`, `SOURCE_ROOT`).
 
 ## Testing Requirements
 
@@ -31,12 +46,12 @@ This file summarizes operating guidelines for agents collaborating on the Dossie
 ## Security & Compliance
 
 - Avoid logging secrets or returning sensitive data in responses.
-- Sanitize user inputs, enforce file access restrictions, and cap payload sizes when invoking Codex.
+- Sanitize user inputs, enforce file access restrictions, and cap payload sizes when invoking Claude Agent.
 
 ## Product Overview
 
 - DossierFlow helps biotech teams draft, review, and finalize regulated dossier sections faster and with consistent quality.
-- The platform combines user-curated reference sources with Codex-assisted drafting while keeping humans in the loop for compliance.
+- The platform combines user-curated reference sources with Claude-assisted drafting while keeping humans in the loop for compliance.
 
 ### Who Uses It
 
@@ -46,11 +61,11 @@ This file summarizes operating guidelines for agents collaborating on the Dossie
 
 ### Core Concepts
 
-- Program: container for a product’s regulatory dossiers.
-- Template: uploaded PDF/DOCX used to derive the document’s sections.
-- Section: individual authoring unit (e.g., “2.6.2.2 Primary Pharmacodynamics”).
+- Program: container for a product's regulatory dossiers, stored in `outputs/` folder with `program.json` metadata.
+- Template: uploaded PDF/DOCX used to derive the document's sections.
+- Section: individual authoring unit (e.g., "2.6.2.2 Primary Pharmacodynamics").
 - Source: reference document (PDF/DOCX) providing grounded context for drafts.
-- Draft: Codex-assisted section output that authors refine before submission.
+- Draft: Claude-assisted section output that authors refine before submission.
 - Review: structured feedback cycle with approvals or change requests.
 
 ### End-to-End Workflow
@@ -59,9 +74,10 @@ This file summarizes operating guidelines for agents collaborating on the Dossie
 2. Upload the template so the system extracts suggested sections.
 3. Upload reference sources to the data vault for grounding.
 4. In Authoring Studio, select a section, adjust the prompt, and choose sources.
-5. Generate a draft with Codex, review the sourced content, and iterate as needed.
-6. Submit the draft for review; reviewers comment, approve, or request changes.
-7. Finalize approved sections and export dossier artifacts when complete.
+5. Generate a draft with Claude, review the sourced content, and iterate as needed.
+6. Use the Backend Pane to browse program files, edit markdown content, and create folder structures.
+7. Submit the draft for review; reviewers comment, approve, or request changes.
+8. Finalize approved sections and export dossier artifacts when complete.
 
 ### Guardrails for Users
 

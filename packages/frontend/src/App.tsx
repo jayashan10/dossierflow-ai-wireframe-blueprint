@@ -491,6 +491,7 @@ export default function App() {
         {currentView === 'dossier' && selectedProgram && (
           <DossierView
             programId={selectedProgram}
+            isSample={programs.find(p => p.id === selectedProgram)?.isSample ?? false}
             onBack={handleBackToDashboard}
             onOpenDocument={handleOpenDocument}
             onViewFullReport={handleViewFullReport}
@@ -512,6 +513,7 @@ export default function App() {
             currentUserId={activeUserId}
             programId={selectedProgram ?? undefined}
             programName={selectedProgram ? programs.find(p => p.id === selectedProgram)?.title : undefined}
+            isSample={selectedProgram ? programs.find(p => p.id === selectedProgram)?.isSample ?? false : false}
             onBack={selectedDocument ? handleBackToDossier : handleBackToDashboard}
             onSubmitForReview={(payload) => {
               if (selectedDocument) {

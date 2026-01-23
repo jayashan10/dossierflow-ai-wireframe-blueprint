@@ -13,6 +13,7 @@ https://www.figma.com/design/BdS1EgFl1drxiXCaqBFq7f/DossierFlow-AI-Wireframe-Blu
 packages/
   frontend/         # Vite application (src/, docs/, build/)
   backend/          # Express service (src/, tests/, templates/, data/)
+outputs/            # Program data storage (created at runtime)
 .gitignore
 package.json        # npm workspaces root
 ```
@@ -33,6 +34,32 @@ The `packages/data/`, `packages/templates/`, and `packages/backend/data/` direct
 - Configure separate storage paths via environment variables
 - Use external storage services (S3, etc.) for uploaded files
 - Implement proper file validation and size limits
+
+### Program Data Storage
+
+Programs are stored in the `outputs/` directory. Each program has its own folder with the following structure:
+
+```
+outputs/
+  my-program/
+    program.json          # Program metadata (id, name, sections, etc.)
+    .claude/
+      skills/             # Claude Agent skills for this program
+      subagents/          # Subagent configurations
+    sources/              # Uploaded source documents
+    template/
+      original.pdf        # Uploaded template file
+    1-Introduction/       # Section folders (structure varies by template)
+      content.md          # Section content file
+      1.1-Synopsis/
+        content.md
+```
+
+The `program.json` file contains:
+- Program ID and name
+- Section definitions with paths, status, and token usage
+- Linked source documents
+- Template file reference
 
 ---
 
@@ -140,14 +167,33 @@ It prints the raw refinement result (including warnings) so you can confirm the 
 
 - **Setup Wizard**: Upload DOCX/PDF templates (`/api/templates/upload`) and review extracted sections + warnings inline.
 - **Dashboard, Dossier View, Authoring Studio**: simulate document authoring and review flows using mock data in `packages/frontend/src/data/mockData.ts`.
+- **Backend Pane**: A file explorer and editor component for working with program files.
+  - Located in `packages/frontend/src/components/backend-pane/`
+  - **FileTree**: Interactive file tree navigation with folder expand/collapse, file icons by type, and size display
+  - **CodeMirrorEditor**: Markdown editor with syntax highlighting and save support (Cmd/Ctrl+S)
+  - **BackendPane**: Main component combining file tree + editor with:
+    - Breadcrumb navigation
+    - Unsaved changes indicator
+    - Create Structure button to generate folder hierarchy from template sections
+    - Read-only mode for JSON files
 - **React + Radix UI + Tailwind utilities** for layout and components.
 
 ### API client helpers
 
 Located in `packages/frontend/src/lib/api.ts`:
-- `uploadTemplate()` – multipart upload for templates
-- `listTemplates()` – fetch stored templates
-- `fetchSources()` / `generateContent()` – call backend source discovery and Claude generation endpoints
+- `uploadTemplate()` - multipart upload for templates
+- `listTemplates()` - fetch stored templates
+- `fetchSources()` / `generateContent()` - call backend source discovery and Claude generation endpoints
+- `listPrograms()` - fetch all programs
+- `createProgram(name)` - create a new program
+- `getProgram(programId)` - get program metadata
+- `deleteProgram(programId)` - delete a program
+- `fetchProgramFiles(programId)` - list program files as recursive tree
+- `fetchFileContent(programId, path)` - read file content
+- `saveFileContent(programId, path, content)` - save file content
+- `uploadProgramTemplate(programId, file)` - upload template to program
+- `uploadProgramSource(programId, file)` - upload source to program
+- `createProgramStructure(programId, sections)` - create folder structure using Claude Agent
 
 ---
 
@@ -159,8 +205,68 @@ Located in `packages/frontend/src/lib/api.ts`:
   - `POST /api/sources/upload`
   - `GET /api/sources`
   - `POST /api/generate`
+  - Programs API (see below)
 - Services in `src/services` handle file storage, text extraction (`mammoth`, `pdf-parse`), section extraction, and Claude AI prompting.
 - Tests in `packages/backend/tests` (Vitest + Supertest) cover upload flows and Claude integration.
+
+---
+
+## Programs API
+
+The Programs API provides CRUD operations for managing regulatory dossier programs and their files.
+
+### Program Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/programs` | Create a new program |
+| `GET` | `/api/programs` | List all programs |
+| `GET` | `/api/programs/:programId` | Get program metadata |
+| `DELETE` | `/api/programs/:programId` | Delete a program and all its files |
+
+### File Operations
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/programs/:programId/files` | List all files (recursive tree) |
+| `GET` | `/api/programs/:programId/files/*` | Read file content |
+| `PUT` | `/api/programs/:programId/files/*` | Update file content (creates if missing) |
+| `POST` | `/api/programs/:programId/files/*` | Create new file (fails if exists) |
+| `DELETE` | `/api/programs/:programId/files/*` | Delete file or folder |
+
+### Template and Source Upload
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/programs/:programId/template` | Upload template to program |
+| `POST` | `/api/programs/:programId/sources` | Upload source document to program |
+
+### Structure Creation
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/programs/:programId/structure` | Create folder structure from sections using Claude Agent |
+
+**Request body:**
+```json
+{
+  "sections": [
+    { "title": "1.1 Synopsis", "summary": "...", "originalHeading": "1.1 Synopsis" }
+  ]
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "filesCreated": [
+    { "path": "1-Introduction/1.1-Synopsis/content.md", "section": "1.1 Synopsis" }
+  ],
+  "sectionRoot": "1-Introduction",
+  "usage": { "promptTokens": 1234, "completionTokens": 567, "totalTokens": 1801 }
+}
+```
 
 ---
 
@@ -171,8 +277,9 @@ Located in `packages/frontend/src/lib/api.ts`:
 - **Features**:
   - Agentic draft generation with multi-turn conversations and source document access
   - Template section refinement with file parsing and structured JSON output
+  - Program structure creation with automatic folder hierarchy
   - Multi-turn workflows (configurable via `AGENT_MAX_TURNS`, default: 15)
-  - File operations (`Read`, `Bash`) for accessing templates and sources
+  - File operations (`Read`, `Write`, `Bash`, `Glob`) for accessing templates, sources, and writing program files
   - Token usage tracking (input/cached/output tokens)
   - Graceful error handling when SDK encounters issues
   - Note: Large templates with 100+ sections may require increasing `AGENT_MAX_TURNS` to 20-25
@@ -184,7 +291,7 @@ Located in `packages/frontend/src/lib/api.ts`:
 ## Useful Scripts
 
 ```bash
-npm run build --workspace backend   # TypeScript → dist
+npm run build --workspace backend   # TypeScript -> dist
 npm run test  --workspace backend   # Backend tests
 npm run build --workspace frontend  # Vite production build
 ```

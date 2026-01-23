@@ -52,6 +52,7 @@ interface AuthoringStudioProps {
   currentUserId: string;
   programId?: string;
   programName?: string;
+  isSample?: boolean;
   onBack: () => void;
   onSubmitForReview: (payload: { reviewers: string[]; note?: string }) => void;
   onWithdrawSubmission: () => void;
@@ -72,7 +73,6 @@ const existingDocSections = [
 ];
 
 const defaultPromptTemplate = 'You are drafting the Primary Pharmacodynamics section. Use the following sources to generate a summary and a data table.';
-const defaultSelectedSourceIds = sourceDocs.slice(0, 2).map((source) => source.id);
 const reviewerLookup = new Map(reviewers.map((reviewer) => [reviewer.id, reviewer.name] as const));
 
 const formatTimestamp = () => new Date().toLocaleString('en-US', {
@@ -106,6 +106,7 @@ export function AuthoringStudio({
   currentUserId,
   programId,
   programName,
+  isSample = false,
   onBack,
   onSubmitForReview,
   onWithdrawSubmission,
@@ -116,8 +117,11 @@ export function AuthoringStudio({
   onUpdateDocument
 }: AuthoringStudioProps) {
   const currentDocument = documentProp ?? null;
-  const [selectedSources, setSelectedSources] = useState<string[]>(defaultSelectedSourceIds);
-  const [availableSources, setAvailableSources] = useState<SourceSummary[]>(sourceDocs);
+  // Only use mock data for sample programs
+  const initialSelectedSources = isSample ? sourceDocs.slice(0, 2).map((source) => source.id) : [];
+  const initialAvailableSources = isSample ? sourceDocs : [];
+  const [selectedSources, setSelectedSources] = useState<string[]>(initialSelectedSources);
+  const [availableSources, setAvailableSources] = useState<SourceSummary[]>(initialAvailableSources);
   const [isLoadingSources, setIsLoadingSources] = useState(false);
   const [sourcesError, setSourcesError] = useState<string | null>(null);
   const [sourceSearch, setSourceSearch] = useState('');
@@ -246,16 +250,20 @@ export function AuthoringStudio({
 
   const sourceIndex = useMemo(() => {
     const map = new Map<string, SourceSummary>();
-    for (const source of sourceDocs) {
-      map.set(source.id, source);
+    // Only include mock data for sample programs
+    if (isSample) {
+      for (const source of sourceDocs) {
+        map.set(source.id, source);
+      }
     }
     for (const source of availableSources) {
       map.set(source.id, source);
     }
     return map;
-  }, [availableSources]);
+  }, [availableSources, isSample]);
 
-  const baseSources = availableSources.length ? availableSources : sourceDocs;
+  // Only fall back to mock data for sample programs
+  const baseSources = availableSources.length ? availableSources : (isSample ? sourceDocs : []);
 
   const filteredSources = useMemo(() => {
     if (!sourceSearch.trim()) {

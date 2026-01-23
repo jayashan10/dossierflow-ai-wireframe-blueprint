@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { ChevronRight, ChevronDown, Home, Sparkles, FileText } from 'lucide-react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ChevronRight, ChevronDown, Home, Sparkles, FileText, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
 import { Badge } from './ui/badge';
@@ -16,11 +16,14 @@ import { cn } from './ui/utils';
 import type { ModuleNode, Document, DataVaultFolder, DataVaultFile } from '../data/mockData';
 import { reviewers } from '../data/mockData';
 import { DataVaultView } from './DataVaultView';
+import { getProgram } from '../lib/api';
+import { buildSectionTree, hasSections } from '../lib/section-tree';
 
 const reviewerNameMap = new Map(reviewers.map((reviewer) => [reviewer.id, reviewer.name] as const));
 
 interface DossierViewProps {
   programId: string;
+  isSample?: boolean;
   onBack: () => void;
   onOpenDocument: (documentId: string, mode?: 'author' | 'reviewer') => void;
   onViewFullReport: () => void;
@@ -30,10 +33,12 @@ interface DossierViewProps {
   dataVaultFiles: DataVaultFile[];
   onUploadFiles: (files: Array<{ id: string; name: string; type: string }>, folderPath: string) => void;
   onCreateFolder: (folderName: string, parentPath: string) => void;
+  onDocumentsUpdate?: (docs: Record<string, Document>) => void;
 }
 
 export function DossierView({
   programId,
+  isSample = false,
   onBack,
   onOpenDocument,
   onViewFullReport,
@@ -42,8 +47,59 @@ export function DossierView({
   dataVaultFolders,
   dataVaultFiles,
   onUploadFiles,
-  onCreateFolder
+  onCreateFolder,
+  onDocumentsUpdate
 }: DossierViewProps) {
+  // State for backend-loaded structure (non-sample programs)
+  const [backendStructure, setBackendStructure] = useState<ModuleNode[] | null>(null);
+  const [backendDocuments, setBackendDocuments] = useState<Record<string, Document>>({});
+  const [isLoadingStructure, setIsLoadingStructure] = useState(false);
+  const [structureError, setStructureError] = useState<string | null>(null);
+
+  // Load structure from backend for non-sample programs
+  const loadBackendStructure = useCallback(async () => {
+    if (isSample) return;
+    
+    setIsLoadingStructure(true);
+    setStructureError(null);
+    
+    try {
+      const program = await getProgram(programId);
+      
+      if (hasSections(program.sections)) {
+        const { structure: builtStructure, documents: builtDocs } = buildSectionTree(
+          program.sections,
+          programId
+        );
+        setBackendStructure(builtStructure);
+        setBackendDocuments(builtDocs);
+        
+        // Notify parent of new documents if callback provided
+        if (onDocumentsUpdate) {
+          onDocumentsUpdate(builtDocs);
+        }
+      } else {
+        // No sections in backend, fall back to prop structure
+        setBackendStructure(null);
+      }
+    } catch (error) {
+      setStructureError(error instanceof Error ? error.message : 'Failed to load program structure');
+      setBackendStructure(null);
+    } finally {
+      setIsLoadingStructure(false);
+    }
+  }, [programId, isSample, onDocumentsUpdate]);
+
+  useEffect(() => {
+    loadBackendStructure();
+  }, [loadBackendStructure]);
+
+  // Use backend structure for non-sample programs if available, otherwise use prop
+  const activeStructure = (!isSample && backendStructure) ? backendStructure : structure;
+  const activeDocuments = (!isSample && backendStructure) 
+    ? { ...documents, ...backendDocuments } 
+    : documents;
+
   const flattenStructure = (nodes: ModuleNode[]): ModuleNode[] =>
     nodes.flatMap((node) => [node, ...(node.children ? flattenStructure(node.children) : [])]);
 
@@ -78,31 +134,21 @@ export function DossierView({
     return null;
   };
 
-  const initialSelectedNode = (() => {
-    const nodeWithDocuments = findFirstNodeWithDocuments(structure);
-    if (nodeWithDocuments) {
-      return nodeWithDocuments.id;
-    }
-    return structure[0]?.id ?? '';
-  })();
-
-  const initialPath = initialSelectedNode ? findPathToNode(structure, initialSelectedNode) : null;
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(
-    () => new Set(initialPath?.map((node) => node.id) ?? [])
-  );
-  const [selectedNode, setSelectedNode] = useState<string>(initialSelectedNode);
+  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
+  const [selectedNode, setSelectedNode] = useState<string>('');
   const [selectedDocs, setSelectedDocs] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<'dossier' | 'data-vault' | 'settings'>('dossier');
 
+  // Update selection when structure changes (including after backend load)
   useEffect(() => {
-    const nodeWithDocuments = findFirstNodeWithDocuments(structure);
-    const fallbackNodeId = structure[0]?.id ?? '';
+    const nodeWithDocuments = findFirstNodeWithDocuments(activeStructure);
+    const fallbackNodeId = activeStructure[0]?.id ?? '';
     const nextSelected = nodeWithDocuments?.id ?? fallbackNodeId;
-    const nextPath = nextSelected ? findPathToNode(structure, nextSelected) : null;
+    const nextPath = nextSelected ? findPathToNode(activeStructure, nextSelected) : null;
     setSelectedNode(nextSelected);
     setExpandedNodes(new Set(nextPath?.map((node) => node.id) ?? (fallbackNodeId ? [fallbackNodeId] : [])));
     setSelectedDocs(new Set());
-  }, [structure]);
+  }, [activeStructure]);
 
   const toggleNode = (nodeId: string) => {
     const newExpanded = new Set(expandedNodes);
@@ -154,7 +200,7 @@ export function DossierView({
     );
   };
 
-  const flattenedStructure = useMemo(() => flattenStructure(structure), [structure]);
+  const flattenedStructure = useMemo(() => flattenStructure(activeStructure), [activeStructure]);
 
   const selectedNodeData = useMemo(
     () => flattenedStructure.find((node) => node.id === selectedNode),
@@ -176,7 +222,16 @@ export function DossierView({
       <div className="w-72 border-r bg-muted/20 p-6 overflow-auto">
         <h3 className="mb-4 text-sm font-medium">Program {programId.toUpperCase()}</h3>
         <div className="space-y-1">
-          {structure.map((node) => renderNode(node))}
+          {isLoadingStructure ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground p-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Loading sections...
+            </div>
+          ) : structureError ? (
+            <div className="text-sm text-destructive p-2">{structureError}</div>
+          ) : (
+            activeStructure.map((node) => renderNode(node))
+          )}
         </div>
       </div>
 
@@ -245,7 +300,7 @@ export function DossierView({
                   </thead>
                   <tbody>
                     {nodeDocuments.map((doc) => {
-                      const docState = documents[doc.id] ?? doc;
+                      const docState = activeDocuments[doc.id] ?? doc;
                       return (
                         <tr key={doc.id} className="border-b last:border-0 hover:bg-muted/20">
                           <td className="p-4">
@@ -330,7 +385,7 @@ export function DossierView({
             <DataVaultView
               folders={dataVaultFolders}
               files={dataVaultFiles}
-              documents={documents}
+              documents={activeDocuments}
               onUploadFiles={onUploadFiles}
               onCreateFolder={onCreateFolder}
             />
