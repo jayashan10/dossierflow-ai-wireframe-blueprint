@@ -113,16 +113,16 @@ export function ProgramCard({ program, onClick }: ProgramCardProps) {
       />
 
       <div
-        className="relative rounded-2xl border border-[rgba(31,26,20,0.10)] bg-card overflow-hidden transition-all duration-300 group-hover:border-[rgba(31,26,20,0.18)] group-hover:translate-y-[-3px]"
+        className="relative rounded-2xl border border-[rgba(31,26,20,0.12)] bg-card overflow-hidden transition-all duration-300 group-hover:border-[rgba(31,26,20,0.20)] group-hover:translate-y-[-3px]"
         style={{
-          boxShadow: '0 1px 2px rgba(31,26,20,0.05), 0 4px 20px -6px rgba(31,26,20,0.08)',
+          boxShadow: '0 1px 3px rgba(31,26,20,0.06), 0 6px 24px -8px rgba(31,26,20,0.10), inset 0 1px 0 rgba(255,255,255,0.6)',
           transition: 'box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease',
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 12px 48px -10px rgba(31,26,20,0.18), 0 4px 12px -4px rgba(31,26,20,0.08)'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 2px rgba(31,26,20,0.05), 0 4px 20px -6px rgba(31,26,20,0.08)'; }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 16px 56px -12px rgba(31,26,20,0.20), 0 6px 16px -4px rgba(31,26,20,0.10), inset 0 1px 0 rgba(255,255,255,0.6)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 3px rgba(31,26,20,0.06), 0 6px 24px -8px rgba(31,26,20,0.10), inset 0 1px 0 rgba(255,255,255,0.6)'; }}
       >
         <div
-          className="h-[3px] w-full"
+          className="h-1 w-full"
           style={{ background: theme.progressFill }}
         />
 
