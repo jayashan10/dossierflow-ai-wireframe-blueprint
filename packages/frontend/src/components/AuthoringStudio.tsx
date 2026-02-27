@@ -38,11 +38,18 @@ import { VersionHistoryDrawer } from './VersionHistoryDrawer';
 import { BackendPane } from './backend-pane';
 import { cn } from './ui/utils';
 
+interface SectionMeta {
+  title: string;
+  summary?: string;
+  originalHeading?: string;
+}
+
 interface DocumentConfig {
   documentType: string;
   templateUploaded: boolean;
   sections: string[];
   sectionContent?: Record<string, string>;
+  sectionMeta?: Record<string, SectionMeta>;
 }
 
 interface AuthoringStudioProps {
@@ -73,7 +80,20 @@ const existingDocSections = [
   '2.6.2.5 Pharmacodynamic Drug Interactions'
 ];
 
-const defaultPromptTemplate = 'You are drafting the Primary Pharmacodynamics section. Use the following sources to generate a summary and a data table.';
+function buildSectionPrompt(sectionTitle: string, meta?: SectionMeta, documentType?: string): string {
+  const parts: string[] = [];
+  parts.push(`Draft the "${sectionTitle}" section for this ${documentType || 'regulatory dossier'}.`);
+  if (meta?.summary) {
+    parts.push(`\nSection scope: ${meta.summary}`);
+  }
+  if (meta?.originalHeading && meta.originalHeading !== sectionTitle) {
+    parts.push(`\nOriginal template heading: "${meta.originalHeading}"`);
+  }
+  parts.push('\nUse the available source documents and follow ICH/regulatory writing conventions. Be precise, evidence-based, and use appropriate scientific language.');
+  return parts.join('');
+}
+
+const fallbackPrompt = 'Describe what the agent should generate for this section. Use @ to reference source files.';
 const reviewerLookup = new Map(reviewers.map((reviewer) => [reviewer.id, reviewer.name] as const));
 
 const formatTimestamp = () => new Date().toLocaleString('en-US', {
@@ -129,7 +149,7 @@ export function AuthoringStudio({
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
-  const [promptValue, setPromptValue] = useState(defaultPromptTemplate);
+  const [promptValue, setPromptValue] = useState('');
   const [sectionDrafts, setSectionDrafts] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState<'generate' | 'sources' | 'comments' | 'files'>(mode === 'reviewer' ? 'comments' : 'generate');
   const [isSubmitDialogOpen, setSubmitDialogOpen] = useState(false);
@@ -218,9 +238,12 @@ export function AuthoringStudio({
   // Auto-select the first section when sections are available
   useEffect(() => {
     if (sections.length > 0 && !selectedSection) {
-      setSelectedSection(sections[0]);
+      const firstSection = sections[0];
+      setSelectedSection(firstSection);
+      const meta = documentConfig?.sectionMeta?.[firstSection];
+      setPromptValue(buildSectionPrompt(firstSection, meta, documentConfig?.documentType));
     }
-  }, [sections, selectedSection]);
+  }, [sections, selectedSection, documentConfig]);
 
   // Pre-populate source selection from document's linkedSources
   useEffect(() => {
@@ -324,7 +347,6 @@ export function AuthoringStudio({
   const canGenerate = Boolean(selectedSection && promptValue.trim());
 
   const handleSectionSelect = (section: string) => {
-    // Cancel any ongoing generation when switching sections
     if (cancelStreamRef.current) {
       cancelStreamRef.current();
       cancelStreamRef.current = null;
@@ -332,6 +354,9 @@ export function AuthoringStudio({
     }
     setSelectedSection(section);
     setGenerationError(null);
+
+    const meta = documentConfig?.sectionMeta?.[section];
+    setPromptValue(buildSectionPrompt(section, meta, documentConfig?.documentType));
     setStreamingContent('');
     setStreamingEvents([]);
   };
@@ -863,10 +888,27 @@ export function AuthoringStudio({
 
               <TabsContent value="generate" className="flex-1 p-4 space-y-4 overflow-auto mt-0">
               <div>
-                <h4 className="mb-2">Generate for:</h4>
-                <p className="text-[rgba(31,26,20,0.6)]">
+                <h4 className="mb-1">Generate for:</h4>
+                <p className="font-medium text-sm">
                   {selectedSection || 'Select a section to generate content'}
                 </p>
+                {selectedSection && documentConfig?.sectionMeta?.[selectedSection]?.summary && (
+                  <div className="mt-2 rounded-lg border border-[rgba(31,59,52,0.12)] bg-[rgba(31,59,52,0.04)] p-3">
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <Sparkles className="h-3 w-3 text-primary/60" />
+                      <span className="text-[10px] uppercase tracking-wider font-semibold text-primary/50">Section Context</span>
+                    </div>
+                    <p className="text-xs text-[rgba(31,26,20,0.7)] leading-relaxed">
+                      {documentConfig.sectionMeta[selectedSection].summary}
+                    </p>
+                    {documentConfig.sectionMeta[selectedSection].originalHeading &&
+                     documentConfig.sectionMeta[selectedSection].originalHeading !== selectedSection && (
+                      <p className="text-[10px] text-muted-foreground mt-1.5">
+                        Template heading: <span className="font-medium">{documentConfig.sectionMeta[selectedSection].originalHeading}</span>
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div>

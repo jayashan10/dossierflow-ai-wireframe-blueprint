@@ -1,77 +1,22 @@
 {
   "sources": [
     {
-      "id": "source_bd22fcd6-b4cb-4144-b302-d17eacff2817",
-      "name": "clinical_trial_protocol_example.pdf",
-      "type": "pdf",
-      "mimeType": "application/pdf",
-      "relativePath": "source_bd22fcd6-b4cb-4144-b302-d17eacff2817/clinical_trial_protocol_example.pdf",
-      "createdAt": "2026-01-23T16:00:52.368Z",
-      "tags": [],
-      "storedFile": {
-        "id": "source_bd22fcd6-b4cb-4144-b302-d17eacff2817",
-        "originalName": "clinical_trial_protocol_example.pdf",
-        "sanitizedFileName": "clinical_trial_protocol_example.pdf",
-        "extension": ".pdf",
-        "mimeType": "application/pdf",
-        "size": 970039,
-        "relativePath": "source_bd22fcd6-b4cb-4144-b302-d17eacff2817/clinical_trial_protocol_example.pdf",
-        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/packages/data/source_bd22fcd6-b4cb-4144-b302-d17eacff2817/clinical_trial_protocol_example.pdf"
-      }
-    },
-    {
-      "id": "source_3955d659-6065-46c4-aa35-07703114841a",
-      "name": "clinical_trial_protocol_example.pdf",
-      "type": "pdf",
-      "mimeType": "application/pdf",
-      "relativePath": "source_3955d659-6065-46c4-aa35-07703114841a/clinical_trial_protocol_example.pdf",
-      "createdAt": "2025-11-30T02:09:31.394Z",
-      "tags": [],
-      "storedFile": {
-        "id": "source_3955d659-6065-46c4-aa35-07703114841a",
-        "originalName": "clinical_trial_protocol_example.pdf",
-        "sanitizedFileName": "clinical_trial_protocol_example.pdf",
-        "extension": ".pdf",
-        "mimeType": "application/pdf",
-        "size": 970039,
-        "relativePath": "source_3955d659-6065-46c4-aa35-07703114841a/clinical_trial_protocol_example.pdf",
-        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/packages/data/source_3955d659-6065-46c4-aa35-07703114841a/clinical_trial_protocol_example.pdf"
-      }
-    },
-    {
-      "id": "source_e7decdcc-77e1-4ca4-94da-cf5715b52a08",
-      "name": "clinical_trial_protocol_example.pdf",
-      "type": "pdf",
-      "mimeType": "application/pdf",
-      "relativePath": "source_e7decdcc-77e1-4ca4-94da-cf5715b52a08/clinical_trial_protocol_example.pdf",
-      "createdAt": "2025-11-29T23:18:23.683Z",
-      "storedFile": {
-        "id": "source_e7decdcc-77e1-4ca4-94da-cf5715b52a08",
-        "originalName": "clinical_trial_protocol_example.pdf",
-        "sanitizedFileName": "clinical_trial_protocol_example.pdf",
-        "extension": ".pdf",
-        "mimeType": "application/pdf",
-        "size": 970039,
-        "relativePath": "source_e7decdcc-77e1-4ca4-94da-cf5715b52a08/clinical_trial_protocol_example.pdf",
-        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/packages/data/source_e7decdcc-77e1-4ca4-94da-cf5715b52a08/clinical_trial_protocol_example.pdf"
-      }
-    },
-    {
-      "id": "source_1b53b10d-ec8f-45f1-9072-303bc81ff9a3",
+      "id": "source_37c83c28-e704-4a33-9bb5-5ee786c4224a",
       "name": "sample-source.docx",
       "type": "docx",
       "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "relativePath": "source_1b53b10d-ec8f-45f1-9072-303bc81ff9a3/sample-source.docx",
-      "createdAt": "2025-11-01T23:08:49.169Z",
+      "relativePath": "source_37c83c28-e704-4a33-9bb5-5ee786c4224a/sample-source.docx",
+      "createdAt": "2026-02-27T18:27:57.421Z",
+      "tags": [],
       "storedFile": {
-        "id": "source_1b53b10d-ec8f-45f1-9072-303bc81ff9a3",
+        "id": "source_37c83c28-e704-4a33-9bb5-5ee786c4224a",
         "originalName": "sample-source.docx",
         "sanitizedFileName": "sample-source.docx",
         "extension": ".docx",
         "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "size": 4,
-        "relativePath": "source_1b53b10d-ec8f-45f1-9072-303bc81ff9a3/sample-source.docx",
-        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/packages/data/source_1b53b10d-ec8f-45f1-9072-303bc81ff9a3/sample-source.docx"
+        "relativePath": "source_37c83c28-e704-4a33-9bb5-5ee786c4224a/sample-source.docx",
+        "absolutePath": "/workspace/packages/data/source_37c83c28-e704-4a33-9bb5-5ee786c4224a/sample-source.docx"
       }
     }
   ]

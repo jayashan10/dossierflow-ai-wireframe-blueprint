@@ -417,9 +417,9 @@ export default function App() {
   };
 
   const handleViewFullReport = () => {
-    // Extract all document/section names and content from the current structure
     const allSections: string[] = [];
     const sectionContent: Record<string, string> = {};
+    const sectionMeta: Record<string, { title: string; summary?: string; originalHeading?: string }> = {};
     const traverse = (nodes: ModuleNode[]) => {
       nodes.forEach((node) => {
         if (node.documents) {
@@ -429,6 +429,7 @@ export default function App() {
             if (docState.content) {
               sectionContent[docState.name] = docState.content;
             }
+            sectionMeta[docState.name] = { title: docState.name };
           });
         }
         if (node.children) {
@@ -438,12 +439,12 @@ export default function App() {
     };
     traverse(currentStructure);
 
-    // Show authoring view with all sections in the table of contents
     setDocumentConfig({
       documentType: selectedProgram || 'Document',
       templateUploaded: true,
       sections: allSections,
-      sectionContent
+      sectionContent,
+      sectionMeta
     });
     setSelectedDocument(null);
     setAuthoringMode('author');

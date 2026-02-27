@@ -147,8 +147,8 @@ export function SelectionToolbar({ editor, sectionTitle, disabled }: SelectionTo
                 if (e.key === 'Enter') handleCustomSubmit();
                 if (e.key === 'Escape') { setShowCustom(false); setCustomInstruction(''); }
               }}
-              placeholder="Custom instruction..."
-              className="h-7 w-56 text-xs border-border/50 bg-background/50"
+              placeholder="e.g. Add more clinical detail, convert to bullet points..."
+              className="h-7 w-72 text-xs border-border/50 bg-background/50"
               autoFocus
             />
             <Button size="sm" className="h-7 px-2 text-xs" onClick={handleCustomSubmit} disabled={!customInstruction.trim()}>
@@ -175,9 +175,10 @@ export function SelectionToolbar({ editor, sectionTitle, disabled }: SelectionTo
             <button
               onClick={() => setShowCustom(true)}
               className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs font-medium text-primary/70 hover:text-primary hover:bg-primary/5 transition-colors"
-              title="Custom instruction"
+              title="Write a custom instruction for Claude"
             >
               <Pencil className="h-3 w-3" />
+              <span>Custom</span>
             </button>
           </>
         )}
