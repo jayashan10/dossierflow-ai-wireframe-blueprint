@@ -113,14 +113,17 @@ export function ProgramCard({ program, onClick }: ProgramCardProps) {
       />
 
       <div
-        className="relative rounded-2xl border border-[rgba(31,26,20,0.08)] bg-card overflow-hidden transition-all duration-300 group-hover:border-[rgba(31,26,20,0.15)] group-hover:shadow-[0_8px_40px_-12px_rgba(31,26,20,0.15),0_2px_8px_-2px_rgba(31,26,20,0.06)] group-hover:translate-y-[-2px]"
+        className="relative rounded-2xl border border-[rgba(31,26,20,0.10)] bg-card overflow-hidden transition-all duration-300 group-hover:border-[rgba(31,26,20,0.18)] group-hover:translate-y-[-3px]"
         style={{
-          boxShadow: '0 1px 3px rgba(31,26,20,0.04), 0 4px 16px -8px rgba(31,26,20,0.06)',
+          boxShadow: '0 1px 2px rgba(31,26,20,0.05), 0 4px 20px -6px rgba(31,26,20,0.08)',
+          transition: 'box-shadow 0.3s ease, border-color 0.3s ease, transform 0.3s ease',
         }}
+        onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 12px 48px -10px rgba(31,26,20,0.18), 0 4px 12px -4px rgba(31,26,20,0.08)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 1px 2px rgba(31,26,20,0.05), 0 4px 20px -6px rgba(31,26,20,0.08)'; }}
       >
         <div
-          className="h-1 w-full"
-          style={{ background: theme.progressFill, opacity: 0.7 }}
+          className="h-[3px] w-full"
+          style={{ background: theme.progressFill }}
         />
 
         <div className="p-5 pb-4">

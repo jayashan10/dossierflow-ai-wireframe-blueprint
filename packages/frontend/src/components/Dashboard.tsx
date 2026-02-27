@@ -60,7 +60,7 @@ export function Dashboard({ onProgramClick, onCreateNew, programs }: DashboardPr
           </Button>
         </div>
 
-        <div className="grid grid-cols-4 gap-3 mb-8 animate-fade-in" style={{ animationDelay: '0.05s' }}>
+        <div className="flex gap-3 mb-8 animate-fade-in" style={{ animationDelay: '0.05s' }}>
           {[
             { icon: Folder, label: 'Total', value: programs.length, color: 'rgba(31,59,52,0.8)' },
             { icon: BarChart3, label: 'In Progress', value: stats.inProgress, color: '#a67c32' },
@@ -69,17 +69,17 @@ export function Dashboard({ onProgramClick, onCreateNew, programs }: DashboardPr
           ].map((stat) => (
             <div
               key={stat.label}
-              className="flex items-center gap-3 rounded-xl border border-[rgba(31,26,20,0.06)] bg-card/60 backdrop-blur-sm px-4 py-3 transition-colors hover:bg-card/90"
+              className="flex-1 flex items-center gap-3 rounded-xl border border-[rgba(31,26,20,0.06)] bg-card/70 backdrop-blur-sm px-4 py-3 transition-colors hover:bg-card"
             >
               <div
-                className="flex h-8 w-8 items-center justify-center rounded-lg"
-                style={{ backgroundColor: `${stat.color}10` }}
+                className="flex h-9 w-9 items-center justify-center rounded-lg shrink-0"
+                style={{ backgroundColor: `color-mix(in srgb, ${stat.color} 10%, transparent)` }}
               >
                 <stat.icon className="h-4 w-4" style={{ color: stat.color }} />
               </div>
               <div>
-                <p className="text-lg font-bold leading-none tabular-nums" style={{ fontFamily: 'var(--font-display)', color: stat.color }}>{stat.value}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{stat.label}</p>
+                <p className="text-xl font-bold leading-none tabular-nums" style={{ fontFamily: 'var(--font-display)', color: stat.color }}>{stat.value}</p>
+                <p className="text-[11px] text-muted-foreground mt-1">{stat.label}</p>
               </div>
             </div>
           ))}
