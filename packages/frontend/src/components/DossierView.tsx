@@ -252,9 +252,10 @@ export function DossierView({
       <div key={node.id}>
         <div
           className={cn(
-            'flex items-center gap-2 py-2 px-3 rounded-md cursor-pointer hover:bg-accent',
-            isSelected && 'bg-accent',
-            level > 0 && 'ml-6'
+            'section-tree-item flex items-center gap-2 py-2 px-3 rounded-lg cursor-pointer',
+            isSelected && 'bg-primary/8 border border-primary/12',
+            !isSelected && 'border border-transparent',
+            level > 0 && 'ml-5'
           )}
           onClick={() => {
             if (hasChildren) toggleNode(node.id);
@@ -262,22 +263,32 @@ export function DossierView({
           }}
         >
           {hasChildren ? (
-            isExpanded ? (
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            ) : (
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            )
+            <span className={cn('transition-transform duration-200', isExpanded && 'rotate-0', !isExpanded && '-rotate-90')}>
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground/70" />
+            </span>
           ) : (
-            <div className="w-4" />
+            <div className="w-3.5" />
           )}
-          <span className={cn('text-sm flex-1', !hasChildren && 'text-muted-foreground')}>{node.name}</span>
+          <span className={cn(
+            'text-sm flex-1 truncate leading-snug',
+            isSelected && 'font-medium text-primary',
+            !isSelected && hasChildren && 'font-medium',
+            !isSelected && !hasChildren && 'text-muted-foreground'
+          )}>{node.name}</span>
           {documentCount > 0 && (
-            <Badge variant="outline" className="ml-auto text-xs px-1.5 py-0">
+            <span className={cn(
+              'ml-auto text-[10px] font-semibold tabular-nums px-1.5 py-0.5 rounded-md',
+              isSelected ? 'bg-primary/10 text-primary' : 'bg-muted/80 text-muted-foreground'
+            )} style={{ fontFamily: 'var(--font-mono)' }}>
               {documentCount}
-            </Badge>
+            </span>
           )}
         </div>
-        {isExpanded && node.children && node.children.map((child) => renderNode(child, level + 1))}
+        {isExpanded && node.children && (
+          <div className="animate-fade-in">
+            {node.children.map((child) => renderNode(child, level + 1))}
+          </div>
+        )}
       </div>
     );
   };
@@ -292,20 +303,31 @@ export function DossierView({
   const nodeDocuments = selectedNodeData ? collectDocuments(selectedNodeData) : [];
 
   const statusStyles: Record<Document['status'], string> = {
-    Approved: 'bg-green-100 text-green-800 border-green-300',
-    Drafting: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    'To Do': 'bg-gray-100 text-gray-800 border-gray-300',
-    'In Review': 'bg-blue-100 text-blue-800 border-blue-300',
-    'Changes Requested': 'bg-orange-100 text-orange-800 border-orange-300'
+    Approved: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    Drafting: 'bg-amber-50 text-amber-800 border-amber-200',
+    'To Do': 'bg-stone-50 text-stone-600 border-stone-200',
+    'In Review': 'bg-blue-50 text-blue-800 border-blue-200',
+    'Changes Requested': 'bg-orange-50 text-orange-800 border-orange-200'
+  };
+
+  const statusDotColors: Record<Document['status'], string> = {
+    Approved: 'bg-emerald-500',
+    Drafting: 'bg-amber-500',
+    'To Do': 'bg-stone-400',
+    'In Review': 'bg-blue-500',
+    'Changes Requested': 'bg-orange-500'
   };
 
   return (
     <div className="flex h-screen">
-      <div className="w-72 border-r bg-muted/20 p-6 overflow-auto">
-        <h3 className="mb-4 text-sm font-medium">Program {programId.toUpperCase()}</h3>
-        <div className="space-y-1">
+      <div className="w-72 border-r border-border/50 bg-sidebar p-5 overflow-auto">
+        <div className="mb-5 pb-3 border-b border-border/40">
+          <span className="dossier-meta text-[10px] text-muted-foreground/70">Program</span>
+          <h3 className="text-sm font-semibold mt-0.5 truncate" style={{ fontFamily: 'var(--font-display)' }}>{programId.toUpperCase()}</h3>
+        </div>
+        <div className="space-y-0.5">
           {isLoadingStructure ? (
-            <div className="flex items-center gap-2 text-sm text-muted-foreground p-2">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground p-3">
               <Loader2 className="h-4 w-4 animate-spin" />
               Loading sections...
             </div>
@@ -318,7 +340,7 @@ export function DossierView({
       </div>
 
       <div className="flex-1 overflow-hidden flex flex-col">
-        <div className="border-b p-4 bg-white flex-shrink-0">
+        <div className="border-b border-border/50 p-4 bg-card/80 flex-shrink-0">
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -359,14 +381,14 @@ export function DossierView({
 
           <TabsContent value="dossier" className="flex-1 overflow-auto px-6 py-6 data-[state=active]:flex data-[state=active]:flex-col">
             <div className="flex flex-col gap-6 min-h-0">
-              <div className="flex-shrink-0 flex items-start justify-between gap-4">
+              <div className="flex-shrink-0 flex items-start justify-between gap-4 animate-fade-in">
                 <div>
-                  <h2 className="text-lg font-semibold">{selectedNodeData?.name}</h2>
-                  <p className="text-sm text-muted-foreground">
+                  <h2 className="text-xl font-semibold tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>{selectedNodeData?.name}</h2>
+                  <p className="text-sm text-muted-foreground mt-1">
                     Manage drafting status and jump into authoring from here.
                   </p>
                 </div>
-                <Button onClick={onViewFullReport} variant="outline" className="gap-2">
+                <Button onClick={onViewFullReport} variant="outline" className="gap-2 border-border/60 hover:border-primary/30 hover:bg-primary/5 transition-colors">
                   <FileText className="h-4 w-4" />
                   View Full Report
                 </Button>
@@ -374,7 +396,7 @@ export function DossierView({
 
               <div className="border rounded-lg overflow-auto flex-1 min-h-0">
                 <table className="w-full">
-                  <thead className="border-b bg-muted/30">
+                  <thead className="border-b bg-muted/40 sticky top-0">
                     <tr>
                       <th className="w-12 p-4 text-left">
                         <Checkbox
@@ -399,7 +421,7 @@ export function DossierView({
                     {nodeDocuments.map((doc) => {
                       const docState = activeDocuments[doc.id] ?? doc;
                       return (
-                        <tr key={doc.id} className="border-b last:border-0 hover:bg-muted/20">
+                        <tr key={doc.id} className="border-b last:border-0 table-row-hover">
                           <td className="p-4">
                             <Checkbox
                               checked={selectedDocs.has(doc.id)}
@@ -415,7 +437,8 @@ export function DossierView({
                           </td>
                           <td className="p-4 text-sm font-medium">{docState.name}</td>
                           <td className="p-4">
-                            <Badge variant="outline" className={statusStyles[docState.status]}>
+                            <Badge variant="outline" className={`${statusStyles[docState.status]} text-[11px] font-medium px-2 py-0 h-5`}>
+                              <span className={`inline-block h-1.5 w-1.5 rounded-full mr-1.5 ${statusDotColors[docState.status]}`} />
                               {docState.status}
                             </Badge>
                           </td>

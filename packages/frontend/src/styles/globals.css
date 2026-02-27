@@ -44,6 +44,13 @@
   --sidebar-accent-foreground: #1f1a14;
   --sidebar-border: rgba(31, 26, 20, 0.1);
   --sidebar-ring: rgba(31, 26, 20, 0.25);
+  --status-in-progress: #a67c32;
+  --status-review: #3b6ea0;
+  --status-submitted: #2d7250;
+  --status-todo: #8a7e72;
+  --status-approved: #2d7250;
+  --status-drafting: #a67c32;
+  --status-changes: #b85c28;
 }
 
 .dark {
@@ -255,4 +262,102 @@ html {
 
 .ProseMirror table th {
   background-color: rgba(31, 59, 52, 0.08);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out both;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.3s ease-out both;
+}
+
+.stagger-1 { animation-delay: 0.04s; }
+.stagger-2 { animation-delay: 0.08s; }
+.stagger-3 { animation-delay: 0.12s; }
+.stagger-4 { animation-delay: 0.16s; }
+.stagger-5 { animation-delay: 0.20s; }
+.stagger-6 { animation-delay: 0.24s; }
+.stagger-7 { animation-delay: 0.28s; }
+.stagger-8 { animation-delay: 0.32s; }
+.stagger-9 { animation-delay: 0.36s; }
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(31, 26, 20, 0.15);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(31, 26, 20, 0.3);
+}
+
+.dashboard-grid {
+  background-image:
+    radial-gradient(circle at 15% 5%, rgba(31, 59, 52, 0.05), transparent 45%),
+    radial-gradient(circle at 90% 85%, rgba(166, 124, 50, 0.04), transparent 40%);
+}
+
+.card-accent-left {
+  position: relative;
+}
+
+.card-accent-left::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent-color, var(--primary));
+  opacity: 0.8;
+}
+
+.section-tree-item {
+  transition: background-color 0.15s ease, padding-left 0.15s ease;
+}
+
+.section-tree-item:hover {
+  background-color: rgba(31, 59, 52, 0.06);
+}
+
+.table-row-hover {
+  transition: background-color 0.12s ease;
+}
+
+.table-row-hover:hover {
+  background-color: rgba(31, 59, 52, 0.04);
 }
