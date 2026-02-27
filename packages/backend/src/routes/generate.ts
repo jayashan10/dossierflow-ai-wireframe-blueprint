@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { fetchSourceSnippets, fetchSourceSnippetsFromDescriptors, getSourceFilePaths } from '../services/source-service';
-import { generateDraft, generateDraftStream } from '../services/claude-agent-service';
+import { generateDraft, generateDraftStream, refineInlineStream } from '../services/claude-agent-service';
 import { getProgramAbsolutePath, getProgram, getProgramSourceFileRefs, listProgramSources } from '../services/program-service';
 
 const requestSchema = z.object({
@@ -116,6 +116,38 @@ generateRouter.post('/stream', async (req, res) => {
           programId: payload.programId
         })}\n\n`);
       }
+    }
+
+    res.write('data: [DONE]\n\n');
+    res.end();
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    res.write(`data: ${JSON.stringify({ type: 'error', error: errorMessage })}\n\n`);
+    res.write('data: [DONE]\n\n');
+    res.end();
+  }
+});
+
+const refineRequestSchema = z.object({
+  selectedText: z.string().min(1),
+  action: z.enum(['improve', 'expand', 'simplify', 'add_references', 'rewrite', 'make_concise', 'formal_tone', 'custom']),
+  customInstruction: z.string().optional(),
+  sectionTitle: z.string().optional(),
+  surroundingContext: z.string().optional()
+});
+
+generateRouter.post('/refine', async (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('X-Accel-Buffering', 'no');
+  res.flushHeaders();
+
+  try {
+    const payload = refineRequestSchema.parse(req.body);
+
+    for await (const event of refineInlineStream(payload)) {
+      res.write(`data: ${JSON.stringify(event)}\n\n`);
     }
 
     res.write('data: [DONE]\n\n');

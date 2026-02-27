@@ -251,6 +251,90 @@ export function streamGenerateContent(
 }
 
 // ============================================================================
+// Inline Refinement API
+// ============================================================================
+
+export type RefineAction = 'improve' | 'expand' | 'simplify' | 'add_references' | 'rewrite' | 'make_concise' | 'formal_tone' | 'custom';
+
+export interface RefineRequest {
+  selectedText: string;
+  action: RefineAction;
+  customInstruction?: string;
+  sectionTitle?: string;
+  surroundingContext?: string;
+}
+
+export function streamRefineSelection(
+  body: RefineRequest,
+  callbacks: {
+    onText: (text: string) => void;
+    onComplete: (fullText: string) => void;
+    onError: (error: string) => void;
+  }
+): () => void {
+  const controller = new AbortController();
+
+  fetch(`${API_BASE_URL}/api/generate/refine`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+    signal: controller.signal
+  })
+    .then(async (response) => {
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || `Request failed with status ${response.status}`);
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response body');
+
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let fullText = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') {
+            callbacks.onComplete(fullText);
+            return;
+          }
+          try {
+            const event = JSON.parse(data) as StreamEvent;
+            if (event.type === 'text' && event.content) {
+              fullText += event.content;
+              callbacks.onText(event.content);
+            } else if (event.type === 'complete' && event.content) {
+              fullText = event.content;
+            } else if (event.type === 'error' && event.error) {
+              callbacks.onError(event.error);
+              return;
+            }
+          } catch {
+            // ignore parse errors
+          }
+        }
+      }
+      callbacks.onComplete(fullText);
+    })
+    .catch((error) => {
+      if (error.name === 'AbortError') return;
+      callbacks.onError(error instanceof Error ? error.message : 'Unknown error');
+    });
+
+  return () => controller.abort();
+}
+
+// ============================================================================
 // Program API
 // ============================================================================
 

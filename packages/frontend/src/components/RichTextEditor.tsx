@@ -10,15 +10,17 @@ import { Placeholder } from '@tiptap/extension-placeholder';
 import { Bold, Italic, List, ListOrdered, Link as LinkIcon, Table as TableIcon, Underline as UnderlineIcon } from 'lucide-react';
 import { Button } from './ui/button';
 import { useEffect } from 'react';
+import { SelectionToolbar } from './SelectionToolbar';
 
 interface RichTextEditorProps {
   content: string;
   onChange: (content: string) => void;
   placeholder?: string;
   disabled?: boolean;
+  sectionTitle?: string;
 }
 
-export function RichTextEditor({ content, onChange, placeholder, disabled }: RichTextEditorProps) {
+export function RichTextEditor({ content, onChange, placeholder, disabled, sectionTitle }: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -43,7 +45,6 @@ export function RichTextEditor({ content, onChange, placeholder, disabled }: Ric
     editable: !disabled,
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
-      // Only call onChange if content actually changed
       if (html !== content) {
         onChange(html);
       }
@@ -80,7 +81,10 @@ export function RichTextEditor({ content, onChange, placeholder, disabled }: Ric
 
   return (
     <div className="border rounded-md overflow-hidden">
-      {/* Toolbar */}
+      {editor && !disabled && (
+        <SelectionToolbar editor={editor} sectionTitle={sectionTitle} disabled={disabled} />
+      )}
+
       <div className="border-b bg-muted/30 p-2 flex gap-1 flex-wrap">
         <Button
           variant="ghost"
@@ -153,7 +157,6 @@ export function RichTextEditor({ content, onChange, placeholder, disabled }: Ric
         </Button>
       </div>
 
-      {/* Editor Content */}
       <EditorContent editor={editor} />
     </div>
   );

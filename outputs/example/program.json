@@ -3,7 +3,7 @@
   "name": "Example Program",
   "folderName": "example",
   "createdAt": "2026-01-23T01:09:26.685Z",
-  "updatedAt": "2026-01-23T01:13:24.079Z",
+  "updatedAt": "2026-02-27T17:39:04.824Z",
   "sections": {
     "Title-Page": {
       "title": "Title Page",
@@ -53,7 +53,13 @@
     "2-Introduction-2-1-Study-Rationale": {
       "title": "2.1. Study Rationale",
       "path": "2-Introduction/2-1-Study-Rationale/content.md",
-      "status": "pending"
+      "status": "draft",
+      "generatedAt": "2026-02-27T17:39:04.820Z",
+      "tokenUsage": {
+        "promptTokens": 6730,
+        "completionTokens": 2571,
+        "totalTokens": 9301
+      }
     },
     "2-Introduction-2-2-Background": {
       "title": "2.2. Background",

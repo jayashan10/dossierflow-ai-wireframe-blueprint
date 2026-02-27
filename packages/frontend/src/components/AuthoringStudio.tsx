@@ -788,6 +788,7 @@ export function AuthoringStudio({
                       }}
                       placeholder="Start writing your content here, or use the AI Assistant panel on the right to generate content..."
                       disabled={isReadOnly}
+                      sectionTitle={selectedSection ?? undefined}
                     />
                     {generatedDraftForSection && (
                       <div className="flex justify-end">

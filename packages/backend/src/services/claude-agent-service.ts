@@ -701,6 +701,126 @@ export async function* generateDraftStream(params: StreamGenerateParams): AsyncG
   }
 }
 
+// ============================================================================
+// Inline Text Refinement
+// ============================================================================
+
+export interface InlineRefineParams {
+  selectedText: string;
+  action: 'improve' | 'expand' | 'simplify' | 'add_references' | 'rewrite' | 'make_concise' | 'formal_tone' | 'custom';
+  customInstruction?: string;
+  sectionTitle?: string;
+  surroundingContext?: string;
+}
+
+const ACTION_INSTRUCTIONS: Record<string, string> = {
+  improve: 'Improve the clarity, precision, and scientific quality of this text while preserving its meaning and key claims. Fix any grammatical issues, strengthen weak phrasing, and ensure regulatory-appropriate language.',
+  expand: 'Expand this text with additional relevant detail, supporting evidence, and elaboration. Add depth while maintaining accuracy and regulatory tone. Roughly double the length.',
+  simplify: 'Simplify this text to be clearer and more accessible while retaining all critical regulatory and scientific information. Reduce jargon where possible.',
+  add_references: 'Add appropriate in-text citation placeholders (e.g., [Author, Year], [Ref X]) where claims need supporting references. Add a brief note at the end listing what types of references should be found for each citation.',
+  rewrite: 'Completely rewrite this text with a fresh approach while conveying the same information. Use different sentence structures and phrasing. Maintain regulatory quality.',
+  make_concise: 'Make this text more concise without losing critical information. Remove redundancy, tighten phrasing, and eliminate filler words. Target roughly half the original length.',
+  formal_tone: 'Adjust the tone to be more formal and appropriate for regulatory submission documents. Ensure precise scientific language and passive voice where conventional.',
+  custom: ''
+};
+
+function buildInlineRefinePrompt(params: InlineRefineParams): string {
+  const instruction = params.action === 'custom' && params.customInstruction
+    ? params.customInstruction
+    : ACTION_INSTRUCTIONS[params.action] || ACTION_INSTRUCTIONS.improve;
+
+  const contextBlock = params.surroundingContext
+    ? `\n\nSurrounding context for reference (do NOT include this in output):\n---\n${params.surroundingContext.slice(0, 2000)}\n---`
+    : '';
+
+  const sectionBlock = params.sectionTitle
+    ? `\nSection: "${params.sectionTitle}"`
+    : '';
+
+  return `You are an expert regulatory affairs editor. Your task is to refine a selected passage from a regulatory dossier document.
+${sectionBlock}${contextBlock}
+
+Selected text to refine:
+---
+${params.selectedText}
+---
+
+Instruction: ${instruction}
+
+RULES:
+- Return ONLY the refined text. No explanations, no preamble, no markdown code fences.
+- Preserve any existing markdown formatting (bold, italics, lists, headings).
+- The output should be a drop-in replacement for the selected text.
+- Maintain scientific accuracy and regulatory compliance.`;
+}
+
+export async function* refineInlineStream(params: InlineRefineParams): AsyncGenerator<StreamEvent> {
+  if (!isClaudeAvailable()) {
+    yield { type: 'error', error: 'Claude Agent not available. Check configuration.' };
+    return;
+  }
+
+  const prompt = buildInlineRefinePrompt(params);
+
+  try {
+    claudeDebugLog('Inline refine prompt', prompt.slice(0, 1000));
+
+    const agentQuery = query({
+      prompt,
+      options: {
+        maxTurns: 3,
+        allowedTools: [],
+        permissionMode: 'bypassPermissions'
+      }
+    });
+
+    const fragments: string[] = [];
+    let usage: ClaudeUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
+
+    for await (const message of agentQuery as AsyncIterable<Record<string, unknown>>) {
+      const messageType = typeof message?.type === 'string' ? (message.type as string) : 'unknown';
+
+      if (messageType === 'assistant') {
+        const assistantMessage = message as {
+          message?: {
+            content?: Array<{ type: string; text?: string }>;
+            usage?: ClaudeUsagePayload;
+          };
+        };
+
+        if (assistantMessage.message?.content) {
+          for (const block of assistantMessage.message.content) {
+            if (block.type === 'text' && block.text) {
+              fragments.push(block.text);
+              yield { type: 'text', content: block.text };
+            }
+          }
+        }
+
+        if (assistantMessage.message?.usage) {
+          usage = normalizeUsage(assistantMessage.message.usage);
+        }
+      }
+
+      if (messageType === 'result') {
+        const resultMessage = message as {
+          usage?: ClaudeUsagePayload;
+        };
+        if (resultMessage.usage) {
+          usage = normalizeUsage(resultMessage.usage);
+        }
+      }
+    }
+
+    const fullContent = fragments.join('');
+    yield { type: 'complete', content: fullContent, usage };
+
+  } catch (error) {
+    console.error('Inline refinement failed:', error);
+    yield { type: 'error', error: error instanceof Error ? error.message : 'Unknown error occurred' };
+  }
+}
+
 /**
  * Refine extracted template sections using agentic workflow
  * Takes already-extracted headings and refines them with contextual summaries
