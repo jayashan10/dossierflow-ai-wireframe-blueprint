@@ -419,7 +419,6 @@ export default function App() {
   const handleViewFullReport = () => {
     const allSections: string[] = [];
     const sectionContent: Record<string, string> = {};
-    const sectionMeta: Record<string, { title: string; summary?: string; originalHeading?: string }> = {};
     const traverse = (nodes: ModuleNode[]) => {
       nodes.forEach((node) => {
         if (node.documents) {
@@ -429,7 +428,6 @@ export default function App() {
             if (docState.content) {
               sectionContent[docState.name] = docState.content;
             }
-            sectionMeta[docState.name] = { title: docState.name };
           });
         }
         if (node.children) {
@@ -443,8 +441,7 @@ export default function App() {
       documentType: selectedProgram || 'Document',
       templateUploaded: true,
       sections: allSections,
-      sectionContent,
-      sectionMeta
+      sectionContent
     });
     setSelectedDocument(null);
     setAuthoringMode('author');

@@ -38,18 +38,11 @@ import { VersionHistoryDrawer } from './VersionHistoryDrawer';
 import { BackendPane } from './backend-pane';
 import { cn } from './ui/utils';
 
-interface SectionMeta {
-  title: string;
-  summary?: string;
-  originalHeading?: string;
-}
-
 interface DocumentConfig {
   documentType: string;
   templateUploaded: boolean;
   sections: string[];
   sectionContent?: Record<string, string>;
-  sectionMeta?: Record<string, SectionMeta>;
 }
 
 interface AuthoringStudioProps {
@@ -80,20 +73,11 @@ const existingDocSections = [
   '2.6.2.5 Pharmacodynamic Drug Interactions'
 ];
 
-function buildSectionPrompt(sectionTitle: string, meta?: SectionMeta, documentType?: string): string {
-  const parts: string[] = [];
-  parts.push(`Draft the "${sectionTitle}" section for this ${documentType || 'regulatory dossier'}.`);
-  if (meta?.summary) {
-    parts.push(`\nSection scope: ${meta.summary}`);
-  }
-  if (meta?.originalHeading && meta.originalHeading !== sectionTitle) {
-    parts.push(`\nOriginal template heading: "${meta.originalHeading}"`);
-  }
-  parts.push('\nUse the available source documents and follow ICH/regulatory writing conventions. Be precise, evidence-based, and use appropriate scientific language.');
-  return parts.join('');
+function buildSectionPrompt(sectionTitle: string): string {
+  return `Draft the "${sectionTitle}" section. Follow the template structure, match the tone of existing sections, and use available source documents.`;
 }
 
-const fallbackPrompt = 'Describe what the agent should generate for this section. Use @ to reference source files.';
+const fallbackPrompt = 'Describe what you want the agent to draft. It will read the template and sources automatically.';
 const reviewerLookup = new Map(reviewers.map((reviewer) => [reviewer.id, reviewer.name] as const));
 
 const formatTimestamp = () => new Date().toLocaleString('en-US', {
@@ -240,10 +224,9 @@ export function AuthoringStudio({
     if (sections.length > 0 && !selectedSection) {
       const firstSection = sections[0];
       setSelectedSection(firstSection);
-      const meta = documentConfig?.sectionMeta?.[firstSection];
-      setPromptValue(buildSectionPrompt(firstSection, meta, documentConfig?.documentType));
+      setPromptValue(buildSectionPrompt(firstSection));
     }
-  }, [sections, selectedSection, documentConfig]);
+  }, [sections, selectedSection]);
 
   // Pre-populate source selection from document's linkedSources
   useEffect(() => {
@@ -354,9 +337,7 @@ export function AuthoringStudio({
     }
     setSelectedSection(section);
     setGenerationError(null);
-
-    const meta = documentConfig?.sectionMeta?.[section];
-    setPromptValue(buildSectionPrompt(section, meta, documentConfig?.documentType));
+    setPromptValue(buildSectionPrompt(section));
     setStreamingContent('');
     setStreamingEvents([]);
   };
@@ -892,21 +873,11 @@ export function AuthoringStudio({
                 <p className="font-medium text-sm">
                   {selectedSection || 'Select a section to generate content'}
                 </p>
-                {selectedSection && documentConfig?.sectionMeta?.[selectedSection]?.summary && (
-                  <div className="mt-2 rounded-lg border border-[rgba(31,59,52,0.12)] bg-[rgba(31,59,52,0.04)] p-3">
-                    <div className="flex items-center gap-1.5 mb-1">
-                      <Sparkles className="h-3 w-3 text-primary/60" />
-                      <span className="text-[10px] uppercase tracking-wider font-semibold text-primary/50">Section Context</span>
-                    </div>
-                    <p className="text-xs text-[rgba(31,26,20,0.7)] leading-relaxed">
-                      {documentConfig.sectionMeta[selectedSection].summary}
+                {selectedSection && (
+                  <div className="mt-2 rounded-lg border border-[rgba(31,59,52,0.10)] bg-[rgba(31,59,52,0.03)] px-3 py-2">
+                    <p className="text-[11px] text-[rgba(31,26,20,0.55)] leading-relaxed">
+                      The agent will read the template, existing sections, and source documents to understand what belongs here. Edit the prompt above to add specific instructions.
                     </p>
-                    {documentConfig.sectionMeta[selectedSection].originalHeading &&
-                     documentConfig.sectionMeta[selectedSection].originalHeading !== selectedSection && (
-                      <p className="text-[10px] text-muted-foreground mt-1.5">
-                        Template heading: <span className="font-medium">{documentConfig.sectionMeta[selectedSection].originalHeading}</span>
-                      </p>
-                    )}
                   </div>
                 )}
               </div>

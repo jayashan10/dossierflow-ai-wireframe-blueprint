@@ -484,70 +484,51 @@ export async function generateDraft(params: GenerateParams): Promise<GenerateRes
  * Build prompt for streaming agentic content generation with direct file paths
  */
 function buildStreamingGeneratePrompt({ sectionTitle, userPrompt, sourceFiles, mentionedFiles, programPath, targetPath }: StreamGenerateParams): string {
-  const sourceContext = sourceFiles.length > 0
-    ? sourceFiles.map((f) => `- ${f.name}: ${f.absolutePath}`).join('\n')
-    : 'No source documents selected.';
-
   const mentionedContext = mentionedFiles?.length
-    ? `\n\nSpecifically mentioned files (prioritize these):\n${mentionedFiles.map((f) => `- ${f.name}: ${f.absolutePath}`).join('\n')}`
+    ? `\nThe author specifically referenced these files (prioritize them):\n${mentionedFiles.map((f) => `- ${f.name}: ${f.absolutePath}`).join('\n')}\n`
     : '';
 
-  // Add file write instructions if targetPath is provided
-  const writeInstructions = targetPath && programPath
-    ? `
+  const selectedSourcesHint = sourceFiles.length > 0
+    ? `\nThe author selected these source documents:\n${sourceFiles.map((f) => `- ${f.name}: ${f.absolutePath}`).join('\n')}\n`
+    : '';
 
-**IMPORTANT - WRITE OUTPUT TO FILE:**
-After generating the content, you MUST write it to:
+  const writeBlock = targetPath && programPath
+    ? `
+After drafting, use the Write tool to save the content to:
   ${programPath}/${targetPath}
 
-Use the Write tool to save the complete markdown content to this file.
-The file should include YAML frontmatter:
+Include YAML frontmatter:
 ---
 title: "${sectionTitle}"
 status: draft
 generatedAt: "${new Date().toISOString()}"
-sources: [${sourceFiles.map(f => `"${f.name}"`).join(', ')}]
+sources: []
 ---
-
-Then include the generated content after the frontmatter.
+Then the full markdown content.
 `
     : '';
 
-  return `You are an expert regulatory affairs writer assisting with drafting section "${sectionTitle}" for a regulatory dossier.
+  return `You are an expert regulatory affairs writer. Your task is to draft section "${sectionTitle}" for a regulatory dossier.
 
-Task: Generate well-structured markdown content for this section based on the analyst's instructions and available source documents.
-
-Section: ${sectionTitle}
-
-Analyst Instructions:
+Author's instructions:
 ${userPrompt}
+${mentionedContext}${selectedSourcesHint}
+**CONTEXT DISCOVERY — do this before writing:**
 
-Available Source Documents:
-${sourceContext}${mentionedContext}
+1. Read \`program.json\` in the current directory to understand the full document structure, section hierarchy, and which sections already exist.
+2. Look for a template document (check \`template/\` folder). If a PDF exists, use \`parse <path>\` via Bash to extract its content, then read the parsed output to understand what this section should contain according to the template.
+3. Check if neighboring/sibling sections already have \`content.md\` files. Read 2-3 of them to match tone, depth, and formatting conventions already established in this dossier.
+4. Check the \`sources/\` folder for uploaded reference documents. Read any that are relevant to this section's topic.
 
-You have access to the following tools:
-- Read: Read source document files to extract relevant information. Use this to read the full content of any source file.
-- Write: Write content to files
-- Bash: Execute commands for document processing (e.g., semtools parse for PDFs)
-- Glob: Search for files if needed
+**WRITING GUIDELINES:**
 
-IMPORTANT: Use the Read tool to access source document content. The files are at the paths listed above - read them directly to get the full content.
-
-Process:
-1. Review the analyst instructions and understand what content is needed
-2. Read the relevant source documents using the Read tool to gather information
-3. If a file is a PDF, you can use 'parse <filepath>' via Bash to convert it to markdown first
-4. Draft clear, concise, and well-structured content that addresses the requirements
-5. Ensure all claims are grounded in the source materials
-6. Format the output as clean markdown${writeInstructions}
-
-Important:
-- Read the source files to get actual content - don't make up information
-- When using source information, ensure accuracy and proper context
-- If sources are missing key information, note this in your response
-- Keep the tone professional and appropriate for regulatory documentation
-
-Return your generated content as markdown. Do not include explanations about the process - only the final section content.`;
+- Follow ICH/regulatory writing conventions appropriate for this section type
+- Match the style and depth of any existing sibling sections
+- Ground claims in source documents when available; note gaps explicitly
+- Use proper markdown formatting: headings, lists, tables where appropriate
+- Be precise, evidence-based, and use appropriate scientific language
+- Do NOT explain your process — output only the final section content as markdown
+${writeBlock}`;
 }
 
 /**

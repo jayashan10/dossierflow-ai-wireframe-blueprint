@@ -1,22 +1,22 @@
 {
   "sources": [
     {
-      "id": "source_37c83c28-e704-4a33-9bb5-5ee786c4224a",
+      "id": "source_5bbe638c-70b4-465a-a8de-23ddc045ab5c",
       "name": "sample-source.docx",
       "type": "docx",
       "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "relativePath": "source_37c83c28-e704-4a33-9bb5-5ee786c4224a/sample-source.docx",
-      "createdAt": "2026-02-27T18:27:57.421Z",
+      "relativePath": "source_5bbe638c-70b4-465a-a8de-23ddc045ab5c/sample-source.docx",
+      "createdAt": "2026-02-27T19:14:33.012Z",
       "tags": [],
       "storedFile": {
-        "id": "source_37c83c28-e704-4a33-9bb5-5ee786c4224a",
+        "id": "source_5bbe638c-70b4-465a-a8de-23ddc045ab5c",
         "originalName": "sample-source.docx",
         "sanitizedFileName": "sample-source.docx",
         "extension": ".docx",
         "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "size": 4,
-        "relativePath": "source_37c83c28-e704-4a33-9bb5-5ee786c4224a/sample-source.docx",
-        "absolutePath": "/workspace/packages/data/source_37c83c28-e704-4a33-9bb5-5ee786c4224a/sample-source.docx"
+        "relativePath": "source_5bbe638c-70b4-465a-a8de-23ddc045ab5c/sample-source.docx",
+        "absolutePath": "/workspace/packages/data/source_5bbe638c-70b4-465a-a8de-23ddc045ab5c/sample-source.docx"
       }
     }
   ]
