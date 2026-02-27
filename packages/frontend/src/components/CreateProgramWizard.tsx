@@ -372,26 +372,51 @@ export function CreateProgramWizard({ open, onClose, onCreate }: CreateProgramWi
     setStep((prev) => prev - 1);
   };
 
+  const steps = [
+    { num: 1, label: 'Details' },
+    { num: 2, label: 'Document Type' },
+    { num: 3, label: 'Template' },
+    { num: 4, label: 'Team' },
+    { num: 5, label: 'Summary' },
+  ];
+
   return (
     <Dialog open={open} onOpenChange={(value) => !value && handleClose()}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>Create New Program</DialogTitle>
+          <DialogTitle style={{ fontFamily: 'var(--font-display)' }}>Create New Program</DialogTitle>
         </DialogHeader>
 
         <div className="flex items-center justify-between border-b pb-4 mb-4 flex-shrink-0">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span className={`font-medium ${step === 1 ? 'text-primary' : ''}`}>1. Details</span>
-            <span>→</span>
-            <span className={`font-medium ${step === 2 ? 'text-primary' : ''}`}>2. Document Type</span>
-            <span>→</span>
-            <span className={`font-medium ${step === 3 ? 'text-primary' : ''}`}>3. Template</span>
-            <span>→</span>
-            <span className={`font-medium ${step === 4 ? 'text-primary' : ''}`}>4. Team</span>
-            <span>→</span>
-            <span className={`font-medium ${step === 5 ? 'text-primary' : ''}`}>5. Summary</span>
+          <div className="flex items-center gap-1">
+            {steps.map((s, i) => (
+              <div key={s.num} className="flex items-center">
+                <div className="flex items-center gap-1.5">
+                  <span
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold transition-colors ${
+                      step === s.num
+                        ? 'bg-primary text-primary-foreground'
+                        : step > s.num
+                        ? 'bg-primary/15 text-primary'
+                        : 'bg-muted text-muted-foreground'
+                    }`}
+                    style={{ fontFamily: 'var(--font-mono)' }}
+                  >
+                    {step > s.num ? '\u2713' : s.num}
+                  </span>
+                  <span className={`text-xs font-medium transition-colors ${
+                    step === s.num ? 'text-primary' : step > s.num ? 'text-primary/60' : 'text-muted-foreground'
+                  }`}>
+                    {s.label}
+                  </span>
+                </div>
+                {i < steps.length - 1 && (
+                  <div className={`w-6 h-px mx-2 transition-colors ${step > s.num ? 'bg-primary/30' : 'bg-border'}`} />
+                )}
+              </div>
+            ))}
           </div>
-          <div className="text-xs text-muted-foreground">Step {step} of 5</div>
+          <span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground font-medium" style={{ fontFamily: 'var(--font-mono)' }}>Step {step}/5</span>
         </div>
 
         <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2 min-h-0">

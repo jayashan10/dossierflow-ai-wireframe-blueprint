@@ -153,11 +153,11 @@ export function AuthoringStudio({
   const versionHistory = currentDocument?.versionHistory ?? [];
   const isExistingDocument = Boolean(currentDocument);
   const statusBadgeStyles: Record<Document['status'], string> = {
-    Approved: 'bg-green-100 text-green-800 border-green-300',
-    Drafting: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    'To Do': 'bg-gray-100 text-gray-800 border-gray-300',
-    'In Review': 'bg-blue-100 text-blue-800 border-blue-300',
-    'Changes Requested': 'bg-orange-100 text-orange-800 border-orange-300'
+    Approved: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    Drafting: 'bg-amber-50 text-amber-800 border-amber-200',
+    'To Do': 'bg-stone-50 text-stone-600 border-stone-200',
+    'In Review': 'bg-blue-50 text-blue-800 border-blue-200',
+    'Changes Requested': 'bg-orange-50 text-orange-800 border-orange-200'
   };
 
   // Use sections from config if available, otherwise use the current document's name as a single section
