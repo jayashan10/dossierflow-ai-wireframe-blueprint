@@ -1,0 +1,711 @@
+{
+  "id": "program_7dd25f8f-d1a2-4a4e-9319-e98634b932e1",
+  "name": "Example Program",
+  "folderName": "example",
+  "createdAt": "2026-01-23T01:09:26.685Z",
+  "updatedAt": "2026-01-23T01:13:24.079Z",
+  "sections": {
+    "Title-Page": {
+      "title": "Title Page",
+      "path": "Title-Page/content.md",
+      "status": "pending"
+    },
+    "Pediatric-Investigational-Plan-Number": {
+      "title": "Pediatric Investigational Plan Number",
+      "path": "Pediatric-Investigational-Plan-Number/content.md",
+      "status": "pending"
+    },
+    "Protocol-Amendment-Summary-of-Changes-Table": {
+      "title": "Protocol Amendment Summary of Changes Table",
+      "path": "Protocol-Amendment-Summary-of-Changes-Table/content.md",
+      "status": "pending"
+    },
+    "Table-of-Contents": {
+      "title": "Table of Contents",
+      "path": "Table-of-Contents/content.md",
+      "status": "pending"
+    },
+    "1-Protocol-Summary": {
+      "title": "1. Protocol Summary",
+      "path": "1-Protocol-Summary/content.md",
+      "status": "pending"
+    },
+    "1-Protocol-Summary-1-1-Synopsis": {
+      "title": "1.1. Synopsis",
+      "path": "1-Protocol-Summary/1-1-Synopsis/content.md",
+      "status": "pending"
+    },
+    "1-Protocol-Summary-1-2-Schema": {
+      "title": "1.2. Schema",
+      "path": "1-Protocol-Summary/1-2-Schema/content.md",
+      "status": "pending"
+    },
+    "1-Protocol-Summary-1-3-Schedule-of-Activities": {
+      "title": "1.3. Schedule of Activities (SoA)",
+      "path": "1-Protocol-Summary/1-3-Schedule-of-Activities/content.md",
+      "status": "pending"
+    },
+    "2-Introduction": {
+      "title": "2. Introduction",
+      "path": "2-Introduction/content.md",
+      "status": "pending"
+    },
+    "2-Introduction-2-1-Study-Rationale": {
+      "title": "2.1. Study Rationale",
+      "path": "2-Introduction/2-1-Study-Rationale/content.md",
+      "status": "pending"
+    },
+    "2-Introduction-2-2-Background": {
+      "title": "2.2. Background",
+      "path": "2-Introduction/2-2-Background/content.md",
+      "status": "pending"
+    },
+    "2-Introduction-2-3-Benefit-Risk-Assessment": {
+      "title": "2.3. Benefit/Risk Assessment",
+      "path": "2-Introduction/2-3-Benefit-Risk-Assessment/content.md",
+      "status": "pending"
+    },
+    "2-Introduction-2-3-Benefit-Risk-Assessment-2-3-1-Risk-Assessment": {
+      "title": "2.3.1. Risk Assessment",
+      "path": "2-Introduction/2-3-Benefit-Risk-Assessment/2-3-1-Risk-Assessment/content.md",
+      "status": "pending"
+    },
+    "2-Introduction-2-3-Benefit-Risk-Assessment-2-3-2-Benefit-Assessment": {
+      "title": "2.3.2. Benefit Assessment",
+      "path": "2-Introduction/2-3-Benefit-Risk-Assessment/2-3-2-Benefit-Assessment/content.md",
+      "status": "pending"
+    },
+    "2-Introduction-2-3-Benefit-Risk-Assessment-2-3-3-Overall-Benefit-Risk-Conclusion": {
+      "title": "2.3.3. Overall Benefit Risk Conclusion",
+      "path": "2-Introduction/2-3-Benefit-Risk-Assessment/2-3-3-Overall-Benefit-Risk-Conclusion/content.md",
+      "status": "pending"
+    },
+    "3-Objectives-Endpoints-and-Estimands": {
+      "title": "3. Objectives, Endpoints, and Estimands",
+      "path": "3-Objectives-Endpoints-and-Estimands/content.md",
+      "status": "pending"
+    },
+    "3-Objectives-Endpoints-and-Estimands-Estimands-for-Primary-Objectives": {
+      "title": "Estimand(s) for Primary Objective(s)",
+      "path": "3-Objectives-Endpoints-and-Estimands/Estimands-for-Primary-Objectives/content.md",
+      "status": "pending"
+    },
+    "3-Objectives-Endpoints-and-Estimands-Supplementary-Estimands": {
+      "title": "Supplementary Estimand(s)",
+      "path": "3-Objectives-Endpoints-and-Estimands/Supplementary-Estimands/content.md",
+      "status": "pending"
+    },
+    "3-Objectives-Endpoints-and-Estimands-Estimands-for-Secondary-Objectives": {
+      "title": "Estimands for Secondary Objective(s)",
+      "path": "3-Objectives-Endpoints-and-Estimands/Estimands-for-Secondary-Objectives/content.md",
+      "status": "pending"
+    },
+    "3-Objectives-Endpoints-and-Estimands-Estimands-for-Tertiary-Exploratory-Other-Objectives": {
+      "title": "Estimands for [Tertiary/Exploratory/Other] Objectives",
+      "path": "3-Objectives-Endpoints-and-Estimands/Estimands-for-Tertiary-Exploratory-Other-Objectives/content.md",
+      "status": "pending"
+    },
+    "4-Study-Design": {
+      "title": "4. Study Design",
+      "path": "4-Study-Design/content.md",
+      "status": "pending"
+    },
+    "4-Study-Design-4-1-Overall-Design": {
+      "title": "4.1. Overall Design",
+      "path": "4-Study-Design/4-1-Overall-Design/content.md",
+      "status": "pending"
+    },
+    "4-Study-Design-4-2-Scientific-Rationale-for-Study-Design": {
+      "title": "4.2. Scientific Rationale for Study Design",
+      "path": "4-Study-Design/4-2-Scientific-Rationale-for-Study-Design/content.md",
+      "status": "pending"
+    },
+    "4-Study-Design-4-2-Scientific-Rationale-for-Study-Design-4-2-1-Patient-Input-into-Design": {
+      "title": "4.2.1. Patient Input into Design",
+      "path": "4-Study-Design/4-2-Scientific-Rationale-for-Study-Design/4-2-1-Patient-Input-into-Design/content.md",
+      "status": "pending"
+    },
+    "4-Study-Design-4-3-Justification-for-Dose": {
+      "title": "4.3. Justification for Dose",
+      "path": "4-Study-Design/4-3-Justification-for-Dose/content.md",
+      "status": "pending"
+    },
+    "4-Study-Design-4-4-End-of-Study-Definition": {
+      "title": "4.4. End-of-Study Definition",
+      "path": "4-Study-Design/4-4-End-of-Study-Definition/content.md",
+      "status": "pending"
+    },
+    "5-Study-Population": {
+      "title": "5. Study Population",
+      "path": "5-Study-Population/content.md",
+      "status": "pending"
+    },
+    "5-Study-Population-5-1-Inclusion-Criteria": {
+      "title": "5.1. Inclusion Criteria",
+      "path": "5-Study-Population/5-1-Inclusion-Criteria/content.md",
+      "status": "pending"
+    },
+    "5-Study-Population-5-2-Exclusion-Criteria": {
+      "title": "5.2. Exclusion Criteria",
+      "path": "5-Study-Population/5-2-Exclusion-Criteria/content.md",
+      "status": "pending"
+    },
+    "5-Study-Population-5-3-Lifestyle-Considerations": {
+      "title": "5.3. Lifestyle Considerations",
+      "path": "5-Study-Population/5-3-Lifestyle-Considerations/content.md",
+      "status": "pending"
+    },
+    "5-Study-Population-5-3-Lifestyle-Considerations-5-3-1-Meals-and-Dietary-Restrictions": {
+      "title": "5.3.1. Meals and Dietary Restrictions",
+      "path": "5-Study-Population/5-3-Lifestyle-Considerations/5-3-1-Meals-and-Dietary-Restrictions/content.md",
+      "status": "pending"
+    },
+    "5-Study-Population-5-3-Lifestyle-Considerations-5-3-2-Caffeine-Alcohol-and-Tobacco": {
+      "title": "5.3.2. Caffeine, Alcohol, and Tobacco",
+      "path": "5-Study-Population/5-3-Lifestyle-Considerations/5-3-2-Caffeine-Alcohol-and-Tobacco/content.md",
+      "status": "pending"
+    },
+    "5-Study-Population-5-3-Lifestyle-Considerations-5-3-3-Activity": {
+      "title": "5.3.3. Activity",
+      "path": "5-Study-Population/5-3-Lifestyle-Considerations/5-3-3-Activity/content.md",
+      "status": "pending"
+    },
+    "5-Study-Population-5-3-Lifestyle-Considerations-5-3-4-Other-Restrictions": {
+      "title": "5.3.4. Other Restrictions",
+      "path": "5-Study-Population/5-3-Lifestyle-Considerations/5-3-4-Other-Restrictions/content.md",
+      "status": "pending"
+    },
+    "5-Study-Population-5-4-Screen-Failures": {
+      "title": "5.4. Screen Failures",
+      "path": "5-Study-Population/5-4-Screen-Failures/content.md",
+      "status": "pending"
+    },
+    "5-Study-Population-5-5-Criteria-for-Temporarily-Delaying-Enrollment": {
+      "title": "5.5. Criteria for Temporarily Delaying [Enrollment/Randomization/Administration of Study Intervention]",
+      "path": "5-Study-Population/5-5-Criteria-for-Temporarily-Delaying-Enrollment/content.md",
+      "status": "pending"
+    },
+    "6-Study-Interventions-and-Concomitant-Therapy": {
+      "title": "6. Study Intervention(s) and Concomitant Therapy",
+      "path": "6-Study-Interventions-and-Concomitant-Therapy/content.md",
+      "status": "pending"
+    },
+    "6-Study-Interventions-and-Concomitant-Therapy-6-1-Study-Interventions-Administered": {
+      "title": "6.1. Study Intervention(s) Administered",
+      "path": "6-Study-Interventions-and-Concomitant-Therapy/6-1-Study-Interventions-Administered/content.md",
+      "status": "pending"
+    },
+    "6-Study-Interventions-and-Concomitant-Therapy-6-1-Study-Interventions-Administered-6-1-1-Rescue-Medicine": {
+      "title": "6.1.1. Rescue Medicine",
+      "path": "6-Study-Interventions-and-Concomitant-Therapy/6-1-Study-Interventions-Administered/6-1-1-Rescue-Medicine/content.md",
+      "status": "pending"
+    },
+    "6-Study-Interventions-and-Concomitant-Therapy-6-1-Study-Interventions-Administered-6-1-2-Medical-Devices": {
+      "title": "6.1.2. Medical Devices",
+      "path": "6-Study-Interventions-and-Concomitant-Therapy/6-1-Study-Interventions-Administered/6-1-2-Medical-Devices/content.md",
+      "status": "pending"
+    },
+    "6-Study-Interventions-and-Concomitant-Therapy-6-2-Preparation-Handling-Storage-and-Accountability": {
+      "title": "6.2. Preparation, Handling, Storage, and Accountability",
+      "path": "6-Study-Interventions-and-Concomitant-Therapy/6-2-Preparation-Handling-Storage-and-Accountability/content.md",
+      "status": "pending"
+    },
+    "6-Study-Interventions-and-Concomitant-Therapy-6-3-Assignment-to-Study-Intervention": {
+      "title": "6.3. Assignment to Study Intervention",
+      "path": "6-Study-Interventions-and-Concomitant-Therapy/6-3-Assignment-to-Study-Intervention/content.md",
+      "status": "pending"
+    },
+    "6-Study-Interventions-and-Concomitant-Therapy-6-4-Blinding-Masking": {
+      "title": "6.4. [Blinding, Masking]",
+      "path": "6-Study-Interventions-and-Concomitant-Therapy/6-4-Blinding-Masking/content.md",
+      "status": "pending"
+    },
+    "6-Study-Interventions-and-Concomitant-Therapy-6-5-Study-Intervention-Compliance": {
+      "title": "6.5. Study Intervention Compliance",
+      "path": "6-Study-Interventions-and-Concomitant-Therapy/6-5-Study-Intervention-Compliance/content.md",
+      "status": "pending"
+    },
+    "6-Study-Interventions-and-Concomitant-Therapy-6-6-Dose-Modification": {
+      "title": "6.6. Dose Modification",
+      "path": "6-Study-Interventions-and-Concomitant-Therapy/6-6-Dose-Modification/content.md",
+      "status": "pending"
+    },
+    "6-Study-Interventions-and-Concomitant-Therapy-6-6-Dose-Modification-6-6-1-Retreatment-Criteria": {
+      "title": "6.6.1. Retreatment Criteria",
+      "path": "6-Study-Interventions-and-Concomitant-Therapy/6-6-Dose-Modification/6-6-1-Retreatment-Criteria/content.md",
+      "status": "pending"
+    },
+    "6-Study-Interventions-and-Concomitant-Therapy-6-7-Continued-Access-to-Study-Intervention": {
+      "title": "6.7. Continued Access to Study Intervention after the End of the Study",
+      "path": "6-Study-Interventions-and-Concomitant-Therapy/6-7-Continued-Access-to-Study-Intervention/content.md",
+      "status": "pending"
+    },
+    "6-Study-Interventions-and-Concomitant-Therapy-6-8-Treatment-of-Overdose": {
+      "title": "6.8. Treatment of Overdose",
+      "path": "6-Study-Interventions-and-Concomitant-Therapy/6-8-Treatment-of-Overdose/content.md",
+      "status": "pending"
+    },
+    "6-Study-Interventions-and-Concomitant-Therapy-6-9-Prior-and-Concomitant-Therapy": {
+      "title": "6.9. Prior and Concomitant Therapy",
+      "path": "6-Study-Interventions-and-Concomitant-Therapy/6-9-Prior-and-Concomitant-Therapy/content.md",
+      "status": "pending"
+    },
+    "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation": {
+      "title": "7. Discontinuation of Study Intervention and Participant Discontinuation/Withdrawal",
+      "path": "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation/content.md",
+      "status": "pending"
+    },
+    "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation-7-1-Discontinuation-of-Study-Intervention": {
+      "title": "7.1. Discontinuation of Study Intervention",
+      "path": "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation/7-1-Discontinuation-of-Study-Intervention/content.md",
+      "status": "pending"
+    },
+    "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation-7-1-Discontinuation-of-Study-Intervention-7-1-1-Liver-Event-Stopping-Criteria": {
+      "title": "7.1.1. Liver Event Stopping Criteria",
+      "path": "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation/7-1-Discontinuation-of-Study-Intervention/7-1-1-Liver-Event-Stopping-Criteria/content.md",
+      "status": "pending"
+    },
+    "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation-7-1-Discontinuation-of-Study-Intervention-7-1-2-QTc-Stopping-Criteria": {
+      "title": "7.1.2. QTc Stopping Criteria",
+      "path": "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation/7-1-Discontinuation-of-Study-Intervention/7-1-2-QTc-Stopping-Criteria/content.md",
+      "status": "pending"
+    },
+    "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation-7-1-Discontinuation-of-Study-Intervention-7-1-3-Temporary-Discontinuation": {
+      "title": "7.1.3. Temporary Discontinuation",
+      "path": "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation/7-1-Discontinuation-of-Study-Intervention/7-1-3-Temporary-Discontinuation/content.md",
+      "status": "pending"
+    },
+    "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation-7-1-Discontinuation-of-Study-Intervention-7-1-4-Rechallenge": {
+      "title": "7.1.4. Rechallenge",
+      "path": "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation/7-1-Discontinuation-of-Study-Intervention/7-1-4-Rechallenge/content.md",
+      "status": "pending"
+    },
+    "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation-7-2-Participant-Discontinuation-Withdrawal": {
+      "title": "7.2. Participant Discontinuation/Withdrawal from the Study",
+      "path": "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation/7-2-Participant-Discontinuation-Withdrawal/content.md",
+      "status": "pending"
+    },
+    "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation-7-3-Lost-to-Follow-up": {
+      "title": "7.3. Lost to Follow up",
+      "path": "7-Discontinuation-of-Study-Intervention-and-Participant-Discontinuation/7-3-Lost-to-Follow-up/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures": {
+      "title": "8. Study Assessments and Procedures",
+      "path": "8-Study-Assessments-and-Procedures/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-1-Administrative-Procedures": {
+      "title": "8.1. Administrative [and General/Baseline] Procedures",
+      "path": "8-Study-Assessments-and-Procedures/8-1-Administrative-Procedures/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-2-Efficacy-and-or-Immunogenicity-Assessments": {
+      "title": "8.2. [Efficacy and/or Immunogenicity] Assessments",
+      "path": "8-Study-Assessments-and-Procedures/8-2-Efficacy-and-or-Immunogenicity-Assessments/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-3-Safety-Assessments": {
+      "title": "8.3. Safety Assessments",
+      "path": "8-Study-Assessments-and-Procedures/8-3-Safety-Assessments/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-3-Safety-Assessments-8-3-1-Physical-Examinations": {
+      "title": "8.3.1. Physical Examinations",
+      "path": "8-Study-Assessments-and-Procedures/8-3-Safety-Assessments/8-3-1-Physical-Examinations/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-3-Safety-Assessments-8-3-2-Vital-Signs": {
+      "title": "8.3.2. Vital Signs",
+      "path": "8-Study-Assessments-and-Procedures/8-3-Safety-Assessments/8-3-2-Vital-Signs/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-3-Safety-Assessments-8-3-3-Electrocardiograms": {
+      "title": "8.3.3. Electrocardiograms",
+      "path": "8-Study-Assessments-and-Procedures/8-3-Safety-Assessments/8-3-3-Electrocardiograms/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-3-Safety-Assessments-8-3-4-Clinical-Safety-Laboratory-Tests": {
+      "title": "8.3.4. Clinical Safety Laboratory Tests",
+      "path": "8-Study-Assessments-and-Procedures/8-3-Safety-Assessments/8-3-4-Clinical-Safety-Laboratory-Tests/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-3-Safety-Assessments-8-3-5-Pregnancy-Testing": {
+      "title": "8.3.5. Pregnancy Testing",
+      "path": "8-Study-Assessments-and-Procedures/8-3-Safety-Assessments/8-3-5-Pregnancy-Testing/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-3-Safety-Assessments-8-3-6-Suicidal-Ideation-and-Behavior-Risk-Monitoring": {
+      "title": "8.3.6. Suicidal Ideation and Behavior Risk Monitoring",
+      "path": "8-Study-Assessments-and-Procedures/8-3-Safety-Assessments/8-3-6-Suicidal-Ideation-and-Behavior-Risk-Monitoring/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-4-Adverse-Events-Serious-Adverse-Events": {
+      "title": "8.4. Adverse Events (AEs) Serious Adverse Events (SAEs), and Other Safety Reporting",
+      "path": "8-Study-Assessments-and-Procedures/8-4-Adverse-Events-Serious-Adverse-Events/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-4-Adverse-Events-Serious-Adverse-Events-8-4-1-Time-Period-and-Frequency": {
+      "title": "8.4.1. Time Period and Frequency for Collecting AE and SAE Information",
+      "path": "8-Study-Assessments-and-Procedures/8-4-Adverse-Events-Serious-Adverse-Events/8-4-1-Time-Period-and-Frequency/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-4-Adverse-Events-Serious-Adverse-Events-8-4-2-Method-of-Detecting": {
+      "title": "8.4.2. Method of Detecting AEs and SAEs",
+      "path": "8-Study-Assessments-and-Procedures/8-4-Adverse-Events-Serious-Adverse-Events/8-4-2-Method-of-Detecting/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-4-Adverse-Events-Serious-Adverse-Events-8-4-3-Follow-up": {
+      "title": "8.4.3. Follow-up of AEs and SAEs",
+      "path": "8-Study-Assessments-and-Procedures/8-4-Adverse-Events-Serious-Adverse-Events/8-4-3-Follow-up/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-4-Adverse-Events-Serious-Adverse-Events-8-4-4-Regulatory-Reporting-Requirements": {
+      "title": "8.4.4. Regulatory Reporting Requirements for SAEs",
+      "path": "8-Study-Assessments-and-Procedures/8-4-Adverse-Events-Serious-Adverse-Events/8-4-4-Regulatory-Reporting-Requirements/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-4-Adverse-Events-Serious-Adverse-Events-8-4-5-Pregnancy": {
+      "title": "8.4.5. Pregnancy",
+      "path": "8-Study-Assessments-and-Procedures/8-4-Adverse-Events-Serious-Adverse-Events/8-4-5-Pregnancy/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-4-Adverse-Events-Serious-Adverse-Events-8-4-6-Cardiovascular-and-Death-Events": {
+      "title": "8.4.6. Cardiovascular and Death Events",
+      "path": "8-Study-Assessments-and-Procedures/8-4-Adverse-Events-Serious-Adverse-Events/8-4-6-Cardiovascular-and-Death-Events/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-4-Adverse-Events-Serious-Adverse-Events-8-4-7-Disease-related-Events": {
+      "title": "8.4.7. Disease-related Events and/or Disease-related Outcomes Not Qualifying as AEs or SAEs",
+      "path": "8-Study-Assessments-and-Procedures/8-4-Adverse-Events-Serious-Adverse-Events/8-4-7-Disease-related-Events/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-4-Adverse-Events-Serious-Adverse-Events-8-4-8-Adverse-Events-of-Special-Interest": {
+      "title": "8.4.8. Adverse Events of Special Interest",
+      "path": "8-Study-Assessments-and-Procedures/8-4-Adverse-Events-Serious-Adverse-Events/8-4-8-Adverse-Events-of-Special-Interest/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-4-Adverse-Events-Serious-Adverse-Events-8-4-9-Medical-Device-Deficiencies": {
+      "title": "8.4.9. Medical Device Deficiencies",
+      "path": "8-Study-Assessments-and-Procedures/8-4-Adverse-Events-Serious-Adverse-Events/8-4-9-Medical-Device-Deficiencies/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-5-Pharmacokinetics": {
+      "title": "8.5. Pharmacokinetics",
+      "path": "8-Study-Assessments-and-Procedures/8-5-Pharmacokinetics/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-6-Pharmacodynamics": {
+      "title": "8.6. Pharmacodynamics",
+      "path": "8-Study-Assessments-and-Procedures/8-6-Pharmacodynamics/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-7-Genetics": {
+      "title": "8.7. Genetics",
+      "path": "8-Study-Assessments-and-Procedures/8-7-Genetics/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-8-Biomarkers": {
+      "title": "8.8. Biomarkers",
+      "path": "8-Study-Assessments-and-Procedures/8-8-Biomarkers/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-9-Immunogenicity-Assessments": {
+      "title": "8.9. Immunogenicity Assessments",
+      "path": "8-Study-Assessments-and-Procedures/8-9-Immunogenicity-Assessments/content.md",
+      "status": "pending"
+    },
+    "8-Study-Assessments-and-Procedures-8-10-Health-Economics": {
+      "title": "8.10. [Health Economics OR Medical Resource Utilization and Health Economics]",
+      "path": "8-Study-Assessments-and-Procedures/8-10-Health-Economics/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations": {
+      "title": "9. Statistical Considerations",
+      "path": "9-Statistical-Considerations/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-1-General-Considerations": {
+      "title": "9.1. General Considerations",
+      "path": "9-Statistical-Considerations/9-1-General-Considerations/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-1-General-Considerations-9-1-1-Decision-Criteria": {
+      "title": "9.1.1. [Decision Criteria/Statistical Hypotheses]",
+      "path": "9-Statistical-Considerations/9-1-General-Considerations/9-1-1-Decision-Criteria/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-1-General-Considerations-9-1-2-Multiplicity-Adjustment": {
+      "title": "9.1.2. Multiplicity Adjustment",
+      "path": "9-Statistical-Considerations/9-1-General-Considerations/9-1-2-Multiplicity-Adjustment/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-1-General-Considerations-9-1-3-Impact-of-Intercurrent-Events": {
+      "title": "9.1.3. Impact of Intercurrent Events Strategies",
+      "path": "9-Statistical-Considerations/9-1-General-Considerations/9-1-3-Impact-of-Intercurrent-Events/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-1-General-Considerations-9-1-4-Handling-of-Missing-Data": {
+      "title": "9.1.4. Handling of Missing Data",
+      "path": "9-Statistical-Considerations/9-1-General-Considerations/9-1-4-Handling-of-Missing-Data/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-2-Analysis-Sets": {
+      "title": "9.2. Analysis Sets",
+      "path": "9-Statistical-Considerations/9-2-Analysis-Sets/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-3-Analyses-Supporting-Primary-Objectives": {
+      "title": "9.3. Analyses Supporting Primary Objective(s)",
+      "path": "9-Statistical-Considerations/9-3-Analyses-Supporting-Primary-Objectives/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-3-Analyses-Supporting-Primary-Objectives-9-3-1-Primary-Endpoints": {
+      "title": "9.3.1. Primary [Endpoint(s)/Estimand(s)]",
+      "path": "9-Statistical-Considerations/9-3-Analyses-Supporting-Primary-Objectives/9-3-1-Primary-Endpoints/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-3-Analyses-Supporting-Primary-Objectives-9-3-1-Primary-Endpoints-9-3-1-1-Definition-of-endpoints": {
+      "title": "9.3.1.1. Definition of endpoint(s)",
+      "path": "9-Statistical-Considerations/9-3-Analyses-Supporting-Primary-Objectives/9-3-1-Primary-Endpoints/9-3-1-1-Definition-of-endpoints/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-3-Analyses-Supporting-Primary-Objectives-9-3-1-Primary-Endpoints-9-3-1-2-Main-Analytical-Approach": {
+      "title": "9.3.1.2. Main Analytical Approach",
+      "path": "9-Statistical-Considerations/9-3-Analyses-Supporting-Primary-Objectives/9-3-1-Primary-Endpoints/9-3-1-2-Main-Analytical-Approach/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-3-Analyses-Supporting-Primary-Objectives-9-3-1-Primary-Endpoints-9-3-1-3-Sensitivity-Analyses": {
+      "title": "9.3.1.3. Sensitivity [Analysis/Analyses]",
+      "path": "9-Statistical-Considerations/9-3-Analyses-Supporting-Primary-Objectives/9-3-1-Primary-Endpoints/9-3-1-3-Sensitivity-Analyses/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-3-Analyses-Supporting-Primary-Objectives-9-3-1-Primary-Endpoints-9-3-1-4-Supplementary-Analyses": {
+      "title": "9.3.1.4. Supplementary [Analysis/Analyses]",
+      "path": "9-Statistical-Considerations/9-3-Analyses-Supporting-Primary-Objectives/9-3-1-Primary-Endpoints/9-3-1-4-Supplementary-Analyses/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-4-Analyses-Supporting-Secondary-Objectives": {
+      "title": "9.4. Analyses Supporting Secondary Objective(s)",
+      "path": "9-Statistical-Considerations/9-4-Analyses-Supporting-Secondary-Objectives/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-4-Analyses-Supporting-Secondary-Objectives-9-4-1-Analyses-Supporting-Secondary-Objective": {
+      "title": "9.4.1. Analyses Supporting Secondary Objective [label]",
+      "path": "9-Statistical-Considerations/9-4-Analyses-Supporting-Secondary-Objectives/9-4-1-Analyses-Supporting-Secondary-Objective/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-5-Analyses-Supporting-Tertiary-Exploratory-Objectives": {
+      "title": "9.5. Analyses Supporting [Tertiary/Exploratory/Other] Objective(s)",
+      "path": "9-Statistical-Considerations/9-5-Analyses-Supporting-Tertiary-Exploratory-Objectives/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-6-Safety-Analyses": {
+      "title": "9.6. [Other] Safety Analyses",
+      "path": "9-Statistical-Considerations/9-6-Safety-Analyses/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-7-Other-Analyses": {
+      "title": "9.7. Other Analyses",
+      "path": "9-Statistical-Considerations/9-7-Other-Analyses/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-7-Other-Analyses-9-7-1-Other-variables": {
+      "title": "9.7.1. Other variables and/or parameters",
+      "path": "9-Statistical-Considerations/9-7-Other-Analyses/9-7-1-Other-variables/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-7-Other-Analyses-9-7-2-Subgroup-analyses": {
+      "title": "9.7.2. Subgroup analyses",
+      "path": "9-Statistical-Considerations/9-7-Other-Analyses/9-7-2-Subgroup-analyses/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-8-Interim-Analyses": {
+      "title": "9.8. Interim [Analysis/Analyses]",
+      "path": "9-Statistical-Considerations/9-8-Interim-Analyses/content.md",
+      "status": "pending"
+    },
+    "9-Statistical-Considerations-9-9-Sample-Size-Determination": {
+      "title": "9.9. Sample Size Determination",
+      "path": "9-Statistical-Considerations/9-9-Sample-Size-Determination/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations": {
+      "title": "10. Supporting Documentation and Operational Considerations",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight": {
+      "title": "10.1. Appendix 1: Regulatory, Ethical, and Study Oversight Considerations",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight-10-1-1-Regulatory-and-Ethical-Considerations": {
+      "title": "10.1.1. Regulatory and Ethical Considerations",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight/10-1-1-Regulatory-and-Ethical-Considerations/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight-10-1-2-Financial-Disclosure": {
+      "title": "10.1.2. Financial Disclosure",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight/10-1-2-Financial-Disclosure/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight-10-1-3-Informed-Consent-Process": {
+      "title": "10.1.3. Informed Consent Process",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight/10-1-3-Informed-Consent-Process/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight-10-1-4-Recruitment-strategy": {
+      "title": "10.1.4. Recruitment strategy",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight/10-1-4-Recruitment-strategy/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight-10-1-5-Data-Protection": {
+      "title": "10.1.5. Data Protection",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight/10-1-5-Data-Protection/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight-10-1-6-Committees-Structure": {
+      "title": "10.1.6. Committees Structure",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight/10-1-6-Committees-Structure/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight-10-1-6-Committees-Structure-10-1-6-1-Early-Safety-Data-Review": {
+      "title": "10.1.6.1. [Early Safety Data Review AND/OR Committee]",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight/10-1-6-Committees-Structure/10-1-6-1-Early-Safety-Data-Review/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight-10-1-7-Dissemination-of-Clinical-Study-Data": {
+      "title": "10.1.7. Dissemination of Clinical Study Data",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight/10-1-7-Dissemination-of-Clinical-Study-Data/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight-10-1-8-Data-Quality-Assurance": {
+      "title": "10.1.8. Data Quality Assurance",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight/10-1-8-Data-Quality-Assurance/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight-10-1-9-Source-Documents": {
+      "title": "10.1.9. Source Documents",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight/10-1-9-Source-Documents/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight-10-1-10-Study-and-Site-Start-and-Closure": {
+      "title": "10.1.10. Study and Site Start and Closure",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight/10-1-10-Study-and-Site-Start-and-Closure/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight-10-1-11-Publication-Policy": {
+      "title": "10.1.11. Publication Policy",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-1-Appendix-1-Regulatory-Ethical-and-Study-Oversight/10-1-11-Publication-Policy/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-2-Appendix-2-Clinical-Laboratory-Tests": {
+      "title": "10.2. Appendix 2: Clinical Laboratory Tests",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-2-Appendix-2-Clinical-Laboratory-Tests/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-3-Appendix-3-AEs-and-SAEs": {
+      "title": "10.3. Appendix 3: AEs and SAEs: Definitions and Procedures for Recording, Evaluating, Follow-up, and Reporting",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-3-Appendix-3-AEs-and-SAEs/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-3-Appendix-3-AEs-and-SAEs-10-3-1-Definition-of-AE": {
+      "title": "10.3.1. Definition of AE",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-3-Appendix-3-AEs-and-SAEs/10-3-1-Definition-of-AE/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-3-Appendix-3-AEs-and-SAEs-10-3-2-Definition-of-SAE": {
+      "title": "10.3.2. Definition of SAE",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-3-Appendix-3-AEs-and-SAEs/10-3-2-Definition-of-SAE/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-3-Appendix-3-AEs-and-SAEs-10-3-3-Recording-and-Follow-Up": {
+      "title": "10.3.3. Recording and Follow-Up of AE and/or SAE",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-3-Appendix-3-AEs-and-SAEs/10-3-3-Recording-and-Follow-Up/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-3-Appendix-3-AEs-and-SAEs-10-3-4-Reporting-of-SAEs": {
+      "title": "10.3.4. Reporting of SAEs",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-3-Appendix-3-AEs-and-SAEs/10-3-4-Reporting-of-SAEs/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-4-Appendix-4-Contraceptive-and-Barrier-Guidance": {
+      "title": "10.4. Appendix 4: Contraceptive and Barrier Guidance",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-4-Appendix-4-Contraceptive-and-Barrier-Guidance/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-4-Appendix-4-Contraceptive-and-Barrier-Guidance-10-4-1-Definitions": {
+      "title": "10.4.1. Definitions",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-4-Appendix-4-Contraceptive-and-Barrier-Guidance/10-4-1-Definitions/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-4-Appendix-4-Contraceptive-and-Barrier-Guidance-10-4-2-Contraception-Guidance": {
+      "title": "10.4.2. Contraception Guidance",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-4-Appendix-4-Contraceptive-and-Barrier-Guidance/10-4-2-Contraception-Guidance/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-5-Appendix-5-Genetics": {
+      "title": "10.5. Appendix 5: Genetics",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-5-Appendix-5-Genetics/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-6-Appendix-6-Liver-Safety": {
+      "title": "10.6. Appendix 6: Liver Safety: Suggestions and Guidelines for Liver Events",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-6-Appendix-6-Liver-Safety/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-7-Appendix-7-Medical-Device-AEs": {
+      "title": "10.7. Appendix 7: Medical Device AEs, ADEs, SAEs, SADEs, USADEs and Device Deficiencies: Definitions and Procedures for Recording, Evaluating, Follow-up, and Reporting in Medical Device Studies",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-7-Appendix-7-Medical-Device-AEs/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-7-Appendix-7-Medical-Device-AEs-10-7-1-Definition-of-Medical-Device-AE": {
+      "title": "10.7.1. Definition of Medical Device AE and ADE",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-7-Appendix-7-Medical-Device-AEs/10-7-1-Definition-of-Medical-Device-AE/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-7-Appendix-7-Medical-Device-AEs-10-7-2-Definition-of-Medical-Device-SAE": {
+      "title": "10.7.2. Definition of Medical Device SAE, SADE and USADE",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-7-Appendix-7-Medical-Device-AEs/10-7-2-Definition-of-Medical-Device-SAE/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-7-Appendix-7-Medical-Device-AEs-10-7-3-Definition-of-Device-Deficiency": {
+      "title": "10.7.3. Definition of Device Deficiency",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-7-Appendix-7-Medical-Device-AEs/10-7-3-Definition-of-Device-Deficiency/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-7-Appendix-7-Medical-Device-AEs-10-7-4-Recording-and-Follow-Up": {
+      "title": "10.7.4. Recording and Follow-Up of Medical Device AE and/or SAE and Device Deficiencies",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-7-Appendix-7-Medical-Device-AEs/10-7-4-Recording-and-Follow-Up/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-7-Appendix-7-Medical-Device-AEs-10-7-5-Reporting-of-Medical-Device-SAEs": {
+      "title": "10.7.5. Reporting of Medical Device SAEs",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-7-Appendix-7-Medical-Device-AEs/10-7-5-Reporting-of-Medical-Device-SAEs/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-7-Appendix-7-Medical-Device-AEs-10-7-6-Reporting-of-SADEs": {
+      "title": "10.7.6. Reporting of SADEs",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-7-Appendix-7-Medical-Device-AEs/10-7-6-Reporting-of-SADEs/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-8-Appendix-8-Country-specific-Requirements": {
+      "title": "10.8. Appendix 8: Country-specific Requirements",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-8-Appendix-8-Country-specific-Requirements/content.md",
+      "status": "pending"
+    },
+    "10-Supporting-Documentation-and-Operational-Considerations-10-9-Appendix-9-Protocol-Amendment-History": {
+      "title": "10.9. Appendix 9: Protocol Amendment History",
+      "path": "10-Supporting-Documentation-and-Operational-Considerations/10-9-Appendix-9-Protocol-Amendment-History/content.md",
+      "status": "pending"
+    },
+    "11-References": {
+      "title": "11. References",
+      "path": "11-References/content.md",
+      "status": "pending"
+    }
+  },
+  "linkedSources": [],
+  "templateFile": "template/original.pdf"
+}

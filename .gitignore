@@ -31,7 +31,10 @@ packages/backend/.env
 packages/data/
 packages/templates/
 packages/backend/data/
-outputs/
+
+# Ignore outputs except curated example for testing/onboarding
+outputs/*
+!outputs/example/
 
 # RepoPrompt (AI assistant workspace files)
 .repoprompt/
