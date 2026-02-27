@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react';
-import { BubbleMenu, type Editor } from '@tiptap/react';
+import type { Editor } from '@tiptap/react';
+import { BubbleMenu } from '@tiptap/react/menus';
 import {
   Sparkles,
   ArrowUpRight,
