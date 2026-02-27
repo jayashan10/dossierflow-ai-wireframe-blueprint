@@ -1,6 +1,25 @@
 {
   "sources": [
     {
+      "id": "source_bd22fcd6-b4cb-4144-b302-d17eacff2817",
+      "name": "clinical_trial_protocol_example.pdf",
+      "type": "pdf",
+      "mimeType": "application/pdf",
+      "relativePath": "source_bd22fcd6-b4cb-4144-b302-d17eacff2817/clinical_trial_protocol_example.pdf",
+      "createdAt": "2026-01-23T16:00:52.368Z",
+      "tags": [],
+      "storedFile": {
+        "id": "source_bd22fcd6-b4cb-4144-b302-d17eacff2817",
+        "originalName": "clinical_trial_protocol_example.pdf",
+        "sanitizedFileName": "clinical_trial_protocol_example.pdf",
+        "extension": ".pdf",
+        "mimeType": "application/pdf",
+        "size": 970039,
+        "relativePath": "source_bd22fcd6-b4cb-4144-b302-d17eacff2817/clinical_trial_protocol_example.pdf",
+        "absolutePath": "/Users/rsjaya/Downloads/DossierFlow AI Wireframe Blueprint/packages/data/source_bd22fcd6-b4cb-4144-b302-d17eacff2817/clinical_trial_protocol_example.pdf"
+      }
+    },
+    {
       "id": "source_3955d659-6065-46c4-aa35-07703114841a",
       "name": "clinical_trial_protocol_example.pdf",
       "type": "pdf",

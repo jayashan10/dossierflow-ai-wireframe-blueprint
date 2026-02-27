@@ -15,6 +15,7 @@ export interface SourceSummary {
   type: string;
   path?: string;
   tags?: string[];
+  createdAt?: string;
 }
 
 export interface GenerateRequestBody {
@@ -73,6 +74,17 @@ export async function fetchSources(search?: string): Promise<SourceSummary[]> {
   if (search) params.set('search', search);
 
   const response = await fetch(`${API_BASE_URL}/api/sources?${params.toString()}`);
+  const data = await handleResponse<{ sources: SourceSummary[] }>(response);
+  return data.sources;
+}
+
+export async function fetchProgramSources(programId: string, search?: string): Promise<SourceSummary[]> {
+  const params = new URLSearchParams();
+  if (search) params.set('search', search);
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/programs/${encodeURIComponent(programId)}/sources?${params.toString()}`
+  );
   const data = await handleResponse<{ sources: SourceSummary[] }>(response);
   return data.sources;
 }
@@ -255,6 +267,7 @@ export interface ProgramSection {
   title: string;
   path: string;
   status: 'pending' | 'draft' | 'reviewed' | 'approved';
+  order?: number;
   generatedAt?: string;
   tokenUsage?: {
     promptTokens: number;
@@ -363,7 +376,7 @@ export async function uploadProgramTemplate(programId: string, file: File): Prom
   return data.path;
 }
 
-export async function uploadProgramSource(programId: string, file: File): Promise<string> {
+export async function uploadProgramSource(programId: string, file: File): Promise<SourceSummary> {
   const formData = new FormData();
   formData.append('file', file);
 
@@ -374,8 +387,8 @@ export async function uploadProgramSource(programId: string, file: File): Promis
       body: formData
     }
   );
-  const data = await handleResponse<{ success: boolean; path: string }>(response);
-  return data.path;
+  const data = await handleResponse<{ source: SourceSummary }>(response);
+  return data.source;
 }
 
 // Extended stream generate request with program support
@@ -498,4 +511,22 @@ export async function createProgramStructure(
   }
 
   return response.json();
+}
+
+export async function updateProgramSection(
+  programId: string,
+  sectionKey: string,
+  updates: Pick<ProgramSection, 'status' | 'tokenUsage'>
+): Promise<ProgramSection> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/programs/${encodeURIComponent(programId)}/sections/${encodeURIComponent(sectionKey)}`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates)
+    }
+  );
+
+  const data = await handleResponse<{ section: ProgramSection }>(response);
+  return data.section;
 }

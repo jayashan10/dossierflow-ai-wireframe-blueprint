@@ -31,12 +31,17 @@ interface FileTreeItemProps {
   onSelectFile: (path: string) => void;
 }
 
+const nameCollator = new Intl.Collator('en', {
+  numeric: true,
+  sensitivity: 'base'
+});
+
 const getFileIcon = (name: string, type: 'file' | 'directory', isOpen: boolean) => {
   if (type === 'directory') {
     return isOpen ? (
-      <FolderOpen className="h-4 w-4 text-amber-500" />
+      <FolderOpen className="h-4 w-4 text-emerald-800" />
     ) : (
-      <Folder className="h-4 w-4 text-amber-500/70" />
+      <Folder className="h-4 w-4 text-emerald-800/70" />
     );
   }
 
@@ -45,21 +50,21 @@ const getFileIcon = (name: string, type: 'file' | 'directory', isOpen: boolean) 
   switch (ext) {
     case 'md':
     case 'mdx':
-      return <FileText className="h-4 w-4 text-blue-400" />;
+      return <FileText className="h-4 w-4 text-emerald-700" />;
     case 'json':
-      return <FileJson className="h-4 w-4 text-yellow-400" />;
+      return <FileJson className="h-4 w-4 text-amber-700" />;
     case 'ts':
     case 'tsx':
     case 'js':
     case 'jsx':
-      return <FileCode className="h-4 w-4 text-emerald-400" />;
+      return <FileCode className="h-4 w-4 text-slate-600" />;
     case 'pdf':
-      return <FileText className="h-4 w-4 text-red-400" />;
+      return <FileText className="h-4 w-4 text-rose-700" />;
     case 'docx':
     case 'doc':
-      return <FileText className="h-4 w-4 text-blue-500" />;
+      return <FileText className="h-4 w-4 text-sky-700" />;
     default:
-      return <File className="h-4 w-4 text-slate-400" />;
+      return <File className="h-4 w-4 text-slate-500" />;
   }
 };
 
@@ -100,12 +105,12 @@ function FileTreeItem({
         onClick={handleClick}
         onKeyDown={handleKeyDown}
         className={cn(
-          'group flex items-center gap-1.5 py-1 px-2 cursor-pointer rounded-sm',
+          'group flex items-center gap-2 py-1.5 px-2 cursor-pointer rounded-md',
           'transition-all duration-150 ease-out',
-          'hover:bg-slate-700/50',
-          'focus:outline-none focus:ring-1 focus:ring-amber-500/50',
-          isSelected && 'bg-amber-500/20 text-amber-200',
-          !isSelected && 'text-slate-300'
+          'hover:bg-[rgba(31,26,20,0.06)]',
+          'focus:outline-none focus:ring-1 focus:ring-[rgba(31,59,52,0.35)]',
+          isSelected && 'bg-[rgba(31,59,52,0.12)] text-foreground',
+          !isSelected && 'text-[rgba(31,26,20,0.68)]'
         )}
         style={{ paddingLeft: `${depth * 12 + 8}px` }}
       >
@@ -116,7 +121,7 @@ function FileTreeItem({
               className={cn(
                 'h-3 w-3 transition-transform duration-200',
                 isExpanded && 'rotate-90',
-                'text-slate-500 group-hover:text-slate-400'
+                'text-[rgba(31,26,20,0.45)] group-hover:text-[rgba(31,26,20,0.7)]'
               )}
             />
           )}
@@ -137,7 +142,7 @@ function FileTreeItem({
 
         {/* File size for files */}
         {!isDirectory && node.size !== undefined && (
-          <span className="ml-auto text-[10px] text-slate-500 tabular-nums">
+          <span className="ml-auto text-[10px] text-[rgba(31,26,20,0.4)] tabular-nums">
             {formatFileSize(node.size)}
           </span>
         )}
@@ -210,7 +215,7 @@ export function FileTree({
     return [...files].sort((a, b) => {
       if (a.type === 'directory' && b.type !== 'directory') return -1;
       if (a.type !== 'directory' && b.type === 'directory') return 1;
-      return a.name.localeCompare(b.name);
+      return nameCollator.compare(a.name, b.name);
     });
   }, [files]);
 
@@ -218,14 +223,14 @@ export function FileTree({
     <div
       className={cn(
         'flex flex-col h-full',
-        'bg-gradient-to-b from-slate-900 to-slate-950',
-        'border-r border-slate-800',
+        'bg-[var(--sidebar)]',
+        'border-r border-[rgba(31,26,20,0.12)]',
         className
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-slate-800/80">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+      <div className="flex items-center justify-between px-3 py-2 border-b border-[rgba(31,26,20,0.12)]">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[rgba(31,26,20,0.6)]">
           Files
         </span>
         {onRefresh && (
@@ -233,9 +238,9 @@ export function FileTree({
             onClick={onRefresh}
             disabled={isLoading}
             className={cn(
-              'p-1 rounded hover:bg-slate-800 transition-colors',
-              'text-slate-500 hover:text-slate-300',
-              'focus:outline-none focus:ring-1 focus:ring-amber-500/50',
+              'p-1 rounded-md hover:bg-[rgba(31,26,20,0.08)] transition-colors',
+              'text-[rgba(31,26,20,0.5)] hover:text-[rgba(31,26,20,0.8)]',
+              'focus:outline-none focus:ring-1 focus:ring-[rgba(31,59,52,0.35)]',
               isLoading && 'animate-spin'
             )}
             title="Refresh files"
@@ -250,9 +255,9 @@ export function FileTree({
         <div className="py-1" role="tree" aria-label="File tree">
           {sortedFiles.length === 0 ? (
             <div className="px-3 py-8 text-center">
-              <Folder className="h-8 w-8 mx-auto mb-2 text-slate-700" />
-              <p className="text-sm text-slate-500">No files yet</p>
-              <p className="text-xs text-slate-600 mt-1">
+              <Folder className="h-8 w-8 mx-auto mb-2 text-[rgba(31,26,20,0.35)]" />
+              <p className="text-sm text-[rgba(31,26,20,0.6)]">No files yet</p>
+              <p className="text-xs text-[rgba(31,26,20,0.5)] mt-1">
                 Upload a template to get started
               </p>
             </div>

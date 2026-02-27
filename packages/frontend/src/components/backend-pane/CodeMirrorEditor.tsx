@@ -17,12 +17,12 @@ interface CodeMirrorEditorProps {
 const editorTheme = EditorView.theme({
   '&': {
     fontSize: '14px',
-    fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+    fontFamily: 'var(--font-mono)',
     backgroundColor: 'transparent',
   },
   '.cm-content': {
     padding: '16px 0',
-    caretColor: '#030213',
+    caretColor: '#1f1a14',
   },
   '.cm-line': {
     padding: '0 24px',
@@ -30,7 +30,7 @@ const editorTheme = EditorView.theme({
   '.cm-gutters': {
     backgroundColor: 'transparent',
     borderRight: 'none',
-    color: '#a1a1aa',
+    color: '#8a7d71',
     paddingRight: '8px',
   },
   '.cm-gutter.cm-lineNumbers': {
@@ -38,29 +38,29 @@ const editorTheme = EditorView.theme({
   },
   '.cm-activeLineGutter': {
     backgroundColor: 'transparent',
-    color: '#71717a',
+    color: '#6f6256',
   },
   '.cm-activeLine': {
-    backgroundColor: 'rgba(0, 0, 0, 0.03)',
+    backgroundColor: 'rgba(31, 26, 20, 0.04)',
   },
   '.cm-selectionBackground': {
-    backgroundColor: 'rgba(217, 119, 6, 0.15) !important',
+    backgroundColor: 'rgba(31, 59, 52, 0.16) !important',
   },
   '&.cm-focused .cm-selectionBackground': {
-    backgroundColor: 'rgba(217, 119, 6, 0.2) !important',
+    backgroundColor: 'rgba(31, 59, 52, 0.22) !important',
   },
   '.cm-cursor': {
-    borderLeftColor: '#030213',
+    borderLeftColor: '#1f1a14',
     borderLeftWidth: '2px',
   },
   '.cm-placeholder': {
-    color: '#a1a1aa',
+    color: '#a39587',
     fontStyle: 'italic',
   },
   // Markdown syntax highlighting
   '.cm-header': {
     fontWeight: '600',
-    color: '#030213',
+    color: '#1f1a14',
   },
   '.cm-header-1': {
     fontSize: '1.5em',
@@ -78,29 +78,29 @@ const editorTheme = EditorView.theme({
     fontStyle: 'italic',
   },
   '.cm-link': {
-    color: '#2563eb',
+    color: '#1f3b34',
     textDecoration: 'underline',
   },
   '.cm-url': {
-    color: '#6b7280',
+    color: '#7b6e62',
   },
   '.cm-quote': {
-    color: '#6b7280',
+    color: '#7b6e62',
     fontStyle: 'italic',
-    borderLeft: '3px solid #e5e7eb',
+    borderLeft: '3px solid rgba(31, 26, 20, 0.16)',
     paddingLeft: '12px',
   },
   '.cm-list': {
-    color: '#030213',
+    color: '#1f1a14',
   },
   '.cm-hr': {
-    color: '#d1d5db',
+    color: 'rgba(31, 26, 20, 0.2)',
   },
   '.cm-meta': {
-    color: '#6b7280',
+    color: '#7b6e62',
   },
   '.cm-formatting': {
-    color: '#9ca3af',
+    color: '#a39587',
   },
 });
 
@@ -146,7 +146,7 @@ export function CodeMirrorEditor({
     <div
       className={cn(
         'h-full w-full overflow-hidden',
-        'bg-white',
+        'bg-transparent',
         className
       )}
     >

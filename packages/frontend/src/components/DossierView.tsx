@@ -16,7 +16,8 @@ import { cn } from './ui/utils';
 import type { ModuleNode, Document, DataVaultFolder, DataVaultFile } from '../data/mockData';
 import { reviewers } from '../data/mockData';
 import { DataVaultView } from './DataVaultView';
-import { getProgram } from '../lib/api';
+import { fetchProgramSources, getProgram } from '../lib/api';
+import type { SourceSummary } from '../lib/api';
 import { buildSectionTree, hasSections } from '../lib/section-tree';
 
 const reviewerNameMap = new Map(reviewers.map((reviewer) => [reviewer.id, reviewer.name] as const));
@@ -31,7 +32,7 @@ interface DossierViewProps {
   structure: ModuleNode[];
   dataVaultFolders: DataVaultFolder[];
   dataVaultFiles: DataVaultFile[];
-  onUploadFiles: (files: Array<{ id: string; name: string; type: string }>, folderPath: string) => void;
+  onUploadFiles: (files: Array<{ id: string; name: string; type: string; createdAt?: string }>, folderPath: string) => void;
   onCreateFolder: (folderName: string, parentPath: string) => void;
   onDocumentsUpdate?: (docs: Record<string, Document>) => void;
 }
@@ -55,6 +56,7 @@ export function DossierView({
   const [backendDocuments, setBackendDocuments] = useState<Record<string, Document>>({});
   const [isLoadingStructure, setIsLoadingStructure] = useState(false);
   const [structureError, setStructureError] = useState<string | null>(null);
+  const [programVaultFiles, setProgramVaultFiles] = useState<DataVaultFile[]>([]);
 
   // Load structure from backend for non-sample programs
   const loadBackendStructure = useCallback(async () => {
@@ -94,18 +96,98 @@ export function DossierView({
     loadBackendStructure();
   }, [loadBackendStructure]);
 
+  const formatVaultTimestamp = useCallback((value?: string) => {
+    if (!value) return '—';
+    return new Date(value).toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }, []);
+
+  const mapSourceToVaultFile = useCallback((source: SourceSummary): DataVaultFile => {
+    return {
+      id: source.id,
+      name: source.name,
+      type: source.type,
+      lastUpdated: formatVaultTimestamp(source.createdAt),
+      tags: source.tags ?? [],
+      folderPath: '/',
+      status: 'Draft',
+      versions: [],
+      linkedDocuments: []
+    };
+  }, [formatVaultTimestamp]);
+
+  const loadProgramSources = useCallback(async () => {
+    if (isSample) return;
+    try {
+      const sources = await fetchProgramSources(programId);
+      setProgramVaultFiles(sources.map(mapSourceToVaultFile));
+    } catch {
+      setProgramVaultFiles([]);
+    }
+  }, [programId, isSample, mapSourceToVaultFile]);
+
+  useEffect(() => {
+    loadProgramSources();
+  }, [loadProgramSources]);
+
   // Use backend structure for non-sample programs if available, otherwise use prop
   const activeStructure = (!isSample && backendStructure) ? backendStructure : structure;
   const activeDocuments = (!isSample && backendStructure) 
     ? { ...documents, ...backendDocuments } 
     : documents;
 
+  const activeVaultFolders = isSample ? dataVaultFolders : [
+    {
+      id: 'root',
+      name: 'All Files',
+      path: '/',
+      children: []
+    }
+  ];
+  const activeVaultFiles = isSample ? dataVaultFiles : programVaultFiles;
+
+  const handleProgramUpload = useCallback((
+    files: Array<{ id: string; name: string; type: string; createdAt?: string }>
+  ) => {
+    setProgramVaultFiles((prev) => [
+      ...files.map((file) => mapSourceToVaultFile({
+        id: file.id,
+        name: file.name,
+        type: file.type,
+        createdAt: file.createdAt,
+        tags: [],
+        path: `sources/${file.name}`
+      })),
+      ...prev
+    ]);
+  }, [mapSourceToVaultFile]);
+
   const flattenStructure = (nodes: ModuleNode[]): ModuleNode[] =>
     nodes.flatMap((node) => [node, ...(node.children ? flattenStructure(node.children) : [])]);
 
+  const collectDocuments = useCallback((node: ModuleNode): Document[] => {
+    const collected: Document[] = [];
+    if (node.documents) {
+      collected.push(...node.documents);
+    }
+    if (node.children) {
+      node.children.forEach((child) => {
+        collected.push(...collectDocuments(child));
+      });
+    }
+    return collected;
+  }, []);
+
+  const getDocumentCount = useCallback((node: ModuleNode): number => {
+    return collectDocuments(node).length;
+  }, [collectDocuments]);
+
   const findFirstNodeWithDocuments = (nodes: ModuleNode[]): ModuleNode | null => {
     for (const node of nodes) {
-      if (node.documents && node.documents.length > 0) {
+      if (getDocumentCount(node) > 0) {
         return node;
       }
       if (node.children) {
@@ -164,7 +246,7 @@ export function DossierView({
     const isExpanded = expandedNodes.has(node.id);
     const isSelected = selectedNode === node.id;
     const hasChildren = node.children && node.children.length > 0;
-    const documentCount = node.documents?.length ?? 0;
+    const documentCount = getDocumentCount(node);
 
     return (
       <div key={node.id}>
@@ -207,7 +289,7 @@ export function DossierView({
     [flattenedStructure, selectedNode]
   );
 
-  const nodeDocuments = selectedNodeData?.documents || [];
+  const nodeDocuments = selectedNodeData ? collectDocuments(selectedNodeData) : [];
 
   const statusStyles: Record<Document['status'], string> = {
     Approved: 'bg-green-100 text-green-800 border-green-300',
@@ -254,10 +336,25 @@ export function DossierView({
         </div>
 
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="flex-1 flex flex-col overflow-hidden">
-          <TabsList className="border-b rounded-none justify-start bg-muted/40 px-6 flex-shrink-0">
-            <TabsTrigger value="dossier">Dossier</TabsTrigger>
-            <TabsTrigger value="data-vault">Data Vault</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
+          <TabsList className="!w-full !justify-start !rounded-none !border-b !border-[rgba(31,26,20,0.15)] !bg-[rgba(248,243,237,0.95)] !px-6 !py-0 !h-auto !gap-0 flex-shrink-0">
+            <TabsTrigger
+              value="dossier"
+              className="!relative !rounded-none !px-4 !py-3 !text-sm !bg-transparent !text-[rgba(31,26,20,0.45)] !border-b-[3px] !border-transparent !border-t-0 !border-l-0 !border-r-0 !transition-all !duration-150 hover:!text-[rgba(31,26,20,0.7)] hover:!bg-[rgba(31,26,20,0.04)] data-[state=active]:!bg-white data-[state=active]:!text-[rgba(31,59,52,1)] data-[state=active]:!font-semibold data-[state=active]:!border-b-[rgba(31,59,52,0.9)] data-[state=active]:!shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+            >
+              Dossier
+            </TabsTrigger>
+            <TabsTrigger
+              value="data-vault"
+              className="!relative !rounded-none !px-4 !py-3 !text-sm !bg-transparent !text-[rgba(31,26,20,0.45)] !border-b-[3px] !border-transparent !border-t-0 !border-l-0 !border-r-0 !transition-all !duration-150 hover:!text-[rgba(31,26,20,0.7)] hover:!bg-[rgba(31,26,20,0.04)] data-[state=active]:!bg-white data-[state=active]:!text-[rgba(31,59,52,1)] data-[state=active]:!font-semibold data-[state=active]:!border-b-[rgba(31,59,52,0.9)] data-[state=active]:!shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+            >
+              Data Vault
+            </TabsTrigger>
+            <TabsTrigger
+              value="settings"
+              className="!relative !rounded-none !px-4 !py-3 !text-sm !bg-transparent !text-[rgba(31,26,20,0.45)] !border-b-[3px] !border-transparent !border-t-0 !border-l-0 !border-r-0 !transition-all !duration-150 hover:!text-[rgba(31,26,20,0.7)] hover:!bg-[rgba(31,26,20,0.04)] data-[state=active]:!bg-white data-[state=active]:!text-[rgba(31,59,52,1)] data-[state=active]:!font-semibold data-[state=active]:!border-b-[rgba(31,59,52,0.9)] data-[state=active]:!shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+            >
+              Settings
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dossier" className="flex-1 overflow-auto px-6 py-6 data-[state=active]:flex data-[state=active]:flex-col">
@@ -383,10 +480,19 @@ export function DossierView({
 
           <TabsContent value="data-vault" className="flex-1 overflow-hidden">
             <DataVaultView
-              folders={dataVaultFolders}
-              files={dataVaultFiles}
+              folders={activeVaultFolders}
+              files={activeVaultFiles}
               documents={activeDocuments}
-              onUploadFiles={onUploadFiles}
+              programId={isSample ? undefined : programId}
+              allowFolderCreation={isSample}
+              allowTagEditing={isSample}
+              onUploadFiles={(files, folderPath) => {
+                if (isSample) {
+                  onUploadFiles(files, folderPath);
+                } else {
+                  handleProgramUpload(files);
+                }
+              }}
               onCreateFolder={onCreateFolder}
             />
           </TabsContent>

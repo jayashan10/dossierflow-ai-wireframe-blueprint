@@ -1,4 +1,6 @@
 import express from 'express';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import multer from 'multer';
 import { z } from 'zod';
 import {
@@ -11,13 +13,16 @@ import {
   writeProgramFile,
   createProgramFile,
   deleteProgramFile,
-  linkSourceToProgram,
+  addProgramLinkedSource,
+  listProgramSources,
   saveTemplateToProgram,
   getProgramAbsolutePath,
   setSections,
+  updateSectionStatus,
   type ProgramMetadata,
   type ProgramSection
 } from '../services/program-service';
+import { FileValidationError, sanitizeFileName, validateUpload } from '../services/file-service';
 import { createProgramStructure } from '../services/claude-agent-service';
 
 const memoryStorage = multer.memoryStorage();
@@ -52,6 +57,19 @@ const createStructureSchema = z.object({
     summary: z.string().optional(),
     originalHeading: z.string().optional()
   })).min(1)
+});
+
+const updateSectionSchema = z.object({
+  status: z.enum(['pending', 'draft', 'reviewed', 'approved']).optional(),
+  tokenUsage: z.object({
+    promptTokens: z.number().min(0),
+    completionTokens: z.number().min(0),
+    totalTokens: z.number().min(0)
+  }).optional()
+});
+
+const sourceSearchSchema = z.object({
+  search: z.string().trim().optional()
 });
 
 // ============================================================================
@@ -392,15 +410,78 @@ programsRouter.post('/:programId/sources', upload.single('file'), async (req, re
       });
     }
 
-    // Write file directly to sources folder
-    const sourcePath = `sources/${req.file.originalname}`;
-    await writeProgramFile(params.programId, sourcePath, req.file.buffer.toString('utf8'));
+    const sanitizedFileName = sanitizeFileName(req.file.originalname);
+    validateUpload({
+      originalName: sanitizedFileName,
+      mimeType: req.file.mimetype,
+      size: req.file.size,
+      buffer: req.file.buffer
+    });
+
+    // Write file directly to sources folder (binary safe)
+    const sourcePath = `sources/${sanitizedFileName}`;
+    await writeProgramFile(params.programId, sourcePath, req.file.buffer);
+
+    const programPath = getProgramAbsolutePath(params.programId);
+    const absolutePath = path.join(programPath, sourcePath);
+    const extension = path.extname(sanitizedFileName).toLowerCase();
+
+    await addProgramLinkedSource(params.programId, sourcePath);
+
+    const stats = await fs.stat(absolutePath);
 
     res.status(201).json({
-      success: true,
-      path: sourcePath
+      source: {
+        id: sourcePath,
+        name: req.file.originalname,
+        type: extension.replace('.', ''),
+        path: sourcePath,
+        tags: [],
+        createdAt: (stats.birthtime ?? stats.mtime).toISOString()
+      }
     });
   } catch (error) {
+    if (error instanceof FileValidationError) {
+      return res.status(400).json({
+        error: error.name,
+        message: error.message,
+        details: error.details
+      });
+    }
+    next(error);
+  }
+});
+
+/**
+ * GET /api/programs/:programId/sources
+ * List sources linked to a program
+ */
+programsRouter.get('/:programId/sources', async (req, res, next) => {
+  try {
+    const params = programIdSchema.parse(req.params);
+    const { search } = sourceSearchSchema.parse(req.query);
+    const sources = await listProgramSources(params.programId);
+    const filtered = search
+      ? sources.filter((source) => source.name.toLowerCase().includes(search.toLowerCase()))
+      : sources;
+
+    res.json({
+      sources: filtered.map((source) => ({
+        id: source.id,
+        name: source.name,
+        type: source.type,
+        path: source.relativePath,
+        tags: source.tags,
+        createdAt: source.createdAt
+      }))
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('not found')) {
+      return res.status(404).json({
+        error: 'NotFound',
+        message: error.message
+      });
+    }
     next(error);
   }
 });
@@ -479,8 +560,14 @@ programsRouter.post('/:programId/structure', async (req, res, next) => {
     // Update program.json with created sections
     if (result.success && result.filesCreated.length > 0) {
       const sectionsRecord: Record<string, ProgramSection> = {};
+      const orderByTitle = new Map<string, number>();
+      body.sections.forEach((section, index) => {
+        if (!orderByTitle.has(section.title)) {
+          orderByTitle.set(section.title, index + 1);
+        }
+      });
 
-      for (const file of result.filesCreated) {
+      for (const [index, file] of result.filesCreated.entries()) {
         // Create a section ID from the path
         const sectionId = file.path
           .replace(/\/content\.md$/, '')
@@ -490,7 +577,8 @@ programsRouter.post('/:programId/structure', async (req, res, next) => {
         sectionsRecord[sectionId] = {
           title: file.section,
           path: file.path,
-          status: 'pending'
+          status: 'pending',
+          order: orderByTitle.get(file.section) ?? index + 1
         };
       }
 
@@ -510,6 +598,65 @@ programsRouter.post('/:programId/structure', async (req, res, next) => {
         error: 'ValidationError',
         message: 'Invalid request body.',
         details: error.errors
+      });
+    }
+    next(error);
+  }
+});
+
+// ----------------------------------------------------------------------------
+// Section Updates
+// ----------------------------------------------------------------------------
+
+/**
+ * PATCH /api/programs/:programId/sections/:sectionKey
+ * Update section status and metadata
+ */
+programsRouter.patch('/:programId/sections/:sectionKey', async (req, res, next) => {
+  try {
+    const params = programIdSchema.parse(req.params);
+    const sectionKey = req.params.sectionKey;
+
+    if (!sectionKey) {
+      return res.status(400).json({
+        error: 'BadRequest',
+        message: 'Section key is required.'
+      });
+    }
+
+    const body = updateSectionSchema.parse(req.body);
+    if (!body.status) {
+      return res.status(400).json({
+        error: 'BadRequest',
+        message: 'Section status is required.'
+      });
+    }
+
+    await updateSectionStatus(params.programId, sectionKey, body.status, body.tokenUsage);
+
+    const program = await getProgram(params.programId);
+    const section = program?.sections?.[sectionKey];
+
+    if (!section) {
+      return res.status(404).json({
+        error: 'NotFound',
+        message: 'Section not found.'
+      });
+    }
+
+    res.json({ section });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        error: 'ValidationError',
+        message: 'Invalid request body.',
+        details: error.errors
+      });
+    }
+    if (error instanceof Error && error.message.includes('not found')) {
+      return res.status(404).json({
+        error: 'NotFound',
+        message: error.message
       });
     }
     next(error);

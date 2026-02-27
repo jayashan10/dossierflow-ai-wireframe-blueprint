@@ -14,6 +14,7 @@ export interface ProgramSection {
   title: string;
   path: string;
   status: 'pending' | 'draft' | 'reviewed' | 'approved';
+  order?: number;
   generatedAt?: string;
   tokenUsage?: {
     promptTokens: number;
@@ -50,6 +51,16 @@ export interface FileNode {
   size?: number;
   modifiedAt?: string;
   children?: FileNode[];
+}
+
+export interface ProgramSourceDescriptor {
+  id: string;
+  name: string;
+  type: string;
+  relativePath: string;
+  absolutePath: string;
+  createdAt: string;
+  tags: string[];
 }
 
 // ============================================================================
@@ -213,6 +224,9 @@ export async function listProgramFiles(folderName: string): Promise<FileNode[]> 
     const nodes: FileNode[] = [];
 
     for (const entry of entries) {
+      if (entry.name === PROGRAM_METADATA_FILENAME || entry.name === '.claude') {
+        continue;
+      }
       const fullPath = path.join(dirPath, entry.name);
       const relativePath = path.relative(relativeTo, fullPath);
 
@@ -274,7 +288,7 @@ export async function readProgramFile(folderName: string, filePath: string): Pro
   return fs.readFile(absolutePath, 'utf8');
 }
 
-export async function writeProgramFile(folderName: string, filePath: string, content: string): Promise<void> {
+export async function writeProgramFile(folderName: string, filePath: string, content: string | Buffer): Promise<void> {
   const programPath = getProgramPath(folderName);
   const absolutePath = path.join(programPath, filePath);
 
@@ -290,7 +304,11 @@ export async function writeProgramFile(folderName: string, filePath: string, con
   const parentDir = path.dirname(absolutePath);
   await fs.mkdir(parentDir, { recursive: true });
 
-  await fs.writeFile(absolutePath, content, 'utf8');
+  if (Buffer.isBuffer(content)) {
+    await fs.writeFile(absolutePath, content);
+  } else {
+    await fs.writeFile(absolutePath, content, 'utf8');
+  }
 
   // Update program metadata if this is a section file
   if (filePath.endsWith('content.md') || filePath.endsWith('.md')) {
@@ -379,6 +397,87 @@ export async function linkSourceToProgram(folderName: string, sourcePath: string
   }
 
   return `sources/${fileName}`;
+}
+
+export async function addProgramLinkedSource(folderName: string, relativePath: string): Promise<void> {
+  const metadata = await getProgram(folderName);
+  if (!metadata) {
+    throw new Error(`Program "${folderName}" not found.`);
+  }
+
+  if (!metadata.linkedSources.includes(relativePath)) {
+    metadata.linkedSources.push(relativePath);
+    await updateProgram(folderName, { linkedSources: metadata.linkedSources });
+  }
+}
+
+export async function listProgramSources(folderName: string): Promise<ProgramSourceDescriptor[]> {
+  const metadata = await getProgram(folderName);
+  if (!metadata) {
+    throw new Error(`Program "${folderName}" not found.`);
+  }
+
+  const programPath = getProgramPath(folderName);
+  const sources: ProgramSourceDescriptor[] = [];
+
+  for (const relativePath of metadata.linkedSources) {
+    const absolutePath = path.resolve(programPath, relativePath);
+    if (!absolutePath.startsWith(path.resolve(programPath))) {
+      continue;
+    }
+    if (!fsSync.existsSync(absolutePath)) {
+      continue;
+    }
+
+    const stats = await fs.stat(absolutePath);
+    const name = path.basename(relativePath);
+    const type = path.extname(name).replace('.', '');
+
+    sources.push({
+      id: relativePath,
+      name,
+      type,
+      relativePath,
+      absolutePath,
+      createdAt: (stats.birthtime ?? stats.mtime).toISOString(),
+      tags: []
+    });
+  }
+
+  return sources;
+}
+
+export async function getProgramSourceFileRefs(
+  folderName: string,
+  ids: string[]
+): Promise<Array<{ id: string; name: string; absolutePath: string; relativePath: string }>> {
+  if (!ids.length) {
+    return [];
+  }
+
+  const sources = await listProgramSources(folderName);
+  const sourcesById = new Map(sources.map((source) => [source.id, source] as const));
+  const seen = new Set<string>();
+  const refs: Array<{ id: string; name: string; absolutePath: string; relativePath: string }> = [];
+
+  for (const id of ids) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+
+    const source = sourcesById.get(id);
+    if (!source) {
+      continue;
+    }
+
+    refs.push({
+      id: source.id,
+      name: source.name,
+      absolutePath: source.absolutePath,
+      relativePath: source.relativePath
+    });
+  }
+
+  return refs;
 }
 
 // ============================================================================

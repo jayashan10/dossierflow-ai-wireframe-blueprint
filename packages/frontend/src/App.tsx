@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Header } from './components/Header';
 import { SetupWizard } from './components/SetupWizard';
 import { Dashboard } from './components/Dashboard';
 import { DossierView } from './components/DossierView';
 import { AuthoringStudio } from './components/AuthoringStudio';
 import { CreateProgramWizard, type CreateProgramResult, type TemplateConfigForAuthoring } from './components/CreateProgramWizard';
+import { listPrograms } from './lib/api';
 import {
   programs as initialPrograms,
   dossierStructure as initialStructure,
@@ -17,42 +18,6 @@ import {
 } from './data/mockData';
 
 type DocumentMap = Record<string, Document>;
-
-const PROGRAM_STORAGE_KEY = 'dossierflow.customPrograms';
-
-const loadStoredPrograms = (): Program[] => {
-  if (typeof window === 'undefined') {
-    return [];
-  }
-
-  try {
-    const raw = window.sessionStorage.getItem(PROGRAM_STORAGE_KEY);
-    if (!raw) {
-      return [];
-    }
-    const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-    // Enforce Program shape for stored entries and ensure they are treated as user created items.
-    return parsed
-      .filter((program): program is Program => {
-        if (!program || typeof program !== 'object') {
-          return false;
-        }
-        const candidate = program as Record<string, unknown>;
-        return (
-          typeof candidate.id === 'string' &&
-          typeof candidate.title === 'string' &&
-          typeof candidate.status === 'string' &&
-          typeof candidate.progress === 'number'
-        );
-      })
-      .map((program) => ({ ...program, isSample: false }));
-  } catch {
-    return [];
-  }
-};
 
 const cloneComment = (comment: DocumentComment): DocumentComment => ({
   ...comment,
@@ -163,38 +128,19 @@ interface DocumentConfig {
 }
 
 export default function App() {
-  const storedProgramsSnapshot = loadStoredPrograms();
-  const storedProgramIds = new Set(storedProgramsSnapshot.map((program) => program.id));
-
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [programs, setPrograms] = useState<Program[]>(() => {
-    const samples = initialPrograms.filter((program) => !storedProgramIds.has(program.id));
-    return [...storedProgramsSnapshot, ...samples];
+    return [...initialPrograms];
   });
   const [structuresByProgram, setStructuresByProgram] = useState<Record<string, ModuleNode[]>>(() => {
     const map: Record<string, ModuleNode[]> = {};
     initialPrograms.forEach((program) => {
       map[program.id] = cloneStructure(initialStructure);
     });
-
-    storedProgramsSnapshot.forEach((program) => {
-      if (map[program.id]) {
-        return;
-      }
-      const sections = program.defaultSections ?? [];
-      const { structure } = createProgramStructureFromSections(program.id, sections, formatTimestamp());
-      map[program.id] = structure;
-    });
-
     return map;
   });
   const [documents, setDocuments] = useState<DocumentMap>(() => {
     const base = buildDocumentMap(initialStructure);
-    storedProgramsSnapshot.forEach((program) => {
-      const sections = program.defaultSections ?? [];
-      const { documents: docMap } = createProgramStructureFromSections(program.id, sections, formatTimestamp());
-      Object.assign(base, docMap);
-    });
     return base;
   });
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
@@ -269,13 +215,20 @@ export default function App() {
     });
   };
 
-  const handleUploadFiles = (newFiles: Array<{ id: string; name: string; type: string }>, folderPath: string) => {
+  const handleUploadFiles = (
+    newFiles: Array<{ id: string; name: string; type: string; createdAt?: string }>,
+    folderPath: string
+  ) => {
     setVaultFiles((prev) => [
       ...newFiles.map((file) => ({
         id: file.id,
         name: file.name,
         type: file.type,
-        lastUpdated: formatTimestamp(),
+        lastUpdated: file.createdAt ? new Date(file.createdAt).toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric'
+        }) : formatTimestamp(),
         tags: [],
         folderPath,
         status: 'Draft' as const,
@@ -324,17 +277,48 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
+    let cancelled = false;
 
-    const customPrograms = programs.filter((program) => !program.isSample);
-    try {
-      window.sessionStorage.setItem(PROGRAM_STORAGE_KEY, JSON.stringify(customPrograms));
-    } catch {
-      // Swallow storage exceptions (e.g., quota exceeded) silently for now.
-    }
-  }, [programs]);
+    const loadPrograms = async () => {
+      try {
+        const backendPrograms = await listPrograms();
+        if (cancelled) return;
+
+        const mapped: Program[] = backendPrograms.map((program) => ({
+          id: program.folderName,
+          title: program.name,
+          status: 'In Progress',
+          progress: 0,
+          sectionCount: program.sectionCount,
+          templateUploaded: program.hasTemplate,
+          isSample: false
+        }));
+
+        setPrograms((prev) => {
+          const samplePrograms = prev.filter((program) => program.isSample);
+          return [...mapped, ...samplePrograms];
+        });
+
+        setStructuresByProgram((prev) => {
+          const next = { ...prev };
+          mapped.forEach((program) => {
+            if (!next[program.id]) {
+              next[program.id] = [];
+            }
+          });
+          return next;
+        });
+      } catch {
+        // Ignore load failures and keep sample programs visible.
+      }
+    };
+
+    loadPrograms();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const handleProgramCreated = (result: CreateProgramResult) => {
     const { program, templateConfig } = result;
@@ -399,6 +383,10 @@ export default function App() {
     setSelectedProgram(programId);
     setCurrentView('dossier');
   };
+
+  const handleDocumentsUpdate = useCallback((docs: DocumentMap) => {
+    setDocuments((prev) => ({ ...prev, ...docs }));
+  }, []);
 
   const handleOpenDocument = (documentId: string, mode: 'author' | 'reviewer' = 'author') => {
     setSelectedDocument(documentId);
@@ -501,6 +489,7 @@ export default function App() {
             dataVaultFiles={vaultFiles}
             onUploadFiles={handleUploadFiles}
             onCreateFolder={handleCreateFolder}
+            onDocumentsUpdate={handleDocumentsUpdate}
           />
         )}
 

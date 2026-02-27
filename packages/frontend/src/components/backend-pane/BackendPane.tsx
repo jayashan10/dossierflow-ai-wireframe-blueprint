@@ -6,8 +6,7 @@ import {
   AlertCircle,
   CheckCircle2,
   ChevronRight,
-  FolderOpen,
-  FolderPlus
+  FolderOpen
 } from 'lucide-react';
 import {
   ResizablePanelGroup,
@@ -23,9 +22,7 @@ import type { FileNode } from '../../lib/api';
 import {
   fetchProgramFiles,
   fetchFileContent,
-  saveFileContent,
-  getProgram,
-  createProgramStructure
+  saveFileContent
 } from '../../lib/api';
 
 interface BackendPaneProps {
@@ -56,10 +53,6 @@ export function BackendPane({
   // Save state
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const [saveError, setSaveError] = useState<string | null>(null);
-
-  // Structure creation state
-  const [isCreatingStructure, setIsCreatingStructure] = useState(false);
-  const [structureError, setStructureError] = useState<string | null>(null);
 
   // Derived state
   const hasUnsavedChanges = fileContent !== originalContent;
@@ -115,67 +108,6 @@ export function BackendPane({
     }
   }, [programId, selectedPath, fileContent, hasUnsavedChanges]);
 
-  // Handle structure creation
-  const handleCreateStructure = useCallback(async () => {
-    setIsCreatingStructure(true);
-    setStructureError(null);
-
-    try {
-      // Fetch program metadata to get sections
-      const program = await getProgram(programId);
-
-      // Get sections from program metadata or prompt user
-      let sectionsToCreate: Array<{ title: string; summary?: string; originalHeading?: string }> = [];
-
-      if (program.sections && Object.keys(program.sections).length > 0) {
-        // Use existing sections from program metadata
-        sectionsToCreate = Object.values(program.sections).map((section) => ({
-          title: section.title,
-          originalHeading: section.title
-        }));
-      } else {
-        // Prompt user for section names
-        const input = window.prompt(
-          'Enter section names (comma-separated):\n\nExample: Introduction, Methods, Results, Discussion, Conclusion'
-        );
-
-        if (!input) {
-          setIsCreatingStructure(false);
-          return;
-        }
-
-        sectionsToCreate = input
-          .split(',')
-          .map((s) => s.trim())
-          .filter((s) => s.length > 0)
-          .map((title) => ({ title, originalHeading: title }));
-
-        if (sectionsToCreate.length === 0) {
-          setStructureError('No valid sections provided');
-          setIsCreatingStructure(false);
-          return;
-        }
-      }
-
-      // Call the structure creation API
-      const result = await createProgramStructure(programId, sectionsToCreate);
-
-      if (result.success) {
-        // Refresh the file tree
-        await loadFiles();
-        alert(`Created ${result.filesCreated.length} section files successfully!`);
-      } else if (result.warnings && result.warnings.length > 0) {
-        setStructureError(result.warnings.join(', '));
-      }
-    } catch (error) {
-      setStructureError(
-        error instanceof Error ? error.message : 'Failed to create structure'
-      );
-    } finally {
-      setIsCreatingStructure(false);
-    }
-  }, [programId, loadFiles]);
-
   // Handle file selection
   const handleSelectFile = useCallback((path: string) => {
     // Check for unsaved changes before switching
@@ -215,31 +147,31 @@ export function BackendPane({
   }, [selectedPath]);
 
   return (
-    <div className={cn('flex flex-col h-full bg-background', className)}>
+    <div className={cn('flex flex-col h-full dossier-pane', className)}>
       {/* Top bar with breadcrumbs and save button */}
-      <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/30">
-        <div className="flex items-center gap-2 min-w-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(31,26,20,0.12)] bg-[rgba(251,246,240,0.9)]">
+        <div className="flex items-center gap-3 min-w-0">
           {/* Program name */}
-          <Badge variant="outline" className="shrink-0 font-mono text-xs">
+          <Badge variant="outline" className="shrink-0 text-[10px] dossier-meta border-[rgba(31,26,20,0.2)]">
             {programName}
           </Badge>
 
           {/* Breadcrumbs */}
           {selectedPath && (
             <>
-              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+              <ChevronRight className="h-4 w-4 text-[rgba(31,26,20,0.45)] shrink-0" />
               <nav className="flex items-center gap-1 text-sm min-w-0">
                 {breadcrumbs.map((segment, index) => (
                   <span key={index} className="flex items-center gap-1">
                     {index > 0 && (
-                      <ChevronRight className="h-3 w-3 text-muted-foreground" />
+                      <ChevronRight className="h-3 w-3 text-[rgba(31,26,20,0.45)]" />
                     )}
                     <span
                       className={cn(
-                        'font-mono truncate',
+                        'font-mono truncate text-[13px]',
                         index === breadcrumbs.length - 1
                           ? 'text-foreground font-medium'
-                          : 'text-muted-foreground'
+                          : 'text-[rgba(31,26,20,0.55)]'
                       )}
                     >
                       {segment}
@@ -252,39 +184,15 @@ export function BackendPane({
 
           {/* Unsaved indicator */}
           {hasUnsavedChanges && (
-            <span className="h-2 w-2 rounded-full bg-amber-500 shrink-0" />
+            <span className="h-2 w-2 rounded-full bg-[rgba(31,59,52,0.7)] shrink-0" />
           )}
         </div>
 
         {/* Action buttons and status */}
         <div className="flex items-center gap-2">
-          {/* Structure creation error */}
-          {structureError && (
-            <span className="flex items-center gap-1 text-xs text-destructive max-w-48 truncate" title={structureError}>
-              <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-              {structureError}
-            </span>
-          )}
-
-          {/* Create Structure button */}
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleCreateStructure}
-            disabled={isCreatingStructure}
-            className="gap-1.5"
-          >
-            {isCreatingStructure ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <FolderPlus className="h-4 w-4" />
-            )}
-            {isCreatingStructure ? 'Creating...' : 'Create Structure'}
-          </Button>
-
           {/* Save status */}
           {saveStatus === 'saved' && (
-            <span className="flex items-center gap-1 text-xs text-emerald-600">
+            <span className="flex items-center gap-1 text-xs text-emerald-700">
               <CheckCircle2 className="h-3.5 w-3.5" />
               Saved
             </span>
@@ -300,7 +208,12 @@ export function BackendPane({
             variant={hasUnsavedChanges ? 'default' : 'outline'}
             onClick={handleSave}
             disabled={!selectedPath || !hasUnsavedChanges || saveStatus === 'saving' || isReadOnly}
-            className="gap-1.5"
+            className={cn(
+              'gap-1.5',
+              hasUnsavedChanges
+                ? 'bg-[rgba(31,59,52,0.95)] text-[rgba(251,246,240,0.95)] hover:bg-[rgba(31,59,52,0.85)]'
+                : 'border-[rgba(31,26,20,0.2)] text-[rgba(31,26,20,0.85)] hover:bg-[rgba(31,26,20,0.06)]'
+            )}
           >
             {saveStatus === 'saving' ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -322,14 +235,14 @@ export function BackendPane({
           className="min-w-0"
         >
           {filesError ? (
-            <div className="flex flex-col items-center justify-center h-full p-4 bg-slate-900 text-slate-400">
-              <AlertCircle className="h-8 w-8 mb-2 text-red-400" />
+            <div className="flex flex-col items-center justify-center h-full p-4 bg-[var(--sidebar)] text-[rgba(31,26,20,0.6)]">
+              <AlertCircle className="h-8 w-8 mb-2 text-rose-700" />
               <p className="text-sm text-center">{filesError}</p>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={loadFiles}
-                className="mt-3"
+                className="mt-3 border-[rgba(31,26,20,0.2)]"
               >
                 Retry
               </Button>
@@ -351,35 +264,40 @@ export function BackendPane({
         <ResizablePanel defaultSize={75} minSize={40} className="min-w-0">
           {!selectedPath ? (
             // No file selected
-            <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-background to-muted/20">
-              <div className="flex flex-col items-center text-center max-w-md px-8">
-                <div className="relative mb-6">
-                  <FolderOpen className="h-16 w-16 text-muted-foreground/30" />
-                  <FileText className="h-8 w-8 text-muted-foreground/50 absolute -bottom-1 -right-1" />
+            <div className="flex items-center justify-center w-full h-full min-h-[70vh] bg-[rgba(251,246,240,0.55)]">
+              <div className="w-full max-w-md px-6">
+                <div className="rounded-2xl border border-[rgba(31,26,20,0.12)] bg-[rgba(251,246,240,0.9)] p-6 text-center shadow-[0_24px_60px_-48px_rgba(31,26,20,0.45)]">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-[rgba(31,26,20,0.12)] bg-[rgba(31,26,20,0.04)]">
+                    <div className="relative">
+                      <FolderOpen className="h-7 w-7 text-[rgba(31,26,20,0.55)]" />
+                      <FileText className="h-4 w-4 text-[rgba(31,26,20,0.7)] absolute -bottom-2 -right-2" />
+                    </div>
+                  </div>
+                  <h3 className="text-lg font-medium text-foreground">
+                    Select a file to edit
+                  </h3>
+                  <p className="mt-2 text-sm text-[rgba(31,26,20,0.6)] leading-relaxed">
+                    Choose a markdown file from the file tree to view or edit its content.
+                    Generated sections are stored as .md files.
+                  </p>
                 </div>
-                <h3 className="text-lg font-medium text-foreground mb-2">
-                  Select a file to edit
-                </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Choose a markdown file from the file tree to view or edit its content.
-                  Generated sections are stored as .md files.
-                </p>
               </div>
             </div>
           ) : isLoadingContent ? (
             // Loading content
-            <div className="flex items-center justify-center h-full bg-background">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <div className="flex items-center justify-center h-full bg-[rgba(251,246,240,0.55)]">
+              <Loader2 className="h-8 w-8 animate-spin text-[rgba(31,26,20,0.5)]" />
             </div>
           ) : contentError ? (
             // Error loading content
-            <div className="flex flex-col items-center justify-center h-full bg-background">
+            <div className="flex flex-col items-center justify-center h-full bg-[rgba(251,246,240,0.55)]">
               <AlertCircle className="h-8 w-8 mb-3 text-destructive" />
-              <p className="text-sm text-muted-foreground mb-3">{contentError}</p>
+              <p className="text-sm text-[rgba(31,26,20,0.6)] mb-3">{contentError}</p>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => selectedPath && loadFileContent(selectedPath)}
+                className="border-[rgba(31,26,20,0.2)]"
               >
                 Retry
               </Button>
@@ -389,12 +307,12 @@ export function BackendPane({
             <div className="h-full flex flex-col">
               {/* Read-only banner for JSON files */}
               {isReadOnly && (
-                <div className="px-4 py-2 bg-amber-50 border-b border-amber-200 text-amber-800 text-sm flex items-center gap-2">
+                <div className="px-4 py-2 bg-[rgba(228,214,199,0.6)] border-b border-[rgba(31,26,20,0.15)] text-[rgba(31,26,20,0.8)] text-sm flex items-center gap-2">
                   <AlertCircle className="h-4 w-4" />
                   This file is read-only
                 </div>
               )}
-              <div className="flex-1 min-h-0">
+              <div className="flex-1 min-h-0 bg-[rgba(251,246,240,0.7)]">
                 <CodeMirrorEditor
                   value={fileContent}
                   onChange={setFileContent}

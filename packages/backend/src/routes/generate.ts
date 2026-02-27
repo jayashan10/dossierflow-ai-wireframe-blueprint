@@ -1,14 +1,15 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { fetchSourceSnippets, getSourceFilePaths } from '../services/source-service';
+import { fetchSourceSnippets, fetchSourceSnippetsFromDescriptors, getSourceFilePaths } from '../services/source-service';
 import { generateDraft, generateDraftStream } from '../services/claude-agent-service';
-import { getProgramAbsolutePath, getProgram } from '../services/program-service';
+import { getProgramAbsolutePath, getProgram, getProgramSourceFileRefs, listProgramSources } from '../services/program-service';
 
 const requestSchema = z.object({
   sectionId: z.string().min(1),
   sectionTitle: z.string().min(1),
   prompt: z.string().min(1),
-  selectedSourceIds: z.array(z.string()).default([])
+  selectedSourceIds: z.array(z.string()).default([]),
+  programId: z.string().optional()
 });
 
 const streamRequestSchema = z.object({
@@ -28,7 +29,12 @@ generateRouter.post('/', async (req, res, next) => {
   try {
     const payload = requestSchema.parse(req.body);
 
-    const snippets = await fetchSourceSnippets(payload.selectedSourceIds);
+    const snippets = payload.programId
+      ? await fetchSourceSnippetsFromDescriptors(
+          (await listProgramSources(payload.programId))
+            .filter((source) => payload.selectedSourceIds.includes(source.id))
+        )
+      : await fetchSourceSnippets(payload.selectedSourceIds);
     const result = await generateDraft({
       sectionTitle: payload.sectionTitle,
       userPrompt: payload.prompt,
@@ -67,11 +73,15 @@ generateRouter.post('/stream', async (req, res) => {
     const payload = streamRequestSchema.parse(req.body);
 
     // Get file paths for selected sources
-    const sourceFiles = await getSourceFilePaths(payload.selectedSourceIds);
+    const sourceFiles = payload.programId
+      ? await getProgramSourceFileRefs(payload.programId, payload.selectedSourceIds)
+      : await getSourceFilePaths(payload.selectedSourceIds);
 
     // Get file paths for mentioned files (from @file references)
     const mentionedFiles = payload.mentionedFileIds.length > 0
-      ? await getSourceFilePaths(payload.mentionedFileIds)
+      ? (payload.programId
+          ? await getProgramSourceFileRefs(payload.programId, payload.mentionedFileIds)
+          : await getSourceFilePaths(payload.mentionedFileIds))
       : [];
 
     // Resolve program path if programId is provided

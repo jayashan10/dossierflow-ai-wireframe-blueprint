@@ -24,6 +24,17 @@ export interface SourceSummary {
 export interface SourceSnippet extends SourceSummary {
   content?: string;
   warnings?: string[];
+  absolutePath: string;
+}
+
+export interface SourceFileDescriptor {
+  id: string;
+  name: string;
+  type: string;
+  relativePath: string;
+  absolutePath: string;
+  createdAt: string;
+  tags?: string[];
 }
 
 interface SourceRecord extends SourceSummary {
@@ -119,11 +130,54 @@ export async function saveSources(uploads: UploadedFile[]): Promise<SaveSourceRe
   };
 }
 
+export async function registerExternalSource(storedFile: StoredFileInfo): Promise<SourceSummary> {
+  const index = await loadIndex();
+  const existing = index.sources.find((source) => source.storedFile?.absolutePath === storedFile.absolutePath);
+  if (existing) {
+    return toSourceSummary(existing);
+  }
+  const record: SourceRecord = {
+    id: storedFile.id,
+    name: storedFile.originalName,
+    type: storedFile.extension.replace('.', ''),
+    mimeType: storedFile.mimeType,
+    relativePath: storedFile.relativePath,
+    createdAt: new Date().toISOString(),
+    tags: [],
+    storedFile
+  };
+
+  index.sources.unshift(record);
+  if (index.sources.length > MAX_SOURCES_TRACKED) {
+    index.sources = index.sources.slice(0, MAX_SOURCES_TRACKED);
+  }
+
+  await saveIndex(index);
+  return toSourceSummary(record);
+}
+
 export async function listSources(search?: string): Promise<SourceSummary[]> {
   const index = await loadIndex();
   const normalizedSearch = search?.trim().toLowerCase();
+  const seenPaths = new Set<string>();
+  const seenNames = new Set<string>();
+  const summaries: SourceSummary[] = [];
 
-  const summaries = index.sources.map(toSourceSummary);
+  for (const record of index.sources) {
+    const absolutePath = record.storedFile?.absolutePath;
+    const normalizedName = record.name.toLowerCase();
+    if (absolutePath && seenPaths.has(absolutePath)) {
+      continue;
+    }
+    if (seenNames.has(normalizedName)) {
+      continue;
+    }
+    if (absolutePath) {
+      seenPaths.add(absolutePath);
+    }
+    seenNames.add(normalizedName);
+    summaries.push(toSourceSummary(record));
+  }
 
   if (!normalizedSearch) {
     return summaries;
@@ -159,13 +213,15 @@ export async function fetchSourceSnippets(ids: string[]): Promise<SourceSnippet[
       snippets.push({
         ...toSourceSummary(record),
         content,
-        warnings
+        warnings,
+        absolutePath: record.storedFile.absolutePath
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       snippets.push({
         ...toSourceSummary(record),
-        warnings: [`Content unavailable: ${message}`]
+        warnings: [`Content unavailable: ${message}`],
+        absolutePath: record.storedFile.absolutePath
       });
     }
   }
@@ -234,6 +290,51 @@ export async function getSourceFilePaths(ids: string[]): Promise<SourceFileRef[]
   return refs;
 }
 
+export async function fetchSourceSnippetsFromDescriptors(files: SourceFileDescriptor[]): Promise<SourceSnippet[]> {
+  if (!files.length) {
+    return [];
+  }
+
+  const snippets: SourceSnippet[] = [];
+
+  for (const file of files) {
+    try {
+      const extraction = await extractSourceTextFromPath(file.absolutePath);
+      const content = extraction.text.slice(0, 4000);
+      const warnings = combineWarnings(
+        extraction.warnings,
+        content.length < extraction.text.length ? ['Content truncated to 4000 characters.'] : undefined
+      );
+
+      snippets.push({
+        id: file.id,
+        name: file.name,
+        type: file.type,
+        relativePath: file.relativePath,
+        createdAt: file.createdAt,
+        tags: file.tags ?? [],
+        content,
+        warnings,
+        absolutePath: file.absolutePath
+      });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      snippets.push({
+        id: file.id,
+        name: file.name,
+        type: file.type,
+        relativePath: file.relativePath,
+        createdAt: file.createdAt,
+        tags: file.tags ?? [],
+        warnings: [`Content unavailable: ${message}`],
+        absolutePath: file.absolutePath
+      });
+    }
+  }
+
+  return snippets;
+}
+
 async function extractSourceText(storedFile: StoredFileInfo): Promise<{ text: string; warnings?: string[] }> {
   const buffer = await fs.readFile(storedFile.absolutePath);
 
@@ -246,6 +347,21 @@ async function extractSourceText(storedFile: StoredFileInfo): Promise<{ text: st
   }
 
   throw new Error(`Unsupported source extension: ${storedFile.extension}`);
+}
+
+async function extractSourceTextFromPath(absolutePath: string): Promise<{ text: string; warnings?: string[] }> {
+  const buffer = await fs.readFile(absolutePath);
+  const extension = path.extname(absolutePath).toLowerCase();
+
+  if (extension === '.pdf') {
+    return extractTextFromPdf(buffer);
+  }
+
+  if (extension === '.docx') {
+    return extractTextFromDocx(buffer);
+  }
+
+  throw new Error(`Unsupported source extension: ${extension}`);
 }
 
 function toSourceSummary(record: SourceRecord): SourceSummary {

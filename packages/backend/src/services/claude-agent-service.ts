@@ -118,19 +118,6 @@ if (typeof appConfig.claudeUseVertex === 'boolean') {
   process.env.CLAUDE_CODE_USE_VERTEX = appConfig.claudeUseVertex ? '1' : '0';
 }
 
-/**
- * Build fallback message with diagnostics
- */
-function buildFallbackMessage(): string {
-  return `Claude Agent SDK encountered an error.
-
-The SDK uses its default authentication provider unless custom credentials are configured.
-If you need to use a custom provider, configure one of:
-- ANTHROPIC_API_KEY for direct API access
-- ANTHROPIC_AUTH_TOKEN for proxy authentication
-- CLAUDE_CODE_USE_BEDROCK for AWS Bedrock
-- CLAUDE_CODE_USE_VERTEX for Google Vertex AI`;
-}
 
 /**
  * Check if Claude is available
@@ -334,7 +321,8 @@ function buildAgenticGeneratePrompt({ sectionTitle, userPrompt, snippets }: Gene
   const sourceContext = snippets.length > 0
     ? snippets.map((snippet) => {
         const warningText = snippet.warnings?.length ? ` [Warnings: ${snippet.warnings.join('; ')}]` : '';
-        return `- ${snippet.name}${warningText}\n  ID: ${snippet.id}`;
+        const excerpt = snippet.content ? `\n  Excerpt:\n  ${snippet.content.replace(/\n/g, '\n  ')}` : '';
+        return `- ${snippet.name}${warningText}\n  ID: ${snippet.id}\n  Path: ${snippet.absolutePath}${excerpt}`;
       }).join('\n')
     : 'No source documents selected.';
 
@@ -354,7 +342,7 @@ ${snippets.length > 0 ? `You have access to the following tools:
 - Read: Read source document files to extract relevant information
 - Bash: Execute commands if needed for document processing
 
-Source files are available at the paths indicated by their IDs. Use the Read tool to access specific source documents and extract relevant information.
+Source files are available at the paths listed below. Use the Read tool to access specific source documents and extract relevant information.
 
 Process:
 1. Review the analyst instructions and understand what content is needed
@@ -378,17 +366,7 @@ Return your generated content as markdown. Do not include explanations about the
  */
 export async function generateDraft(params: GenerateParams): Promise<GenerateResult> {
   if (!isClaudeAvailable()) {
-    const fallback = buildFallbackMessage();
-    return {
-      content: `${fallback}\n\n**Section**: ${params.sectionTitle}\n**Instructions**: ${params.userPrompt}\n**Sources**: ${params.snippets.length} documents selected`,
-      metadata: {
-        agentUsed: false,
-        snippetCount: params.snippets.length,
-        toolsUsed: [],
-        turnsCompleted: 0
-      },
-      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
-    };
+    throw new Error('Claude Agent not available. Check configuration.');
   }
 
   const prompt = buildAgenticGeneratePrompt(params);
@@ -498,17 +476,7 @@ export async function generateDraft(params: GenerateParams): Promise<GenerateRes
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Claude generation failed:', error);
-    return {
-      content: `${buildFallbackMessage()}\n\n**Section**: ${params.sectionTitle}\n**Error**: ${error instanceof Error ? error.message : 'Unknown error'}`,
-      metadata: {
-        agentUsed: false,
-        snippetCount: params.snippets.length,
-        toolsUsed: [],
-        turnsCompleted: 0,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      },
-      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
-    };
+    throw error instanceof Error ? error : new Error('Claude generation failed.');
   }
 }
 
@@ -753,15 +721,7 @@ export async function refineExtractedSections(headings: string[]): Promise<Secti
   const headingsForClaude = exceedsLimit ? normalizedHeadings.slice(0, MAX_REFINEMENT_HEADINGS) : normalizedHeadings;
 
   if (!isClaudeAvailable()) {
-    return {
-      sections: [],
-      warnings: [
-        exceedsLimit ? `Claude refinement limited to the first ${MAX_REFINEMENT_HEADINGS} sections.` : undefined,
-        'Claude unavailable; no refined sections generated.'
-      ].filter((w): w is string => Boolean(w)),
-      claudeUsed: false,
-      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
-    };
+    throw new Error('Claude Agent not available. Check configuration.');
   }
 
   const prompt = buildExtractedSectionsPrompt(headingsForClaude);
@@ -831,12 +791,7 @@ export async function refineExtractedSections(headings: string[]): Promise<Secti
           if (!parsed || parsed.length === 0) {
             // eslint-disable-next-line no-console
             console.error('Failed to parse Claude refinement output. Raw output:', output.slice(0, 500));
-            return {
-              sections: [],
-              warnings: ['Claude did not return parseable section data.'],
-              claudeUsed: true,
-              usage
-            };
+            throw new Error('Claude did not return parseable section data.');
           }
 
           const sections = parsed
@@ -883,24 +838,11 @@ export async function refineExtractedSections(headings: string[]): Promise<Secti
       }
     }
 
-    return {
-      sections: [],
-      warnings: ['Claude completed without returning section data.'],
-      claudeUsed: true,
-      usage
-    };
+    throw new Error('Claude completed without returning section data.');
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Claude refinement failed:', error);
-    return {
-      sections: [],
-      warnings: [
-        exceedsLimit ? `Claude refinement limited to the first ${MAX_REFINEMENT_HEADINGS} sections.` : undefined,
-        error instanceof Error ? `Claude refinement failed: ${error.message}` : 'Claude refinement failed'
-      ].filter((w): w is string => Boolean(w)),
-      claudeUsed: false,
-      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
-    };
+    throw error instanceof Error ? error : new Error('Claude refinement failed.');
   }
 }
 
@@ -938,12 +880,7 @@ Remember: Output ONLY the JSON object. Start with { and end with }. No other tex
  */
 export async function refineTemplateSections(templatePath: string): Promise<SectionRefinementResult> {
   if (!isClaudeAvailable()) {
-    return {
-      sections: [],
-      warnings: ['Claude Agent not available; cannot perform agentic refinement.'],
-      claudeUsed: false,
-      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
-    };
+    throw new Error('Claude Agent not available. Check configuration.');
   }
 
   // Use simpler prompt when Skills are enabled - let the Skill provide detailed instructions
@@ -1036,12 +973,7 @@ export async function refineTemplateSections(templatePath: string): Promise<Sect
 
           if (!parsed || parsed.length === 0) {
             warnings.push('Agent did not return parseable section data.');
-            return {
-              sections: [],
-              warnings,
-              claudeUsed: true,
-              usage
-            };
+            throw new Error(warnings.join(' '));
           }
 
           const sections = parsed
@@ -1089,21 +1021,11 @@ export async function refineTemplateSections(templatePath: string): Promise<Sect
     }
 
     // If we get here without a result, return empty
-    return {
-      sections: [],
-      warnings: ['Agent completed without returning section data.'],
-      claudeUsed: true,
-      usage
-    };
+    throw new Error('Agent completed without returning section data.');
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Agent refinement failed:', error);
-    return {
-      sections: [],
-      warnings: [error instanceof Error ? `Agent refinement failed: ${error.message}` : 'Agent refinement failed with unknown error'],
-      claudeUsed: false,
-      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
-    };
+    throw error instanceof Error ? error : new Error('Agent refinement failed with unknown error.');
   }
 }
 
@@ -1196,16 +1118,11 @@ Begin by using the 'parse' command to read the template.`;
 
 /**
  * Create folder structure for a program based on refined sections
- * Uses the agent to analyze sections and create appropriate folder hierarchy with Write tool
+ * Uses the agent to analyze sections and create appropriate folder hierarchy with a single Bash call
  */
 export async function createProgramStructure(params: StructureCreationParams): Promise<StructureCreationResult> {
   if (!isClaudeAvailable()) {
-    return {
-      success: false,
-      filesCreated: [],
-      warnings: ['Claude Agent not available. Cannot create folder structure.'],
-      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
-    };
+    throw new Error('Claude Agent not available. Check configuration.');
   }
 
   const prompt = buildStructureCreationPrompt(params);
@@ -1223,8 +1140,8 @@ export async function createProgramStructure(params: StructureCreationParams): P
     const agentQuery = query({
       prompt,
       options: {
-        maxTurns: Math.min(params.sections.length + 10, 50), // More turns for more sections
-        allowedTools: ['Skill', 'Read', 'Write', 'Glob', 'Bash'],
+        maxTurns: 6,
+        allowedTools: ['Bash'],
         settingSources: ['project'],
         cwd: params.programPath,
         additionalDirectories: [params.programPath],
@@ -1319,21 +1236,11 @@ export async function createProgramStructure(params: StructureCreationParams): P
     }
 
     // Fallback if no result received
-    return {
-      success: false,
-      filesCreated: [],
-      warnings: ['Agent completed without returning structure data.'],
-      usage
-    };
+    throw new Error('Agent completed without returning structure data.');
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Structure creation failed:', error);
-    return {
-      success: false,
-      filesCreated: [],
-      warnings: [error instanceof Error ? `Structure creation failed: ${error.message}` : 'Structure creation failed with unknown error'],
-      usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
-    };
+    throw error instanceof Error ? error : new Error('Structure creation failed with unknown error.');
   }
 }
 
@@ -1352,12 +1259,13 @@ ${sectionsJson}
 TASK: Create an appropriate folder hierarchy for these sections.
 
 INSTRUCTIONS:
-1. Analyze the section hierarchy (depth, groupings, total count)
-2. Decide on structure based on complexity:
-   - Simple templates (<20 sections): flat structure with files like "1.1-synopsis.md"
-   - Complex templates (20+ sections): nested folders mirroring module hierarchy
-   - Example nested: "1-Introduction/1.1-Synopsis/content.md"
-3. For each section, create a content.md file with YAML frontmatter:
+1. Analyze the numeric prefixes in section titles (e.g., "2", "2.3", "2.3.1").
+2. ALWAYS create a nested folder hierarchy that mirrors the numeric hierarchy:
+   - Example: "2.3.1 Risk Assessment" => "2-Introduction/2-3-Benefit-Risk-Assessment/2-3-1-Risk-Assessment/content.md"
+   - Example: "10.1.4 Recruitment" => "10-Supporting-Documentation-Operational-Considerations/10-1-Appendix-1-.../10-1-4-Recruitment/content.md"
+3. Use the numeric prefix at every folder level to preserve order.
+4. If a title has no numeric prefix, place it under a "00-Front-Sections" folder.
+5. For each section, create a content.md file with YAML frontmatter:
 
 ---
 title: "{section title}"
@@ -1372,7 +1280,11 @@ createdAt: "${timestamp}"
 
 <!-- Content will be generated here -->
 
-4. Use the Write tool to create each file at the appropriate path within ${params.programPath}
+6. Use a SINGLE Bash tool call to create ALL directories and files.
+   - Build one multi-line bash script that runs all mkdir -p and file writes.
+   - Use cat <<'EOF' > "path/to/content.md" to write each file.
+   - Do NOT make multiple tool calls. Do NOT use the Write tool.
+   - Do NOT run verification commands (no find/ls/count checks).
 
 After creating all files, output a JSON summary:
 {
@@ -1385,7 +1297,7 @@ After creating all files, output a JSON summary:
 
 IMPORTANT:
 - Create files directly in ${params.programPath}, not in a subdirectory unless using nested structure
-- Use Write tool for each file
+- Use exactly one Bash tool call for all file creation
 - Output ONLY the final JSON summary after creating all files
 - Start JSON with { and end with }`;
 }

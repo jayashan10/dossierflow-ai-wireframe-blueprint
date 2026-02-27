@@ -57,7 +57,7 @@ function ensureWithinRoot(rootDirectory: string, targetPath: string) {
   }
 }
 
-function sanitizeFileName(original: string): string {
+export function sanitizeFileName(original: string): string {
   const trimmed = original.trim();
   const baseName = path.basename(trimmed || 'file');
   const dotIndex = baseName.lastIndexOf('.');
@@ -72,7 +72,7 @@ function sanitizeFileName(original: string): string {
   return `${normalizedName}${safeExtension}`;
 }
 
-function validateUpload(upload: UploadedFile): { extension: string; mimeType?: string } {
+export function validateUpload(upload: UploadedFile): { extension: string; mimeType?: string } {
   if (!upload.originalName) {
     throw new FileValidationError('File name is required.');
   }

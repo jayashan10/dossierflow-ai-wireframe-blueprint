@@ -30,12 +30,13 @@ import { StreamingPreview } from './StreamingPreview';
 import { RichTextEditor } from './RichTextEditor';
 import { sourceDocs, reviewers } from '../data/mockData';
 import type { Document, DocumentComment } from '../data/mockData';
-import { fetchSources, streamGenerateContent } from '../lib/api';
-import type { SourceSummary, StreamEvent } from '../lib/api';
+import { fetchProgramSources, fetchSources, streamGenerateContent, streamGenerateContentWithProgram, updateProgramSection } from '../lib/api';
+import type { SourceSummary, StreamEvent, FileWrittenEvent, ProgramSection } from '../lib/api';
 import { SubmitForReviewDialog } from './review/SubmitForReviewDialog';
 import { CommentThread } from './review/CommentThread';
 import { VersionHistoryDrawer } from './VersionHistoryDrawer';
 import { BackendPane } from './backend-pane';
+import { cn } from './ui/utils';
 
 interface DocumentConfig {
   documentType: string;
@@ -163,6 +164,37 @@ export function AuthoringStudio({
   const sections = documentConfig?.sections || (currentDocument?.name ? [currentDocument.name] : existingDocSections);
   const isNewDocument = documentConfig !== null;
 
+  const mapDocumentStatus = (status: Document['status']): ProgramSection['status'] => {
+    switch (status) {
+      case 'Approved':
+        return 'approved';
+      case 'In Review':
+        return 'reviewed';
+      case 'Drafting':
+        return 'draft';
+      case 'Changes Requested':
+        return 'draft';
+      case 'To Do':
+      default:
+        return 'pending';
+    }
+  };
+
+  const syncProgramSection = useCallback(async (
+    status: ProgramSection['status'],
+    tokenUsage?: ProgramSection['tokenUsage']
+  ) => {
+    if (!programId || !currentDocument?.sectionKey) {
+      return;
+    }
+
+    try {
+      await updateProgramSection(programId, currentDocument.sectionKey, { status, tokenUsage });
+    } catch {
+      // Ignore API sync failures to avoid blocking UI.
+    }
+  }, [programId, currentDocument?.sectionKey]);
+
   useEffect(() => {
     if (mode === 'reviewer') {
       setActiveTab('comments');
@@ -225,7 +257,7 @@ export function AuthoringStudio({
     const loadSources = async () => {
       setIsLoadingSources(true);
       try {
-        const response = await fetchSources();
+        const response = programId ? await fetchProgramSources(programId) : await fetchSources();
         if (!cancelled && response.length) {
           setAvailableSources(response);
           setSourcesError(null);
@@ -246,7 +278,7 @@ export function AuthoringStudio({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [programId]);
 
   const sourceIndex = useMemo(() => {
     const map = new Map<string, SourceSummary>();
@@ -324,65 +356,106 @@ export function AuthoringStudio({
     setStreamingContent('');
     setStreamingEvents([]);
 
-    const cancel = streamGenerateContent(
-      {
-        sectionId: toSectionId(selectedSection),
-        sectionTitle: selectedSection,
-        prompt: promptValue,
-        selectedSourceIds: selectedSources,
-        mentionedFileIds
-      },
-      {
-        onEvent: (event) => {
-          setStreamingEvents((prev) => [...prev, event]);
+    const handleStreamEvent = (event: StreamEvent | FileWrittenEvent) => {
+      if (event.type === 'file_written') {
+        if (onUpdateDocument && currentDocument) {
+          onUpdateDocument((doc) => ({
+            ...doc,
+            status: doc.status === 'To Do' ? 'Drafting' : doc.status,
+            lastUpdated: formatTimestamp()
+          }));
+        }
+        return;
+      }
 
-          if (event.type === 'text' && event.content) {
-            setStreamingContent((prev) => prev + event.content);
+      setStreamingEvents((prev) => [...prev, event]);
+
+      if (event.type === 'text' && event.content) {
+        setStreamingContent((prev) => prev + event.content);
+      }
+
+      if (event.type === 'complete') {
+        // Stop the loading state immediately upon complete event
+        setIsGenerating(false);
+
+        if (event.content) {
+          // Save the final content to local state
+          setSectionDrafts((prev) => ({
+            ...prev,
+            [selectedSection]: event.content!
+          }));
+          setStreamingContent(event.content);
+
+          // Persist content and linked sources to document
+          if (onUpdateDocument) {
+            onUpdateDocument((doc) => ({
+              ...doc,
+              content: event.content,
+              status: doc.status === 'To Do' ? 'Drafting' : doc.status,
+              linkedSources: [...new Set([...(doc.linkedSources || []), ...selectedSources, ...mentionedFileIds])],
+              lastUpdated: formatTimestamp()
+            }));
           }
 
-          if (event.type === 'complete') {
-            // Stop the loading state immediately upon complete event
-            setIsGenerating(false);
-
-            if (event.content) {
-              // Save the final content to local state
-              setSectionDrafts((prev) => ({
-                ...prev,
-                [selectedSection]: event.content!
-              }));
-              setStreamingContent(event.content);
-
-              // Persist content and linked sources to document
-              if (onUpdateDocument) {
-                onUpdateDocument((doc) => ({
-                  ...doc,
-                  content: event.content,
-                  status: doc.status === 'To Do' ? 'Drafting' : doc.status,
-                  linkedSources: [...new Set([...(doc.linkedSources || []), ...selectedSources, ...mentionedFileIds])],
-                  lastUpdated: formatTimestamp()
-                }));
-              }
-            }
+          if (event.usage) {
+            void syncProgramSection('draft', event.usage);
+          } else {
+            void syncProgramSection('draft');
           }
-
-          if (event.type === 'error' && event.error) {
-            setGenerationError(event.error);
-          }
-        },
-        onComplete: () => {
-          setIsGenerating(false);
-          cancelStreamRef.current = null;
-        },
-        onError: (error) => {
-          setGenerationError(error);
-          setIsGenerating(false);
-          cancelStreamRef.current = null;
         }
       }
-    );
+
+      if (event.type === 'error' && event.error) {
+        setGenerationError(event.error);
+      }
+    };
+
+    const streamRequest = {
+      sectionId: toSectionId(selectedSection),
+      sectionTitle: selectedSection,
+      prompt: promptValue,
+      selectedSourceIds: selectedSources,
+      mentionedFileIds
+    };
+
+    const cancel = programId && currentDocument?.path
+      ? streamGenerateContentWithProgram(
+          {
+            ...streamRequest,
+            programId,
+            targetPath: currentDocument.path
+          },
+          {
+            onEvent: handleStreamEvent,
+            onComplete: () => {
+              setIsGenerating(false);
+              cancelStreamRef.current = null;
+            },
+            onError: (error) => {
+              setGenerationError(error);
+              setIsGenerating(false);
+              cancelStreamRef.current = null;
+            }
+          }
+        )
+      : streamGenerateContent(
+          streamRequest,
+          {
+            onEvent: handleStreamEvent,
+            onComplete: () => {
+              setIsGenerating(false);
+              cancelStreamRef.current = null;
+            },
+            onError: (error) => {
+              setGenerationError(error);
+              setIsGenerating(false);
+              cancelStreamRef.current = null;
+            }
+          }
+        );
 
     cancelStreamRef.current = cancel;
-  }, [selectedSection, canGenerate, isReadOnly, promptValue, selectedSources, mentionedFileIds, onUpdateDocument]);
+  }, [selectedSection, canGenerate, isReadOnly, promptValue, selectedSources, mentionedFileIds, onUpdateDocument, programId, currentDocument, syncProgramSection]);
 
   const handleCancelGeneration = useCallback(() => {
     if (cancelStreamRef.current) {
@@ -403,7 +476,23 @@ export function AuthoringStudio({
 
   const handleSubmitReview = (payload: { reviewers: string[]; note?: string }) => {
     onSubmitForReview(payload);
+    void syncProgramSection(mapDocumentStatus('In Review'));
     setSubmitDialogOpen(false);
+  };
+
+  const handleWithdrawReview = () => {
+    onWithdrawSubmission();
+    void syncProgramSection(mapDocumentStatus('Drafting'));
+  };
+
+  const handleApproveReview = () => {
+    onApprove();
+    void syncProgramSection(mapDocumentStatus('Approved'));
+  };
+
+  const handleRequestChangesReview = () => {
+    onRequestChanges();
+    void syncProgramSection(mapDocumentStatus('Changes Requested'));
   };
 
   const handleCreateComment = () => {
@@ -469,7 +558,7 @@ export function AuthoringStudio({
               Awaiting review from {assignedReviewerNames.join(' and ')}.
               {currentDocument.submissionNote ? ` Note: ${currentDocument.submissionNote}` : ''}
             </span>
-            <Button variant="outline" size="sm" onClick={onWithdrawSubmission}>
+            <Button variant="outline" size="sm" onClick={handleWithdrawReview}>
               Withdraw Submission
             </Button>
           </AlertDescription>
@@ -494,10 +583,10 @@ export function AuthoringStudio({
           <AlertTitle>This document is ready for your review.</AlertTitle>
           <AlertDescription>
             <div className="mt-3 flex flex-wrap gap-2">
-              <Button size="sm" variant="secondary" onClick={onRequestChanges}>
+              <Button size="sm" variant="secondary" onClick={handleRequestChangesReview}>
                 Request Changes
               </Button>
-              <Button size="sm" onClick={onApprove}>
+              <Button size="sm" onClick={handleApproveReview}>
                 Approve
               </Button>
             </div>
@@ -510,20 +599,33 @@ export function AuthoringStudio({
   })();
 
   return (
-    <div className="flex flex-col h-screen">
+    <div className="flex flex-col h-screen dossier-shell">
       {/* Editor Header */}
-      <div className="border-b p-4">
+      <div className="border-b border-[rgba(31,26,20,0.12)] p-4 bg-[rgba(251,246,240,0.92)] backdrop-blur-sm">
         {bannerMessage}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={onBack}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onBack}
+              className="rounded-full border border-[rgba(31,26,20,0.12)] bg-[rgba(251,246,240,0.8)] hover:bg-[rgba(31,26,20,0.06)]"
+            >
               <ChevronLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h3>{currentDocument?.name ?? (documentConfig?.documentType ?? 'Document')}</h3>
-              <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+              <h3 className="text-xl font-medium">
+                {currentDocument?.name ?? (documentConfig?.documentType ?? 'Document')}
+              </h3>
+              <div className="flex items-center gap-2 mt-1 text-xs text-[rgba(31,26,20,0.55)]">
                 <span>Status:</span>
-                <Badge variant="outline" className={statusBadgeStyles[docStatus]}>
+                <Badge
+                  variant="outline"
+                  className={cn(
+                    statusBadgeStyles[docStatus],
+                    'border-[rgba(31,26,20,0.18)] bg-transparent text-[rgba(31,26,20,0.75)]'
+                  )}
+                >
                   {docStatus}
                 </Badge>
                 {currentDocument?.lastUpdated && <span>• Updated {currentDocument.lastUpdated}</span>}
@@ -531,13 +633,17 @@ export function AuthoringStudio({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" className="gap-2" onClick={() => setActiveTab('comments')}>
+            <Button
+              variant="outline"
+              className="gap-2 border-[rgba(31,26,20,0.2)] bg-[rgba(251,246,240,0.8)] hover:bg-[rgba(31,26,20,0.06)]"
+              onClick={() => setActiveTab('comments')}
+            >
               <MessageSquare className="h-4 w-4" />
               Comments
             </Button>
             <Button
               variant="outline"
-              className="gap-2"
+              className="gap-2 border-[rgba(31,26,20,0.2)] bg-[rgba(251,246,240,0.8)] hover:bg-[rgba(31,26,20,0.06)]"
               onClick={() => setVersionDrawerOpen(true)}
               disabled={!versionHistory.length}
             >
@@ -546,7 +652,7 @@ export function AuthoringStudio({
             </Button>
             {mode === 'author' && isExistingDocument && (
               <Button
-                className="gap-2"
+                className="gap-2 bg-[rgba(31,59,52,0.95)] text-[rgba(251,246,240,0.95)] hover:bg-[rgba(31,59,52,0.85)]"
                 onClick={() => setSubmitDialogOpen(true)}
                 disabled={!canSubmitForReview}
               >
@@ -557,7 +663,7 @@ export function AuthoringStudio({
         </div>
 
         {/* Formatting Toolbar */}
-        <div className={`flex items-center gap-1 border rounded-md p-1 bg-muted/20 ${isReadOnly ? 'pointer-events-none opacity-60' : ''}`}>
+        <div className={`flex items-center gap-1 border rounded-md p-1 bg-[rgba(31,26,20,0.04)] border-[rgba(31,26,20,0.12)] ${isReadOnly ? 'pointer-events-none opacity-60' : ''}`}>
           <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
             <Bold className="h-4 w-4" />
           </Button>
@@ -580,40 +686,48 @@ export function AuthoringStudio({
         </div>
       </div>
 
-      {/* Main Content Area - Either Files view or Document Editor + Sidebar */}
+      {/* Main Content Area */}
       {activeTab === 'files' && programId && programName ? (
-        /* Full-width Files/Backend Pane */
+        /* Full-width Files View */
         <div className="flex flex-1 overflow-hidden flex-col">
-          {/* Tab bar for switching back */}
-          <div className="border-b bg-muted/10">
-            <div className="flex items-center px-4">
-              <button
-                onClick={() => setActiveTab('generate')}
-                className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Sparkles className="h-4 w-4" />
-                Generate
-              </button>
-              <button
-                onClick={() => setActiveTab('sources')}
-                className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Sources
-              </button>
-              <button
-                onClick={() => setActiveTab('comments')}
-                className="flex items-center gap-2 px-4 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Comments
-              </button>
-              <button
-                className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-primary border-b-2 border-primary"
-              >
-                <FolderOpen className="h-4 w-4" />
-                Files
-              </button>
+          {/* Files Tab Bar - matches the styling of the right panel tabs */}
+          <div className="w-full border-b border-[rgba(31,26,20,0.15)] bg-[rgba(248,243,237,0.95)]">
+            <div className="w-full flex justify-end">
+              <div style={{ width: '26rem', minWidth: '26rem', maxWidth: '26rem' }}>
+                <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)}>
+                  <TabsList className="!w-full !justify-start !rounded-none !border-0 !bg-transparent !p-0 !h-auto !gap-0">
+                    <TabsTrigger 
+                      value="generate" 
+                      className="!relative !gap-2 !rounded-none !px-5 !py-3 !text-sm !bg-transparent !text-[rgba(31,26,20,0.45)] !border-b-[3px] !border-transparent !border-t-0 !border-l-0 !border-r-0 !transition-all !duration-150 hover:!text-[rgba(31,26,20,0.7)] hover:!bg-[rgba(31,26,20,0.04)] data-[state=active]:!bg-white data-[state=active]:!text-[rgba(31,59,52,1)] data-[state=active]:!font-semibold data-[state=active]:!border-b-[rgba(31,59,52,0.9)] data-[state=active]:!shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      Generate
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="sources" 
+                      className="!relative !gap-2 !rounded-none !px-5 !py-3 !text-sm !bg-transparent !text-[rgba(31,26,20,0.45)] !border-b-[3px] !border-transparent !border-t-0 !border-l-0 !border-r-0 !transition-all !duration-150 hover:!text-[rgba(31,26,20,0.7)] hover:!bg-[rgba(31,26,20,0.04)] data-[state=active]:!bg-white data-[state=active]:!text-[rgba(31,59,52,1)] data-[state=active]:!font-semibold data-[state=active]:!border-b-[rgba(31,59,52,0.9)] data-[state=active]:!shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+                    >
+                      Sources
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="comments" 
+                      className="!relative !gap-2 !rounded-none !px-5 !py-3 !text-sm !bg-transparent !text-[rgba(31,26,20,0.45)] !border-b-[3px] !border-transparent !border-t-0 !border-l-0 !border-r-0 !transition-all !duration-150 hover:!text-[rgba(31,26,20,0.7)] hover:!bg-[rgba(31,26,20,0.04)] data-[state=active]:!bg-white data-[state=active]:!text-[rgba(31,59,52,1)] data-[state=active]:!font-semibold data-[state=active]:!border-b-[rgba(31,59,52,0.9)] data-[state=active]:!shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+                    >
+                      Comments
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="files" 
+                      className="!relative !gap-2 !rounded-none !px-5 !py-3 !text-sm !bg-transparent !text-[rgba(31,26,20,0.45)] !border-b-[3px] !border-transparent !border-t-0 !border-l-0 !border-r-0 !transition-all !duration-150 hover:!text-[rgba(31,26,20,0.7)] hover:!bg-[rgba(31,26,20,0.04)] data-[state=active]:!bg-white data-[state=active]:!text-[rgba(31,59,52,1)] data-[state=active]:!font-semibold data-[state=active]:!border-b-[rgba(31,59,52,0.9)] data-[state=active]:!shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+                    >
+                      <FolderOpen className="h-4 w-4" />
+                      Files
+                    </TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
             </div>
           </div>
+          {/* Full-width BackendPane */}
           <BackendPane
             programId={programId}
             programName={programName}
@@ -621,21 +735,26 @@ export function AuthoringStudio({
           />
         </div>
       ) : (
-        /* Normal Two Panel Layout */
+        /* Two Panel Layout for Generate, Sources, Comments */
         <div className="flex flex-1 overflow-hidden">
           {/* Left Side - Document Editor */}
-          <div className="flex-1 overflow-auto p-8 bg-white">
+          <div className="flex-1 min-w-0 overflow-auto p-8 bg-[rgba(251,246,240,0.85)]">
             <div className="max-w-4xl mx-auto">
-              <h2 className="mb-6">TABLE OF CONTENTS</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg font-medium">Section Index</h2>
+                <span className="text-[10px] dossier-meta text-[rgba(31,26,20,0.5)]">
+                  {sections.length} Sections
+                </span>
+              </div>
               <div className="space-y-2 mb-8 max-h-96 overflow-y-auto pr-4">
                 {sections.map((section, index) => (
                   <div
                     key={index}
                     onClick={() => handleSectionSelect(section)}
-                    className={`p-3 rounded-md cursor-pointer transition-colors ${
+                    className={`p-3 rounded-lg cursor-pointer transition-colors border border-transparent ${
                       selectedSection === section
-                        ? 'bg-primary/10 text-primary'
-                        : 'text-muted-foreground hover:bg-muted/50'
+                        ? 'bg-[rgba(31,59,52,0.12)] text-[rgba(31,59,52,0.95)] border-[rgba(31,59,52,0.2)]'
+                        : 'text-[rgba(31,26,20,0.65)] hover:bg-[rgba(31,26,20,0.06)]'
                     }`}
                   >
                     {section}
@@ -648,11 +767,11 @@ export function AuthoringStudio({
               {selectedSection ? (
                 <>
                   <div className="flex items-center justify-between mb-4">
-                    <h3>{selectedSection}</h3>
+                    <h3 className="text-xl">{selectedSection}</h3>
                     {generatedDraftForSection && streamingEvents.some(e => e.type === 'complete') && (
                       <Badge
                         variant="outline"
-                        className="text-emerald-700 border-emerald-200 bg-emerald-50"
+                        className="text-emerald-800 border-[rgba(31,59,52,0.2)] bg-[rgba(31,59,52,0.08)]"
                       >
                         Claude Generated
                       </Badge>
@@ -675,6 +794,7 @@ export function AuthoringStudio({
                         <Button
                           variant="outline"
                           size="sm"
+                          className="border-[rgba(31,26,20,0.2)] hover:bg-[rgba(31,26,20,0.06)]"
                           onClick={() => {
                             // Clear the current draft and streaming state
                             setSectionDrafts((prev) => {
@@ -695,7 +815,7 @@ export function AuthoringStudio({
                   </div>
                 </>
               ) : (
-                <div className="text-center py-12 text-muted-foreground">
+                <div className="text-center py-12 text-[rgba(31,26,20,0.55)]">
                   <FileText className="h-16 w-16 mx-auto mb-4 opacity-50" />
                   <p>Select a section from the table of contents to begin</p>
                 </div>
@@ -704,31 +824,46 @@ export function AuthoringStudio({
           </div>
 
           {/* Right Side - AI Assistant Panel */}
-          <div className="w-96 border-l bg-muted/10 flex flex-col">
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="flex-1 flex flex-col min-h-0">
-            <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0">
-              <TabsTrigger value="generate" className="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
-                <Sparkles className="h-4 w-4" />
-                Generate
-              </TabsTrigger>
-              <TabsTrigger value="sources" className="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
-                Sources
-              </TabsTrigger>
-              <TabsTrigger value="comments" className="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
-                Comments
-              </TabsTrigger>
-              {programId && (
-                <TabsTrigger value="files" className="gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
-                  <FolderOpen className="h-4 w-4" />
-                  Files
+          <div
+            className="shrink-0 overflow-hidden border-l border-[rgba(31,26,20,0.12)] bg-[rgba(248,241,233,0.9)] flex flex-col"
+            style={{ width: '26rem', minWidth: '26rem', maxWidth: '26rem' }}
+          >
+            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="flex-1 flex flex-col min-h-0">
+              <TabsList className="!w-full !justify-start !rounded-none !border-b !border-[rgba(31,26,20,0.15)] !bg-[rgba(248,243,237,0.95)] !p-0 !h-auto !gap-0">
+                <TabsTrigger 
+                  value="generate" 
+                  className="!relative !gap-2 !rounded-none !px-5 !py-3 !text-sm !bg-transparent !text-[rgba(31,26,20,0.45)] !border-b-[3px] !border-transparent !border-t-0 !border-l-0 !border-r-0 !transition-all !duration-150 hover:!text-[rgba(31,26,20,0.7)] hover:!bg-[rgba(31,26,20,0.04)] data-[state=active]:!bg-white data-[state=active]:!text-[rgba(31,59,52,1)] data-[state=active]:!font-semibold data-[state=active]:!border-b-[rgba(31,59,52,0.9)] data-[state=active]:!shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Generate
                 </TabsTrigger>
-              )}
-            </TabsList>
+                <TabsTrigger 
+                  value="sources" 
+                  className="!relative !gap-2 !rounded-none !px-5 !py-3 !text-sm !bg-transparent !text-[rgba(31,26,20,0.45)] !border-b-[3px] !border-transparent !border-t-0 !border-l-0 !border-r-0 !transition-all !duration-150 hover:!text-[rgba(31,26,20,0.7)] hover:!bg-[rgba(31,26,20,0.04)] data-[state=active]:!bg-white data-[state=active]:!text-[rgba(31,59,52,1)] data-[state=active]:!font-semibold data-[state=active]:!border-b-[rgba(31,59,52,0.9)] data-[state=active]:!shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+                >
+                  Sources
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="comments" 
+                  className="!relative !gap-2 !rounded-none !px-5 !py-3 !text-sm !bg-transparent !text-[rgba(31,26,20,0.45)] !border-b-[3px] !border-transparent !border-t-0 !border-l-0 !border-r-0 !transition-all !duration-150 hover:!text-[rgba(31,26,20,0.7)] hover:!bg-[rgba(31,26,20,0.04)] data-[state=active]:!bg-white data-[state=active]:!text-[rgba(31,59,52,1)] data-[state=active]:!font-semibold data-[state=active]:!border-b-[rgba(31,59,52,0.9)] data-[state=active]:!shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+                >
+                  Comments
+                </TabsTrigger>
+                {programId && (
+                  <TabsTrigger 
+                    value="files" 
+                    className="!relative !gap-2 !rounded-none !px-5 !py-3 !text-sm !bg-transparent !text-[rgba(31,26,20,0.45)] !border-b-[3px] !border-transparent !border-t-0 !border-l-0 !border-r-0 !transition-all !duration-150 hover:!text-[rgba(31,26,20,0.7)] hover:!bg-[rgba(31,26,20,0.04)] data-[state=active]:!bg-white data-[state=active]:!text-[rgba(31,59,52,1)] data-[state=active]:!font-semibold data-[state=active]:!border-b-[rgba(31,59,52,0.9)] data-[state=active]:!shadow-[0_1px_3px_rgba(0,0,0,0.08)]"
+                  >
+                    <FolderOpen className="h-4 w-4" />
+                    Files
+                  </TabsTrigger>
+                )}
+              </TabsList>
 
-            <TabsContent value="generate" className="flex-1 p-4 space-y-4 overflow-auto mt-0">
+              <TabsContent value="generate" className="flex-1 p-4 space-y-4 overflow-auto mt-0">
               <div>
                 <h4 className="mb-2">Generate for:</h4>
-                <p className="text-muted-foreground">
+                <p className="text-[rgba(31,26,20,0.6)]">
                   {selectedSection || 'Select a section to generate content'}
                 </p>
               </div>
@@ -738,7 +873,7 @@ export function AuthoringStudio({
                   <label className="block">Prompt</label>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <Button variant="ghost" size="sm" className="gap-1 h-7 text-xs" disabled={isGenerating || isReadOnly}>
+                      <Button variant="ghost" size="sm" className="gap-1 h-7 text-xs hover:bg-[rgba(31,26,20,0.06)]" disabled={isGenerating || isReadOnly}>
                         <Plus className="h-3 w-3" />
                         @file
                       </Button>
@@ -778,7 +913,7 @@ export function AuthoringStudio({
                   </Popover>
                 </div>
                 <MentionableTextarea
-                  className="min-h-[120px]"
+                  className="min-h-[120px] bg-[rgba(251,246,240,0.9)] border border-[rgba(31,26,20,0.12)]"
                   value={promptValue}
                   onChange={setPromptValue}
                   sources={availableSources}
@@ -795,7 +930,7 @@ export function AuthoringStudio({
                     type="search"
                     value={sourceSearch}
                     placeholder="Search and add source files"
-                    className="bg-background"
+                    className="bg-[rgba(251,246,240,0.9)] border-[rgba(31,26,20,0.12)]"
                     onChange={(event) => setSourceSearch(event.target.value)}
                     disabled={isLoadingSources || isReadOnly}
                   />
@@ -803,13 +938,13 @@ export function AuthoringStudio({
                     <p className="text-sm text-destructive">{sourcesError}</p>
                   )}
 
-                  <div className="border rounded-md bg-background divide-y max-h-44 overflow-auto">
+                  <div className="border rounded-md bg-[rgba(251,246,240,0.9)] divide-y border-[rgba(31,26,20,0.12)] max-h-44 overflow-auto">
                     {isLoadingSources && (
-                      <div className="p-2 text-sm text-muted-foreground">Loading sources...</div>
+                      <div className="p-2 text-sm text-[rgba(31,26,20,0.6)]">Loading sources...</div>
                     )}
 
                     {!isLoadingSources && filteredSources.length === 0 && (
-                      <div className="p-2 text-sm text-muted-foreground">No sources found.</div>
+                      <div className="p-2 text-sm text-[rgba(31,26,20,0.6)]">No sources found.</div>
                     )}
 
                     {filteredSources.map((source) => {
@@ -818,7 +953,7 @@ export function AuthoringStudio({
                         <button
                           key={source.id}
                           type="button"
-                          className={`w-full flex items-center gap-3 p-2 text-left text-sm hover:bg-accent transition-colors ${isSelected ? 'bg-accent/50' : ''}`}
+                          className={`w-full flex items-center gap-3 p-2 text-left text-sm hover:bg-[rgba(31,26,20,0.06)] transition-colors ${isSelected ? 'bg-[rgba(31,59,52,0.12)]' : ''}`}
                           onClick={() => handleAddSource(source.id)}
                           disabled={isSelected || isReadOnly}
                         >
@@ -832,16 +967,18 @@ export function AuthoringStudio({
                     })}
                   </div>
 
-                  <div className="flex flex-wrap gap-2 min-h-[60px] border rounded-md p-2 bg-background">
+                  <div className="flex flex-wrap gap-2 min-h-[60px] border rounded-md p-2 bg-[rgba(251,246,240,0.9)] border-[rgba(31,26,20,0.12)]">
                     {selectedSources.length === 0 && (
-                      <span className="text-sm text-muted-foreground">No sources selected</span>
+                      <span className="text-sm text-[rgba(31,26,20,0.6)]">No sources selected</span>
                     )}
                     {selectedSources.map((sourceId) => {
                       const source = sourceIndex.get(sourceId);
                       if (!source) return null;
                       return (
-                        <Badge key={sourceId} variant="secondary" className="gap-2 pr-1">
-                          {source.name}
+                        <Badge key={sourceId} variant="secondary" className="gap-2 pr-1 bg-[rgba(31,59,52,0.12)] text-[rgba(31,59,52,0.95)]">
+                          <span className="min-w-0 max-w-[12.5rem] truncate">
+                            {source.name}
+                          </span>
                           <Button
                             variant="ghost"
                             size="sm"
@@ -869,7 +1006,7 @@ export function AuthoringStudio({
                 </Button>
               ) : (
                 <Button
-                  className="w-full gap-2"
+                  className="w-full gap-2 bg-[rgba(31,59,52,0.95)] text-[rgba(251,246,240,0.95)] hover:bg-[rgba(31,59,52,0.85)]"
                   onClick={handleGenerate}
                   disabled={!canGenerate || isReadOnly}
                 >
@@ -897,7 +1034,7 @@ export function AuthoringStudio({
                 <Input
                   type="search"
                   placeholder="Search Data Vault..."
-                  className="pl-10 bg-background"
+                  className="pl-10 bg-[rgba(251,246,240,0.9)] border-[rgba(31,26,20,0.12)]"
                   value={sourceSearch}
                   onChange={(event) => setSourceSearch(event.target.value)}
                 />
@@ -905,24 +1042,24 @@ export function AuthoringStudio({
 
               <div className="space-y-4">
                 {isLoadingSources && (
-                  <div className="p-2 text-sm text-muted-foreground">Loading sources...</div>
+                  <div className="p-2 text-sm text-[rgba(31,26,20,0.6)]">Loading sources...</div>
                 )}
                 {!isLoadingSources && filteredSources.length === 0 && (
-                  <div className="p-2 text-sm text-muted-foreground">No sources found.</div>
+                  <div className="p-2 text-sm text-[rgba(31,26,20,0.6)]">No sources found.</div>
                 )}
 
                 {/* Linked sources section */}
                 {linkedSourcesList.length > 0 && (
                   <div className="space-y-2">
-                    <h5 className="text-sm font-medium text-primary">Linked to this document</h5>
+                    <h5 className="text-sm font-medium text-[rgba(31,59,52,0.95)]">Linked to this document</h5>
                     {linkedSourcesList.map(source => (
                       <div
                         key={source.id}
-                        className="flex items-center gap-3 p-3 rounded-md border border-primary/30 bg-primary/5"
+                        className="flex items-center gap-3 p-3 rounded-md border border-[rgba(31,59,52,0.2)] bg-[rgba(31,59,52,0.08)]"
                       >
                         {getFileIcon(source.type)}
                         <span className="flex-1 truncate">{source.name}</span>
-                        <Badge variant="outline" className="text-primary border-primary text-xs">
+                        <Badge variant="outline" className="text-[rgba(31,59,52,0.95)] border-[rgba(31,59,52,0.3)] text-xs">
                           Linked
                         </Badge>
                       </div>
@@ -934,12 +1071,12 @@ export function AuthoringStudio({
                 {unlinkedSourcesList.length > 0 && (
                   <div className="space-y-2">
                     {linkedSourcesList.length > 0 && (
-                      <h5 className="text-sm font-medium text-muted-foreground">Other sources</h5>
+                      <h5 className="text-sm font-medium text-[rgba(31,26,20,0.55)]">Other sources</h5>
                     )}
                     {unlinkedSourcesList.map(source => (
                       <div
                         key={source.id}
-                        className="flex items-center gap-3 p-3 rounded-md border hover:bg-accent cursor-pointer"
+                        className="flex items-center gap-3 p-3 rounded-md border border-[rgba(31,26,20,0.12)] hover:bg-[rgba(31,26,20,0.06)] cursor-pointer"
                         onClick={() => handleAddSource(source.id)}
                       >
                         {getFileIcon(source.type)}
@@ -951,41 +1088,43 @@ export function AuthoringStudio({
               </div>
             </TabsContent>
 
-            <TabsContent value="comments" className="flex-1 p-4 overflow-auto mt-0 space-y-4">
-              {isExistingDocument ? (
-                <>
-                  <div className="border rounded-md p-3 space-y-3 bg-muted/30">
-                    <div className="text-sm font-medium">Add a comment</div>
-                    <p className="text-xs text-muted-foreground">
-                      Anchor your comment by selecting a section on the left. Currently selected: {selectedSection ?? 'none'}
-                    </p>
-                    <Textarea
-                      value={newCommentText}
-                      onChange={(event) => setNewCommentText(event.target.value)}
-                      placeholder="@Regina Please verify the pharmacodynamics table."
-                      disabled={!selectedSection}
-                      className="min-h-[100px] text-sm"
-                    />
-                    <div className="flex justify-end">
-                      <Button
-                        size="sm"
-                        onClick={handleCreateComment}
-                        disabled={!selectedSection || !newCommentText.trim()}
-                      >
-                        Add Comment
-                      </Button>
+              <TabsContent value="comments" className="flex-1 p-4 overflow-auto mt-0 space-y-4">
+                {isExistingDocument ? (
+                  <>
+                    <div className="border rounded-md p-3 space-y-3 bg-[rgba(251,246,240,0.8)] border-[rgba(31,26,20,0.12)]">
+                      <div className="text-sm font-medium">Add a comment</div>
+                      <p className="text-xs text-[rgba(31,26,20,0.6)]">
+                        Anchor your comment by selecting a section on the left. Currently selected: {selectedSection ?? 'none'}
+                      </p>
+                      <Textarea
+                        value={newCommentText}
+                        onChange={(event) => setNewCommentText(event.target.value)}
+                        placeholder="@Regina Please verify the pharmacodynamics table."
+                        disabled={!selectedSection}
+                        className="min-h-[100px] text-sm bg-[rgba(251,246,240,0.9)] border-[rgba(31,26,20,0.12)]"
+                      />
+                      <div className="flex justify-end">
+                        <Button
+                          size="sm"
+                          onClick={handleCreateComment}
+                          disabled={!selectedSection || !newCommentText.trim()}
+                          className="bg-[rgba(31,59,52,0.95)] text-[rgba(251,246,240,0.95)] hover:bg-[rgba(31,59,52,0.85)]"
+                        >
+                          Add Comment
+                        </Button>
+                      </div>
                     </div>
-                  </div>
 
-                  <CommentThread comments={documentComments} onReply={handleReply} />
-                </>
-              ) : (
-                <p className="text-muted-foreground text-center py-8">Comments will appear here once the document is created.</p>
-              )}
-            </TabsContent>
-          </Tabs>
+                    <CommentThread comments={documentComments} onReply={handleReply} />
+                  </>
+                ) : (
+                  <p className="text-[rgba(31,26,20,0.6)] text-center py-8">Comments will appear here once the document is created.</p>
+                )}
+              </TabsContent>
+
+            </Tabs>
+          </div>
         </div>
-      </div>
       )}
 
       <SubmitForReviewDialog

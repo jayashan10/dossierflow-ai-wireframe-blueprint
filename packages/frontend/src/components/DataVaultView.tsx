@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Folder, FolderOpen, Plus, Upload, X, Loader2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { Checkbox } from './ui/checkbox';
@@ -8,14 +8,20 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from './ui/sheet';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
 import { Label } from './ui/label';
-import { uploadSources, updateSourceTags } from '../lib/api';
+import { uploadProgramSource, uploadSources, updateSourceTags } from '../lib/api';
 import type { DataVaultFolder, DataVaultFile, Document } from '../data/mockData';
 
 interface DataVaultViewProps {
   folders: DataVaultFolder[];
   files: DataVaultFile[];
   documents: Record<string, Document>;
-  onUploadFiles: (files: Array<{ id: string; name: string; type: string }>, folderPath: string) => void;
+  programId?: string;
+  allowFolderCreation?: boolean;
+  allowTagEditing?: boolean;
+  onUploadFiles: (
+    files: Array<{ id: string; name: string; type: string; createdAt?: string }>,
+    folderPath: string
+  ) => void;
   onCreateFolder: (folderName: string, parentPath: string) => void;
 }
 
@@ -33,7 +39,16 @@ const flattenFolders = (folders: DataVaultFolder[]) => {
   return list as Array<DataVaultFolder & { depth?: number }>;
 };
 
-export function DataVaultView({ folders, files, documents, onUploadFiles, onCreateFolder }: DataVaultViewProps) {
+export function DataVaultView({
+  folders,
+  files,
+  documents,
+  programId,
+  allowFolderCreation,
+  allowTagEditing,
+  onUploadFiles,
+  onCreateFolder
+}: DataVaultViewProps) {
   const [selectedFolder, setSelectedFolder] = useState<string>('/');
   const [selectedFileId, setSelectedFileId] = useState<string | null>(null);
   const [selectedFileIds, setSelectedFileIds] = useState<Set<string>>(new Set());
@@ -45,13 +60,17 @@ export function DataVaultView({ folders, files, documents, onUploadFiles, onCrea
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [fileState, setFileState] = useState<Record<string, FileState>>(() => {
+  const [fileState, setFileState] = useState<Record<string, FileState>>({});
+  const canEditTags = allowTagEditing ?? !programId;
+  const canCreateFolders = allowFolderCreation ?? true;
+
+  useEffect(() => {
     const map: Record<string, FileState> = {};
     files.forEach((file) => {
-      map[file.id] = { ...file, tags: [...file.tags] };
+      map[file.id] = { ...file, tags: [...(file.tags ?? [])] };
     });
-    return map;
-  });
+    setFileState(map);
+  }, [files]);
 
   const flattenedFolders = useMemo(() => flattenFolders(folders), [folders]);
 
@@ -89,6 +108,7 @@ export function DataVaultView({ folders, files, documents, onUploadFiles, onCrea
   };
 
   const handleAddTag = async (fileId: string) => {
+    if (!canEditTags) return;
     if (!tagDraft.trim()) return;
 
     const currentFile = fileState[fileId];
@@ -122,6 +142,7 @@ export function DataVaultView({ folders, files, documents, onUploadFiles, onCrea
   };
 
   const handleRemoveTag = async (fileId: string, tag: string) => {
+    if (!canEditTags) return;
     const currentFile = fileState[fileId];
     if (!currentFile) return;
 
@@ -154,13 +175,16 @@ export function DataVaultView({ folders, files, documents, onUploadFiles, onCrea
 
     try {
       const fileArray = Array.from(selectedFiles);
-      const result = await uploadSources(fileArray);
+      const result = programId
+        ? { sources: await Promise.all(fileArray.map((file) => uploadProgramSource(programId, file))) }
+        : await uploadSources(fileArray);
 
       // Convert backend response to the format expected by the parent component
       const uploadedFiles = result.sources.map((source) => ({
         id: source.id,
         name: source.name,
-        type: source.type
+        type: source.type,
+        createdAt: source.createdAt
       }));
 
       onUploadFiles(uploadedFiles, selectedFolder);
@@ -179,6 +203,7 @@ export function DataVaultView({ folders, files, documents, onUploadFiles, onCrea
   };
 
   const handleCreateFolder = () => {
+    if (!canCreateFolders) return;
     const trimmedName = newFolderName.trim();
     if (!trimmedName) return;
 
@@ -233,7 +258,12 @@ export function DataVaultView({ folders, files, documents, onUploadFiles, onCrea
               {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               Upload Files
             </Button>
-            <Button variant="outline" className="gap-2" onClick={() => setNewFolderDialogOpen(true)}>
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => setNewFolderDialogOpen(true)}
+              disabled={!canCreateFolders}
+            >
               <Plus className="h-4 w-4" />
               New Folder
             </Button>
@@ -323,7 +353,11 @@ export function DataVaultView({ folders, files, documents, onUploadFiles, onCrea
                     {activeFile.tags.map((tag) => (
                       <Badge key={tag} variant="secondary" className="gap-1">
                         {tag}
-                        <button onClick={() => handleRemoveTag(activeFile.id, tag)} className="ml-1 inline-flex">
+                        <button
+                          onClick={() => handleRemoveTag(activeFile.id, tag)}
+                          className="ml-1 inline-flex"
+                          disabled={!canEditTags}
+                        >
                           <X className="h-3 w-3" />
                         </button>
                       </Badge>
@@ -334,8 +368,14 @@ export function DataVaultView({ folders, files, documents, onUploadFiles, onCrea
                       placeholder="Add tag"
                       value={tagDraft}
                       onChange={(event) => setTagDraft(event.target.value)}
+                      disabled={!canEditTags}
                     />
-                    <Button type="button" variant="outline" onClick={() => handleAddTag(activeFile.id)}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => handleAddTag(activeFile.id)}
+                          disabled={!canEditTags}
+                        >
                       Add
                     </Button>
                   </div>
