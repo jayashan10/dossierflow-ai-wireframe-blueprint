@@ -4,6 +4,7 @@ import path from 'node:path';
 import multer from 'multer';
 import { z } from 'zod';
 import {
+  appendProgramAuditEntry,
   createProgram,
   getProgram,
   deleteProgram,
@@ -18,9 +19,13 @@ import {
   saveTemplateToProgram,
   getProgramAbsolutePath,
   setSections,
+  getSectionReviewState,
+  updateSectionReviewState,
   updateSectionStatus,
   type ProgramMetadata,
-  type ProgramSection
+  type ProgramSection,
+  type ReviewComment,
+  type SectionReviewState
 } from '../services/program-service';
 import { FileValidationError, sanitizeFileName, validateUpload } from '../services/file-service';
 import { createProgramStructure } from '../services/claude-agent-service';
@@ -70,6 +75,22 @@ const updateSectionSchema = z.object({
 
 const sourceSearchSchema = z.object({
   search: z.string().trim().optional()
+});
+
+const reviewCommentSchema: z.ZodType<ReviewComment> = z.lazy(() => z.object({
+  id: z.string().min(1),
+  author: z.string().min(1),
+  createdAt: z.string().min(1),
+  text: z.string().min(1),
+  section: z.string().min(1),
+  replies: z.array(reviewCommentSchema).optional()
+}));
+
+const reviewStateSchema: z.ZodType<Omit<SectionReviewState, 'updatedAt'>> = z.object({
+  status: z.enum(['drafting', 'in_review', 'changes_requested', 'approved']),
+  assignedReviewers: z.array(z.string().min(1)),
+  submissionNote: z.string().optional(),
+  comments: z.array(reviewCommentSchema)
 });
 
 // ============================================================================
@@ -272,6 +293,13 @@ programsRouter.put('/:programId/files/*', async (req, res, next) => {
     }
 
     await writeProgramFile(params.programId, filePath, content);
+    await appendProgramAuditEntry(params.programId, {
+      action: 'file_updated',
+      filePath,
+      details: {
+        size: content.length
+      }
+    });
     res.json({ success: true, path: filePath });
   } catch (error) {
     if (error instanceof Error) {
@@ -319,6 +347,13 @@ programsRouter.post('/:programId/files/*', async (req, res, next) => {
     }
 
     await createProgramFile(params.programId, filePath, content);
+    await appendProgramAuditEntry(params.programId, {
+      action: 'file_created',
+      filePath,
+      details: {
+        size: content.length
+      }
+    });
     res.status(201).json({ success: true, path: filePath });
   } catch (error) {
     if (error instanceof Error) {
@@ -356,6 +391,10 @@ programsRouter.delete('/:programId/files/*', async (req, res, next) => {
     }
 
     await deleteProgramFile(params.programId, filePath);
+    await appendProgramAuditEntry(params.programId, {
+      action: 'file_deleted',
+      filePath
+    });
     res.status(204).send();
   } catch (error) {
     if (error instanceof Error) {
@@ -561,9 +600,13 @@ programsRouter.post('/:programId/structure', async (req, res, next) => {
     if (result.success && result.filesCreated.length > 0) {
       const sectionsRecord: Record<string, ProgramSection> = {};
       const orderByTitle = new Map<string, number>();
+      const summaryByTitle = new Map<string, string>();
       body.sections.forEach((section, index) => {
         if (!orderByTitle.has(section.title)) {
           orderByTitle.set(section.title, index + 1);
+        }
+        if (section.summary && !summaryByTitle.has(section.title)) {
+          summaryByTitle.set(section.title, section.summary);
         }
       });
 
@@ -576,6 +619,7 @@ programsRouter.post('/:programId/structure', async (req, res, next) => {
 
         sectionsRecord[sectionId] = {
           title: file.section,
+          summary: summaryByTitle.get(file.section),
           path: file.path,
           status: 'pending',
           order: orderByTitle.get(file.section) ?? index + 1
@@ -634,6 +678,15 @@ programsRouter.patch('/:programId/sections/:sectionKey', async (req, res, next) 
 
     await updateSectionStatus(params.programId, sectionKey, body.status, body.tokenUsage);
 
+    await appendProgramAuditEntry(params.programId, {
+      action: 'review_state_changed',
+      sectionId: sectionKey,
+      details: {
+        status: body.status,
+        tokenUsage: body.tokenUsage
+      }
+    });
+
     const program = await getProgram(params.programId);
     const section = program?.sections?.[sectionKey];
 
@@ -645,6 +698,83 @@ programsRouter.patch('/:programId/sections/:sectionKey', async (req, res, next) 
     }
 
     res.json({ section });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({
+        error: 'ValidationError',
+        message: 'Invalid request body.',
+        details: error.errors
+      });
+    }
+    if (error instanceof Error && error.message.includes('not found')) {
+      return res.status(404).json({
+        error: 'NotFound',
+        message: error.message
+      });
+    }
+    next(error);
+  }
+});
+
+/**
+ * GET /api/programs/:programId/reviews/:sectionKey
+ * Get persisted review state for a section
+ */
+programsRouter.get('/:programId/reviews/:sectionKey', async (req, res, next) => {
+  try {
+    const params = programIdSchema.parse(req.params);
+    const sectionKey = req.params.sectionKey;
+
+    if (!sectionKey) {
+      return res.status(400).json({
+        error: 'BadRequest',
+        message: 'Section key is required.'
+      });
+    }
+
+    const reviewState = await getSectionReviewState(params.programId, sectionKey);
+    res.json({ reviewState });
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('not found')) {
+      return res.status(404).json({
+        error: 'NotFound',
+        message: error.message
+      });
+    }
+    next(error);
+  }
+});
+
+/**
+ * PUT /api/programs/:programId/reviews/:sectionKey
+ * Persist review state for a section
+ */
+programsRouter.put('/:programId/reviews/:sectionKey', async (req, res, next) => {
+  try {
+    const params = programIdSchema.parse(req.params);
+    const sectionKey = req.params.sectionKey;
+
+    if (!sectionKey) {
+      return res.status(400).json({
+        error: 'BadRequest',
+        message: 'Section key is required.'
+      });
+    }
+
+    const reviewState = reviewStateSchema.parse(req.body);
+    const persisted = await updateSectionReviewState(params.programId, sectionKey, reviewState);
+
+    await appendProgramAuditEntry(params.programId, {
+      action: 'review_state_changed',
+      sectionId: sectionKey,
+      details: {
+        reviewStatus: persisted.status,
+        reviewerCount: persisted.assignedReviewers.length,
+        commentCount: persisted.comments.length
+      }
+    });
+
+    res.json({ reviewState: persisted });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({
