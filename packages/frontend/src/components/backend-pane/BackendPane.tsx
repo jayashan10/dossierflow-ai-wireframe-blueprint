@@ -29,6 +29,7 @@ interface BackendPaneProps {
   programId: string;
   programName: string;
   className?: string;
+  focusPath?: string | null;
 }
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
@@ -36,7 +37,8 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 export function BackendPane({
   programId,
   programName,
-  className
+  className,
+  focusPath
 }: BackendPaneProps) {
   // File tree state
   const [files, setFiles] = useState<FileNode[]>([]);
@@ -127,6 +129,15 @@ export function BackendPane({
     loadFiles();
   }, [loadFiles]);
 
+  useEffect(() => {
+    if (!focusPath) {
+      return;
+    }
+
+    setSelectedPath(focusPath);
+    void loadFileContent(focusPath);
+  }, [focusPath, loadFileContent]);
+
   // Keyboard shortcut for save
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -147,7 +158,7 @@ export function BackendPane({
   }, [selectedPath]);
 
   return (
-    <div className={cn('flex flex-col h-full dossier-pane', className)}>
+    <div className={cn('flex flex-col h-full min-h-0 dossier-pane', className)}>
       {/* Top bar with breadcrumbs and save button */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-[rgba(31,26,20,0.12)] bg-[rgba(251,246,240,0.9)]">
         <div className="flex items-center gap-3 min-w-0">
@@ -226,13 +237,13 @@ export function BackendPane({
       </div>
 
       {/* Main content: resizable file tree + editor */}
-      <ResizablePanelGroup direction="horizontal" className="flex-1">
+      <ResizablePanelGroup direction="horizontal" className="flex-1 min-h-0">
         {/* File tree panel */}
         <ResizablePanel
           defaultSize={25}
           minSize={15}
           maxSize={40}
-          className="min-w-0"
+          className="min-w-0 min-h-0"
         >
           {filesError ? (
             <div className="flex flex-col items-center justify-center h-full p-4 bg-[var(--sidebar)] text-[rgba(31,26,20,0.6)]">
@@ -261,7 +272,7 @@ export function BackendPane({
         <ResizableHandle withHandle />
 
         {/* Editor panel */}
-        <ResizablePanel defaultSize={75} minSize={40} className="min-w-0">
+        <ResizablePanel defaultSize={75} minSize={40} className="min-w-0 min-h-0">
           {!selectedPath ? (
             // No file selected
             <div className="flex items-center justify-center w-full h-full min-h-[70vh] bg-[rgba(251,246,240,0.55)]">

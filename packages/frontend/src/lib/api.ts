@@ -162,13 +162,28 @@ export async function updateSourceTags(
 
 // Streaming generation types
 export interface StreamEvent {
-  type: 'text' | 'tool_start' | 'tool_result' | 'thinking' | 'complete' | 'error';
+  type:
+    | 'run_started'
+    | 'run_completed'
+    | 'run_cancelled'
+    | 'sync_failed'
+    | 'text'
+    | 'tool_start'
+    | 'tool_result'
+    | 'thinking'
+    | 'complete'
+    | 'error';
   content?: string;
   tool?: string;
   input?: unknown;
   output?: string;
   usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
   error?: string;
+  runId?: string;
+  toolsUsed?: string[];
+  turnsCompleted?: number;
+  path?: string;
+  details?: Record<string, unknown>;
 }
 
 export interface StreamGenerateRequest {
@@ -177,6 +192,7 @@ export interface StreamGenerateRequest {
   prompt: string;
   selectedSourceIds: string[];
   mentionedFileIds: string[];
+  runId?: string;
 }
 
 export function streamGenerateContent(
@@ -349,6 +365,7 @@ export interface ProgramSummary {
 
 export interface ProgramSection {
   title: string;
+  summary?: string;
   path: string;
   status: 'pending' | 'draft' | 'reviewed' | 'approved';
   order?: number;
@@ -483,8 +500,26 @@ export interface StreamGenerateWithProgramRequest extends StreamGenerateRequest 
 
 export interface FileWrittenEvent {
   type: 'file_written';
+  runId?: string;
   path: string;
   programId: string;
+}
+
+export interface ReviewComment {
+  id: string;
+  author: string;
+  createdAt: string;
+  text: string;
+  section: string;
+  replies?: ReviewComment[];
+}
+
+export interface SectionReviewState {
+  status: 'drafting' | 'in_review' | 'changes_requested' | 'approved';
+  assignedReviewers: string[];
+  submissionNote?: string;
+  comments: ReviewComment[];
+  updatedAt: string;
 }
 
 export function streamGenerateContentWithProgram(
@@ -613,4 +648,34 @@ export async function updateProgramSection(
 
   const data = await handleResponse<{ section: ProgramSection }>(response);
   return data.section;
+}
+
+export async function fetchSectionReviewState(
+  programId: string,
+  sectionKey: string
+): Promise<SectionReviewState | null> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/programs/${encodeURIComponent(programId)}/reviews/${encodeURIComponent(sectionKey)}`
+  );
+
+  const data = await handleResponse<{ reviewState: SectionReviewState | null }>(response);
+  return data.reviewState;
+}
+
+export async function saveSectionReviewState(
+  programId: string,
+  sectionKey: string,
+  reviewState: Omit<SectionReviewState, 'updatedAt'>
+): Promise<SectionReviewState> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/programs/${encodeURIComponent(programId)}/reviews/${encodeURIComponent(sectionKey)}`,
+    {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(reviewState)
+    }
+  );
+
+  const data = await handleResponse<{ reviewState: SectionReviewState }>(response);
+  return data.reviewState;
 }

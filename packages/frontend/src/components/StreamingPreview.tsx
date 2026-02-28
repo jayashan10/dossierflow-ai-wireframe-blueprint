@@ -2,11 +2,11 @@ import { useMemo } from 'react';
 import { ChevronRight, Loader2, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { Badge } from './ui/badge';
-import type { StreamEvent } from '../lib/api';
+import type { StreamEvent, FileWrittenEvent } from '../lib/api';
 
 interface StreamingPreviewProps {
   content: string;
-  events: StreamEvent[];
+  events: Array<StreamEvent | FileWrittenEvent>;
   isStreaming: boolean;
   error?: string | null;
 }
@@ -18,16 +18,17 @@ interface ToolCallGroup {
 }
 
 export function StreamingPreview({ content, events, isStreaming, error }: StreamingPreviewProps) {
+  const streamEvents = useMemo(() => {
+    return events.filter((event): event is StreamEvent => event.type !== 'file_written');
+  }, [events]);
+
   // Group tool calls with their results
   const toolCalls = useMemo(() => {
     const groups: ToolCallGroup[] = [];
-    const pendingStarts = new Map<string, StreamEvent>();
 
-    for (const event of events) {
+    for (const event of streamEvents) {
       if (event.type === 'tool_start' && event.tool) {
         // Create a new group for this tool call
-        const key = `${event.tool}-${groups.length}`;
-        pendingStarts.set(event.tool, event);
         groups.push({
           tool: event.tool,
           startEvent: event
@@ -42,12 +43,34 @@ export function StreamingPreview({ content, events, isStreaming, error }: Stream
     }
 
     return groups;
-  }, [events]);
+  }, [streamEvents]);
 
   // Extract thinking events
   const thinkingEvents = useMemo(() => {
-    return events.filter(e => e.type === 'thinking');
+    return streamEvents.filter((e) => e.type === 'thinking');
+  }, [streamEvents]);
+
+  const runSummary = useMemo(() => {
+    const completed = [...streamEvents].reverse().find((event) => event.type === 'run_completed' || event.type === 'complete');
+    if (!completed) {
+      return null;
+    }
+
+    return {
+      runId: completed.runId,
+      usage: completed.usage,
+      toolsUsed: completed.toolsUsed,
+      turnsCompleted: completed.turnsCompleted
+    };
+  }, [streamEvents]);
+
+  const fileWrites = useMemo(() => {
+    return events.filter((event): event is FileWrittenEvent => event.type === 'file_written');
   }, [events]);
+
+  const syncWarnings = useMemo(() => {
+    return streamEvents.filter((event) => event.type === 'sync_failed' && Boolean(event.error));
+  }, [streamEvents]);
 
   // Get latest activity for status display
   const latestActivity = useMemo(() => {
@@ -149,18 +172,40 @@ export function StreamingPreview({ content, events, isStreaming, error }: Stream
                 key={i}
                 className="flex items-center gap-2 text-xs font-mono py-1"
               >
-                {group.resultEvent ? (
+                {group.resultEvent || !isStreaming ? (
                   <CheckCircle2 className="h-3 w-3 text-green-600" />
                 ) : (
                   <Loader2 className="h-3 w-3 animate-spin text-blue-600" />
                 )}
-                <span className={group.resultEvent ? 'text-muted-foreground' : 'text-foreground'}>
+                <span className={group.resultEvent || !isStreaming ? 'text-muted-foreground' : 'text-foreground'}>
                   {getToolDescription(group.tool, group.startEvent.input)}
                 </span>
               </div>
             ))}
           </CollapsibleContent>
         </Collapsible>
+      )}
+
+      {fileWrites.length > 0 && (
+        <div className="text-xs space-y-1">
+          {fileWrites.map((writeEvent, index) => (
+            <div key={`${writeEvent.path}-${index}`} className="flex items-center gap-2 text-green-700">
+              <CheckCircle2 className="h-3 w-3" />
+              <span className="font-mono">Wrote {writeEvent.path}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {syncWarnings.length > 0 && (
+        <div className="text-xs space-y-1">
+          {syncWarnings.map((warning, index) => (
+            <div key={`sync-${index}`} className="flex items-center gap-2 text-amber-700">
+              <AlertCircle className="h-3 w-3" />
+              <span>{warning.error}</span>
+            </div>
+          ))}
+        </div>
       )}
 
       {/* Streaming content */}
@@ -180,9 +225,25 @@ export function StreamingPreview({ content, events, isStreaming, error }: Stream
 
       {/* Completion status */}
       {!isStreaming && content && !error && (
-        <div className="flex items-center gap-2 text-xs text-green-600 pt-2 border-t">
-          <CheckCircle2 className="h-3 w-3" />
-          <span>Generation complete</span>
+        <div className="space-y-1 pt-2 border-t">
+          <div className="flex items-center gap-2 text-xs text-green-600">
+            <CheckCircle2 className="h-3 w-3" />
+            <span>Generation complete</span>
+          </div>
+          {runSummary && (
+            <div className="text-xs text-muted-foreground">
+              <span className="font-mono">{runSummary.runId || 'run'}</span>
+              {typeof runSummary.turnsCompleted === 'number' && (
+                <span> • {runSummary.turnsCompleted} turns</span>
+              )}
+              {runSummary.toolsUsed?.length ? (
+                <span> • tools: {runSummary.toolsUsed.join(', ')}</span>
+              ) : null}
+              {runSummary.usage ? (
+                <span> • tokens: {runSummary.usage.totalTokens}</span>
+              ) : null}
+            </div>
+          )}
         </div>
       )}
     </div>

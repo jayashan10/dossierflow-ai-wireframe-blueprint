@@ -30,19 +30,42 @@ import { StreamingPreview } from './StreamingPreview';
 import { RichTextEditor } from './RichTextEditor';
 import { sourceDocs, reviewers } from '../data/mockData';
 import type { Document, DocumentComment } from '../data/mockData';
-import { fetchProgramSources, fetchSources, streamGenerateContent, streamGenerateContentWithProgram, updateProgramSection } from '../lib/api';
-import type { SourceSummary, StreamEvent, FileWrittenEvent, ProgramSection } from '../lib/api';
+import {
+  fetchFileContent,
+  fetchProgramSources,
+  fetchSectionReviewState,
+  fetchSources,
+  saveSectionReviewState,
+  streamGenerateContent,
+  streamGenerateContentWithProgram,
+  updateProgramSection
+} from '../lib/api';
+import type {
+  SourceSummary,
+  StreamEvent,
+  FileWrittenEvent,
+  ProgramSection,
+  ReviewComment,
+  SectionReviewState
+} from '../lib/api';
 import { SubmitForReviewDialog } from './review/SubmitForReviewDialog';
 import { CommentThread } from './review/CommentThread';
 import { VersionHistoryDrawer } from './VersionHistoryDrawer';
 import { BackendPane } from './backend-pane';
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle
+} from './ui/resizable';
 import { cn } from './ui/utils';
+import { marked } from 'marked';
 
 interface DocumentConfig {
   documentType: string;
   templateUploaded: boolean;
   sections: string[];
   sectionContent?: Record<string, string>;
+  sectionSummaries?: Record<string, string>;
 }
 
 interface AuthoringStudioProps {
@@ -91,6 +114,25 @@ const formatTimestamp = () => new Date().toLocaleString('en-US', {
 const toSectionId = (title: string) => {
   const normalized = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   return normalized || title;
+};
+
+const looksLikeHtml = (value: string): boolean => /<\/?[a-z][\s\S]*>/i.test(value);
+
+marked.setOptions({
+  gfm: true,
+  breaks: true
+});
+
+const markdownToHtml = (value: string): string => {
+  const withoutFrontmatter = value.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, '').trim();
+  if (!withoutFrontmatter) return '';
+  const rendered = marked.parse(withoutFrontmatter);
+  return typeof rendered === 'string' ? rendered : '';
+};
+
+const toEditorContent = (value: string): string => {
+  if (!value) return '';
+  return looksLikeHtml(value) ? value : markdownToHtml(value);
 };
 
 const findCommentById = (comments: DocumentComment[] | undefined, id: string): DocumentComment | undefined => {
@@ -142,10 +184,16 @@ export function AuthoringStudio({
 
   // Streaming state
   const [streamingContent, setStreamingContent] = useState('');
-  const [streamingEvents, setStreamingEvents] = useState<StreamEvent[]>([]);
+  const [streamingEvents, setStreamingEvents] = useState<Array<StreamEvent | FileWrittenEvent>>([]);
   const [mentionedFileIds, setMentionedFileIds] = useState<string[]>([]);
   const [fileSearchQuery, setFileSearchQuery] = useState('');
+  const [syncWarning, setSyncWarning] = useState<string | null>(null);
+  const [lastWrittenPath, setLastWrittenPath] = useState<string | null>(null);
   const cancelStreamRef = useRef<(() => void) | null>(null);
+  const lastSyncPayloadRef = useRef<{
+    status: ProgramSection['status'];
+    tokenUsage?: ProgramSection['tokenUsage'];
+  } | null>(null);
   const docStatus = currentDocument?.status ?? 'Drafting';
   const assignedReviewerNames = currentDocument?.assignedReviewers?.map((id) => reviewerLookup.get(id) ?? id) ?? [];
   const isInReview = docStatus === 'In Review';
@@ -184,6 +232,32 @@ export function AuthoringStudio({
     }
   };
 
+  const mapDocumentStatusToReviewStatus = (status: Document['status']): SectionReviewState['status'] => {
+    switch (status) {
+      case 'Approved':
+        return 'approved';
+      case 'In Review':
+        return 'in_review';
+      case 'Changes Requested':
+        return 'changes_requested';
+      case 'Drafting':
+      case 'To Do':
+      default:
+        return 'drafting';
+    }
+  };
+
+  const toReviewComments = (comments: DocumentComment[] = []): ReviewComment[] => {
+    return comments.map((comment) => ({
+      id: comment.id,
+      author: comment.author,
+      createdAt: comment.createdAt,
+      text: comment.text,
+      section: comment.section,
+      replies: toReviewComments(comment.replies ?? [])
+    }));
+  };
+
   const syncProgramSection = useCallback(async (
     status: ProgramSection['status'],
     tokenUsage?: ProgramSection['tokenUsage']
@@ -192,12 +266,44 @@ export function AuthoringStudio({
       return;
     }
 
+    lastSyncPayloadRef.current = { status, tokenUsage };
+
     try {
       await updateProgramSection(programId, currentDocument.sectionKey, { status, tokenUsage });
-    } catch {
-      // Ignore API sync failures to avoid blocking UI.
+      setSyncWarning(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to sync section status.';
+      setSyncWarning(`Section sync failed: ${message}`);
     }
   }, [programId, currentDocument?.sectionKey]);
+
+  const persistReviewState = useCallback(async (overrides?: Partial<Omit<SectionReviewState, 'updatedAt'>>) => {
+    if (!programId || !currentDocument?.sectionKey || !currentDocument) {
+      return;
+    }
+
+    const payload: Omit<SectionReviewState, 'updatedAt'> = {
+      status: overrides?.status ?? mapDocumentStatusToReviewStatus(currentDocument.status),
+      assignedReviewers: overrides?.assignedReviewers ?? currentDocument.assignedReviewers ?? [],
+      submissionNote: overrides?.submissionNote ?? currentDocument.submissionNote,
+      comments: overrides?.comments ?? toReviewComments(currentDocument.comments ?? [])
+    };
+
+    try {
+      await saveSectionReviewState(programId, currentDocument.sectionKey, payload);
+      setSyncWarning(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to persist review state.';
+      setSyncWarning(`Review sync failed: ${message}`);
+    }
+  }, [programId, currentDocument, mapDocumentStatusToReviewStatus]);
+
+  const handleRetrySync = useCallback(() => {
+    if (lastSyncPayloadRef.current) {
+      void syncProgramSection(lastSyncPayloadRef.current.status, lastSyncPayloadRef.current.tokenUsage);
+    }
+    void persistReviewState();
+  }, [syncProgramSection, persistReviewState]);
 
   useEffect(() => {
     if (mode === 'reviewer') {
@@ -215,9 +321,69 @@ export function AuthoringStudio({
     setGenerationError(null);
     setStreamingContent('');
     setStreamingEvents([]);
+    setSyncWarning(null);
+    setLastWrittenPath(null);
     setNewCommentText('');
     setIsGenerating(false);
   }, [documentId]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadPersistedReview = async () => {
+      if (!programId || !currentDocument?.sectionKey || !onUpdateDocument) {
+        return;
+      }
+
+      try {
+        const persisted = await fetchSectionReviewState(programId, currentDocument.sectionKey);
+        if (!persisted || cancelled) {
+          return;
+        }
+
+        const reviewStatusToDocStatus = (status: SectionReviewState['status']): Document['status'] => {
+          switch (status) {
+            case 'approved':
+              return 'Approved';
+            case 'in_review':
+              return 'In Review';
+            case 'changes_requested':
+              return 'Changes Requested';
+            case 'drafting':
+            default:
+              return 'Drafting';
+          }
+        };
+
+        const toDocumentComments = (comments: ReviewComment[]): DocumentComment[] => {
+          return comments.map((comment) => ({
+            id: comment.id,
+            author: comment.author,
+            createdAt: comment.createdAt,
+            text: comment.text,
+            section: comment.section,
+            replies: toDocumentComments(comment.replies ?? [])
+          }));
+        };
+
+        onUpdateDocument((doc) => ({
+          ...doc,
+          status: reviewStatusToDocStatus(persisted.status),
+          assignedReviewers: persisted.assignedReviewers,
+          submissionNote: persisted.submissionNote,
+          comments: toDocumentComments(persisted.comments)
+        }));
+      } catch {
+        // Non-blocking: keep local review state.
+      }
+    };
+
+    void loadPersistedReview();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [programId, currentDocument?.sectionKey, onUpdateDocument]);
 
   // Auto-select the first section when sections are available
   useEffect(() => {
@@ -239,21 +405,46 @@ export function AuthoringStudio({
   }, [currentDocument?.id, currentDocument?.linkedSources]);
 
   // Load saved content from document (single document mode)
+  // If the document has in-memory content, use it. Otherwise load from the
+  // backend file system so the authoring editor stays in sync with content.md.
   useEffect(() => {
     if (currentDocument?.content && currentDocument.name) {
       setSectionDrafts((prev) => ({
         ...prev,
-        [currentDocument.name]: currentDocument.content!
+        [currentDocument.name]: toEditorContent(currentDocument.content!)
       }));
+    } else if (programId && currentDocument?.path && currentDocument.name) {
+      // Content not in memory – fetch from backend file
+      fetchFileContent(programId, currentDocument.path)
+        .then((content) => {
+          if (content && content.trim()) {
+            const normalized = toEditorContent(content);
+            setSectionDrafts((prev) => ({
+              ...prev,
+              [currentDocument.name]: normalized
+            }));
+            // Also persist into the in-memory document so other views reflect it
+            if (onUpdateDocument) {
+              onUpdateDocument((doc) => ({ ...doc, content: normalized }));
+            }
+          }
+        })
+        .catch(() => {
+          // Silently ignore – the file may not exist yet
+        });
     }
-  }, [currentDocument?.id, currentDocument?.content, currentDocument?.name]);
+  }, [currentDocument?.id, currentDocument?.content, currentDocument?.name, currentDocument?.path, programId, onUpdateDocument]);
 
   // Load saved content from documentConfig (full report mode)
   useEffect(() => {
     if (documentConfig?.sectionContent) {
+      const normalizedEntries = Object.entries(documentConfig.sectionContent).map(([section, content]) => [
+        section,
+        toEditorContent(content)
+      ] as const);
       setSectionDrafts((prev) => ({
         ...prev,
-        ...documentConfig.sectionContent
+        ...Object.fromEntries(normalizedEntries)
       }));
     }
   }, [documentConfig]);
@@ -327,6 +518,13 @@ export function AuthoringStudio({
   }, [filteredSources, currentDocument?.linkedSources]);
 
   const generatedDraftForSection = selectedSection ? sectionDrafts[selectedSection] : undefined;
+  const selectedSectionSummary = useMemo(() => {
+    if (!selectedSection) return '';
+    if (currentDocument?.name === selectedSection && currentDocument.summary) {
+      return currentDocument.summary;
+    }
+    return documentConfig?.sectionSummaries?.[selectedSection] ?? '';
+  }, [selectedSection, currentDocument?.name, currentDocument?.summary, documentConfig?.sectionSummaries]);
   const canGenerate = Boolean(selectedSection && promptValue.trim());
 
   const handleSectionSelect = (section: string) => {
@@ -361,10 +559,44 @@ export function AuthoringStudio({
     setGenerationError(null);
     setStreamingContent('');
     setStreamingEvents([]);
+    setLastWrittenPath(null);
+    const writesToProgramFile = Boolean(programId && currentDocument?.path);
+    const runId = `run_${globalThis.crypto?.randomUUID?.() ?? Date.now().toString()}`;
 
     const handleStreamEvent = (event: StreamEvent | FileWrittenEvent) => {
       if (event.type === 'file_written') {
-        if (onUpdateDocument && currentDocument) {
+        setLastWrittenPath(event.path);
+        setActiveTab('files');
+        setStreamingEvents((prev) => [...prev, event]);
+        if (programId && currentDocument?.name) {
+          void fetchFileContent(programId, event.path)
+            .then((content) => {
+              const normalized = toEditorContent(content);
+              setSectionDrafts((prev) => ({
+                ...prev,
+                [currentDocument.name]: normalized
+              }));
+
+              if (onUpdateDocument) {
+                onUpdateDocument((doc) => ({
+                  ...doc,
+                  content: normalized,
+                  status: doc.status === 'To Do' ? 'Drafting' : doc.status,
+                  linkedSources: [...new Set([...(doc.linkedSources || []), ...selectedSources, ...mentionedFileIds])],
+                  lastUpdated: formatTimestamp()
+                }));
+              }
+            })
+            .catch(() => {
+              if (onUpdateDocument && currentDocument) {
+                onUpdateDocument((doc) => ({
+                  ...doc,
+                  status: doc.status === 'To Do' ? 'Drafting' : doc.status,
+                  lastUpdated: formatTimestamp()
+                }));
+              }
+            });
+        } else if (onUpdateDocument && currentDocument) {
           onUpdateDocument((doc) => ({
             ...doc,
             status: doc.status === 'To Do' ? 'Drafting' : doc.status,
@@ -372,6 +604,14 @@ export function AuthoringStudio({
           }));
         }
         return;
+      }
+
+      if (event.type === 'sync_failed') {
+        setSyncWarning(event.error ?? 'A non-blocking sync step failed. You can retry sync.');
+      }
+
+      if (event.type === 'run_cancelled') {
+        setGenerationError('Generation was cancelled.');
       }
 
       setStreamingEvents((prev) => [...prev, event]);
@@ -384,11 +624,12 @@ export function AuthoringStudio({
         // Stop the loading state immediately upon complete event
         setIsGenerating(false);
 
-        if (event.content) {
+        if (event.content && !writesToProgramFile) {
+          const normalized = toEditorContent(event.content);
           // Save the final content to local state
           setSectionDrafts((prev) => ({
             ...prev,
-            [selectedSection]: event.content!
+            [selectedSection]: normalized
           }));
           setStreamingContent(event.content);
 
@@ -396,7 +637,7 @@ export function AuthoringStudio({
           if (onUpdateDocument) {
             onUpdateDocument((doc) => ({
               ...doc,
-              content: event.content,
+              content: normalized,
               status: doc.status === 'To Do' ? 'Drafting' : doc.status,
               linkedSources: [...new Set([...(doc.linkedSources || []), ...selectedSources, ...mentionedFileIds])],
               lastUpdated: formatTimestamp()
@@ -421,7 +662,8 @@ export function AuthoringStudio({
       sectionTitle: selectedSection,
       prompt: promptValue,
       selectedSourceIds: selectedSources,
-      mentionedFileIds
+      mentionedFileIds,
+      runId
     };
 
     const cancel = programId && currentDocument?.path
@@ -483,22 +725,31 @@ export function AuthoringStudio({
   const handleSubmitReview = (payload: { reviewers: string[]; note?: string }) => {
     onSubmitForReview(payload);
     void syncProgramSection(mapDocumentStatus('In Review'));
+    void persistReviewState({
+      status: 'in_review',
+      assignedReviewers: payload.reviewers,
+      submissionNote: payload.note,
+      comments: toReviewComments(documentComments)
+    });
     setSubmitDialogOpen(false);
   };
 
   const handleWithdrawReview = () => {
     onWithdrawSubmission();
     void syncProgramSection(mapDocumentStatus('Drafting'));
+    void persistReviewState({ status: 'drafting' });
   };
 
   const handleApproveReview = () => {
     onApprove();
     void syncProgramSection(mapDocumentStatus('Approved'));
+    void persistReviewState({ status: 'approved' });
   };
 
   const handleRequestChangesReview = () => {
     onRequestChanges();
     void syncProgramSection(mapDocumentStatus('Changes Requested'));
+    void persistReviewState({ status: 'changes_requested' });
   };
 
   const handleCreateComment = () => {
@@ -512,6 +763,7 @@ export function AuthoringStudio({
       replies: []
     };
     onCreateComment(comment);
+    void persistReviewState({ comments: toReviewComments([...(documentComments ?? []), comment]) });
     setNewCommentText('');
     setActiveTab('comments');
   };
@@ -527,6 +779,23 @@ export function AuthoringStudio({
       section: parent?.section ?? selectedSection ?? 'General'
     };
     onReplyToComment(parentId, reply);
+
+    const withReply = (comments: DocumentComment[]): DocumentComment[] => {
+      return comments.map((entry) => {
+        if (entry.id === parentId) {
+          return {
+            ...entry,
+            replies: [...(entry.replies ?? []), reply]
+          };
+        }
+        return {
+          ...entry,
+          replies: entry.replies ? withReply(entry.replies) : entry.replies
+        };
+      });
+    };
+
+    void persistReviewState({ comments: toReviewComments(withReply(documentComments ?? [])) });
   };
 
   const handleRestoreVersion = (versionId: string) => {
@@ -695,7 +964,7 @@ export function AuthoringStudio({
       {/* Main Content Area */}
       {activeTab === 'files' && programId && programName ? (
         /* Full-width Files View */
-        <div className="flex flex-1 overflow-hidden flex-col">
+        <div className="flex flex-1 min-h-0 overflow-hidden flex-col">
           {/* Files Tab Bar - matches the styling of the right panel tabs */}
           <div className="w-full border-b border-[rgba(31,26,20,0.15)] bg-[rgba(248,243,237,0.95)]">
             <div className="w-full flex justify-end">
@@ -737,14 +1006,16 @@ export function AuthoringStudio({
           <BackendPane
             programId={programId}
             programName={programName}
-            className="flex-1"
+            focusPath={lastWrittenPath}
+            className="flex-1 min-h-0"
           />
         </div>
       ) : (
         /* Two Panel Layout for Generate, Sources, Comments */
-        <div className="flex flex-1 overflow-hidden">
+        <ResizablePanelGroup direction="horizontal" className="flex-1 overflow-hidden">
           {/* Left Side - Document Editor */}
-          <div className="flex-1 min-w-0 overflow-auto p-8 bg-[rgba(251,246,240,0.85)]">
+          <ResizablePanel defaultSize={65} minSize={35} className="min-w-0">
+          <div className="h-full overflow-auto p-8 bg-[rgba(251,246,240,0.85)]">
             <div className="max-w-4xl mx-auto">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-medium">Section Index</h2>
@@ -829,11 +1100,14 @@ export function AuthoringStudio({
               )}
             </div>
           </div>
+          </ResizablePanel>
+
+          <ResizableHandle withHandle />
 
           {/* Right Side - AI Assistant Panel */}
+          <ResizablePanel defaultSize={35} minSize={20} maxSize={55} className="min-w-0">
           <div
-            className="shrink-0 overflow-hidden border-l border-[rgba(31,26,20,0.12)] bg-[rgba(248,241,233,0.9)] flex flex-col"
-            style={{ width: '26rem', minWidth: '26rem', maxWidth: '26rem' }}
+            className="h-full overflow-hidden bg-[rgba(248,241,233,0.9)] flex flex-col"
           >
             <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as typeof activeTab)} className="flex-1 flex flex-col min-h-0">
               <TabsList className="!w-full !justify-start !rounded-none !border-b !border-[rgba(31,26,20,0.15)] !bg-[rgba(248,243,237,0.95)] !p-0 !h-auto !gap-0">
@@ -876,7 +1150,7 @@ export function AuthoringStudio({
                 {selectedSection && (
                   <div className="mt-2 rounded-lg border border-[rgba(31,59,52,0.10)] bg-[rgba(31,59,52,0.03)] px-3 py-2">
                     <p className="text-[11px] text-[rgba(31,26,20,0.55)] leading-relaxed">
-                      The agent will read the template, existing sections, and source documents to understand what belongs here. Edit the prompt above to add specific instructions.
+                      {selectedSectionSummary || 'The agent will read the template, existing sections, and source documents to understand what belongs here. Edit the prompt above to add specific instructions.'}
                     </p>
                   </div>
                 )}
@@ -1029,6 +1303,30 @@ export function AuthoringStudio({
                 </Button>
               )}
 
+              {syncWarning && (
+                <Alert variant="destructive">
+                  <AlertTitle>Sync warning</AlertTitle>
+                  <AlertDescription className="flex items-center justify-between gap-3">
+                    <span>{syncWarning}</span>
+                    <Button variant="outline" size="sm" onClick={handleRetrySync}>
+                      Retry Sync
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {lastWrittenPath && (
+                <Alert>
+                  <AlertTitle>File updated</AlertTitle>
+                  <AlertDescription className="flex items-center justify-between gap-3">
+                    <span>{lastWrittenPath}</span>
+                    <Button variant="outline" size="sm" onClick={() => setActiveTab('files')}>
+                      Open Files
+                    </Button>
+                  </AlertDescription>
+                </Alert>
+              )}
+
             {/* Streaming Preview */}
               {(isGenerating || streamingContent || generationError) && (
                 <StreamingPreview
@@ -1138,7 +1436,8 @@ export function AuthoringStudio({
 
             </Tabs>
           </div>
-        </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
       )}
 
       <SubmitForReviewDialog
