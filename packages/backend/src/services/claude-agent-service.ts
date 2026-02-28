@@ -36,6 +36,8 @@ export interface StreamGenerateParams {
   // Optional: write to program file
   programPath?: string;  // Absolute path to program folder
   targetPath?: string;   // Relative path within program (e.g., "1-Introduction/content.md")
+  runId?: string;
+  shouldAbort?: () => boolean;
 }
 
 // Structure creation types
@@ -53,13 +55,28 @@ export interface StructureCreationResult {
 }
 
 export interface StreamEvent {
-  type: 'text' | 'tool_start' | 'tool_result' | 'thinking' | 'complete' | 'error';
+  type:
+    | 'run_started'
+    | 'run_completed'
+    | 'run_cancelled'
+    | 'sync_failed'
+    | 'text'
+    | 'tool_start'
+    | 'tool_result'
+    | 'thinking'
+    | 'complete'
+    | 'error';
   content?: string;
   tool?: string;
   input?: unknown;
   output?: string;
   usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
   error?: string;
+  runId?: string;
+  toolsUsed?: string[];
+  turnsCompleted?: number;
+  path?: string;
+  details?: Record<string, unknown>;
 }
 
 type ClaudeUsagePayload = {
@@ -558,8 +575,20 @@ export async function* generateDraftStream(params: StreamGenerateParams): AsyncG
     tools.push('Write');
   }
 
+  const runId = params.runId;
+
   try {
     claudeDebugLog('Streaming generate prompt', prompt.slice(0, 2000));
+
+    yield {
+      type: 'run_started',
+      runId,
+      details: {
+        sectionTitle: params.sectionTitle,
+        targetPath: params.targetPath,
+        toolsAllowed: tools
+      }
+    };
 
     const agentQuery = query({
       prompt,
@@ -575,9 +604,19 @@ export async function* generateDraftStream(params: StreamGenerateParams): AsyncG
 
     const fragments: string[] = [];
     let usage: ClaudeUsage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
+    const toolsUsed = new Set<string>();
+    let turnsCompleted = 0;
 
     // eslint-disable-next-line no-restricted-syntax
     for await (const message of agentQuery as AsyncIterable<Record<string, unknown>>) {
+      if (params.shouldAbort?.()) {
+        yield {
+          type: 'run_cancelled',
+          runId
+        };
+        return;
+      }
+
       const messageType = typeof message?.type === 'string' ? (message.type as string) : 'unknown';
       claudeDebugLog('Stream message type', messageType);
 
@@ -596,10 +635,12 @@ export async function* generateDraftStream(params: StreamGenerateParams): AsyncG
               yield { type: 'text', content: block.text };
             }
             if (block?.type === 'tool_use' && typeof block.name === 'string') {
+              toolsUsed.add(block.name);
               yield {
                 type: 'tool_start',
                 tool: block.name,
-                input: block.input
+                input: block.input,
+                runId
               };
               claudeDebugLog(`Stream tool use: ${block.name}`, block.input);
             }
@@ -615,7 +656,8 @@ export async function* generateDraftStream(params: StreamGenerateParams): AsyncG
         yield {
           type: 'tool_result',
           tool: toolMessage.tool,
-          output: typeof toolMessage.output === 'string' ? toolMessage.output.slice(0, 500) : undefined
+          output: typeof toolMessage.output === 'string' ? toolMessage.output.slice(0, 500) : undefined,
+          runId
         };
       }
 
@@ -628,6 +670,7 @@ export async function* generateDraftStream(params: StreamGenerateParams): AsyncG
         };
 
         if (resultMessage.usage) {
+          turnsCompleted += 1;
           const turnUsage = normalizeUsage(resultMessage.usage);
           usage.promptTokens += turnUsage.promptTokens;
           usage.completionTokens += turnUsage.completionTokens;
@@ -642,7 +685,17 @@ export async function* generateDraftStream(params: StreamGenerateParams): AsyncG
           yield {
             type: 'complete',
             content: content || 'Claude returned an empty response.',
-            usage
+            usage,
+            runId,
+            toolsUsed: Array.from(toolsUsed),
+            turnsCompleted
+          };
+          yield {
+            type: 'run_completed',
+            runId,
+            usage,
+            toolsUsed: Array.from(toolsUsed),
+            turnsCompleted
           };
           return;
         }
@@ -650,7 +703,10 @@ export async function* generateDraftStream(params: StreamGenerateParams): AsyncG
         if (resultMessage.subtype === 'error') {
           yield {
             type: 'error',
-            error: resultMessage.error?.message ?? 'Agent returned an error.'
+            error: resultMessage.error?.message ?? 'Agent returned an error.',
+            runId,
+            toolsUsed: Array.from(toolsUsed),
+            turnsCompleted
           };
           return;
         }
@@ -658,7 +714,10 @@ export async function* generateDraftStream(params: StreamGenerateParams): AsyncG
         if (resultMessage.subtype === 'interrupted') {
           yield {
             type: 'error',
-            error: 'Agent run was interrupted before completion.'
+            error: 'Agent run was interrupted before completion.',
+            runId,
+            toolsUsed: Array.from(toolsUsed),
+            turnsCompleted
           };
           return;
         }
@@ -670,14 +729,25 @@ export async function* generateDraftStream(params: StreamGenerateParams): AsyncG
     yield {
       type: 'complete',
       content: content || 'Claude completed but returned no content.',
-      usage
+      usage,
+      runId,
+      toolsUsed: Array.from(toolsUsed),
+      turnsCompleted
+    };
+    yield {
+      type: 'run_completed',
+      runId,
+      usage,
+      toolsUsed: Array.from(toolsUsed),
+      turnsCompleted
     };
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Streaming generation failed:', error);
     yield {
       type: 'error',
-      error: error instanceof Error ? error.message : 'Unknown error occurred'
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
+      runId
     };
   }
 }

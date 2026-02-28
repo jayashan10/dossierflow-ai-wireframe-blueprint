@@ -5,6 +5,7 @@ import crypto from 'node:crypto';
 import { appConfig } from '../config';
 
 const PROGRAM_METADATA_FILENAME = 'program.json';
+const PROGRAM_AUDIT_FILENAME = '.audit.ndjson';
 
 // ============================================================================
 // Types
@@ -12,6 +13,7 @@ const PROGRAM_METADATA_FILENAME = 'program.json';
 
 export interface ProgramSection {
   title: string;
+  summary?: string;
   path: string;
   status: 'pending' | 'draft' | 'reviewed' | 'approved';
   order?: number;
@@ -21,6 +23,67 @@ export interface ProgramSection {
     completionTokens: number;
     totalTokens: number;
   };
+  reviewState?: SectionReviewState;
+}
+
+export interface ReviewComment {
+  id: string;
+  author: string;
+  createdAt: string;
+  text: string;
+  section: string;
+  replies?: ReviewComment[];
+}
+
+export interface SectionReviewState {
+  status: 'drafting' | 'in_review' | 'changes_requested' | 'approved';
+  assignedReviewers: string[];
+  submissionNote?: string;
+  comments: ReviewComment[];
+  updatedAt: string;
+}
+
+export interface SectionTraceMetadata {
+  runId: string;
+  sectionId: string;
+  sectionTitle: string;
+  targetPath: string;
+  prompt: string;
+  selectedSourceIds: string[];
+  mentionedFileIds: string[];
+  sourceFiles: Array<{ id: string; name: string; relativePath: string }>;
+  mentionedFiles: Array<{ id: string; name: string; relativePath: string }>;
+  usage?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
+  model?: string;
+  toolsUsed?: string[];
+  status: 'completed' | 'cancelled' | 'error';
+  error?: string;
+  createdAt: string;
+  completedAt: string;
+}
+
+export interface ProgramAuditEntry {
+  id: string;
+  timestamp: string;
+  action:
+    | 'generation_started'
+    | 'generation_completed'
+    | 'generation_cancelled'
+    | 'generation_error'
+    | 'file_written'
+    | 'sync_failed'
+    | 'review_state_changed'
+    | 'file_updated'
+    | 'file_created'
+    | 'file_deleted';
+  runId?: string;
+  sectionId?: string;
+  filePath?: string;
+  details?: Record<string, unknown>;
 }
 
 export interface ProgramMetadata {
@@ -86,6 +149,44 @@ function getProgramPath(folderName: string): string {
 
 function getMetadataPath(folderName: string): string {
   return path.join(getProgramPath(folderName), PROGRAM_METADATA_FILENAME);
+}
+
+function getAuditPath(folderName: string): string {
+  return path.join(getProgramPath(folderName), PROGRAM_AUDIT_FILENAME);
+}
+
+function getSectionMetadataFilePath(folderName: string, targetPath: string): string {
+  const programPath = getProgramPath(folderName);
+  const absolutePath = path.join(programPath, targetPath);
+  const normalizedProgramPath = path.resolve(programPath);
+  const normalizedFilePath = path.resolve(absolutePath);
+
+  if (!normalizedFilePath.startsWith(normalizedProgramPath)) {
+    throw new Error('Path traversal detected. Access denied.');
+  }
+
+  const sectionDir = path.dirname(absolutePath);
+  return path.join(sectionDir, 'content.meta.json');
+}
+
+async function readSectionMetadataFile(
+  folderName: string,
+  targetPath: string
+): Promise<Record<string, unknown>> {
+  const metadataPath = getSectionMetadataFilePath(folderName, targetPath);
+  try {
+    const raw = await fs.readFile(metadataPath, 'utf8');
+    const parsed = JSON.parse(raw) as unknown;
+    if (parsed && typeof parsed === 'object') {
+      return parsed as Record<string, unknown>;
+    }
+    return {};
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      return {};
+    }
+    throw error;
+  }
 }
 
 async function ensureProgramFolderStructure(programPath: string): Promise<void> {
@@ -224,7 +325,7 @@ export async function listProgramFiles(folderName: string): Promise<FileNode[]> 
     const nodes: FileNode[] = [];
 
     for (const entry of entries) {
-      if (entry.name === PROGRAM_METADATA_FILENAME || entry.name === '.claude') {
+      if (entry.name === PROGRAM_METADATA_FILENAME) {
         continue;
       }
       const fullPath = path.join(dirPath, entry.name);
@@ -318,6 +419,113 @@ export async function writeProgramFile(folderName: string, filePath: string, con
       await fs.writeFile(getMetadataPath(folderName), JSON.stringify(metadata, null, 2), 'utf8');
     }
   }
+}
+
+export async function writeSectionTraceMetadata(
+  folderName: string,
+  trace: SectionTraceMetadata
+): Promise<void> {
+  const metadataPath = getSectionMetadataFilePath(folderName, trace.targetPath);
+  const parentDir = path.dirname(metadataPath);
+  await fs.mkdir(parentDir, { recursive: true });
+
+  const current = await readSectionMetadataFile(folderName, trace.targetPath);
+  const next = {
+    ...current,
+    trace,
+    updatedAt: new Date().toISOString()
+  };
+
+  await fs.writeFile(metadataPath, JSON.stringify(next, null, 2), 'utf8');
+}
+
+export async function updateSectionReviewState(
+  folderName: string,
+  sectionId: string,
+  reviewState: Omit<SectionReviewState, 'updatedAt'>
+): Promise<SectionReviewState> {
+  const metadata = await getProgram(folderName);
+  if (!metadata) {
+    throw new Error(`Program "${folderName}" not found.`);
+  }
+
+  const section = metadata.sections[sectionId];
+  if (!section) {
+    throw new Error(`Section "${sectionId}" not found in program.`);
+  }
+
+  const persisted: SectionReviewState = {
+    ...reviewState,
+    updatedAt: new Date().toISOString()
+  };
+
+  section.reviewState = persisted;
+  await updateProgram(folderName, { sections: metadata.sections });
+
+  const sectionMeta = await readSectionMetadataFile(folderName, section.path);
+  await fs.writeFile(
+    getSectionMetadataFilePath(folderName, section.path),
+    JSON.stringify(
+      {
+        ...sectionMeta,
+        reviewState: persisted,
+        updatedAt: new Date().toISOString()
+      },
+      null,
+      2
+    ),
+    'utf8'
+  );
+
+  return persisted;
+}
+
+export async function getSectionReviewState(
+  folderName: string,
+  sectionId: string
+): Promise<SectionReviewState | null> {
+  const metadata = await getProgram(folderName);
+  if (!metadata) {
+    throw new Error(`Program "${folderName}" not found.`);
+  }
+
+  const section = metadata.sections[sectionId];
+  if (!section) {
+    throw new Error(`Section "${sectionId}" not found in program.`);
+  }
+
+  if (section.reviewState) {
+    return section.reviewState;
+  }
+
+  const sectionMeta = await readSectionMetadataFile(folderName, section.path);
+  const reviewState = sectionMeta.reviewState;
+  if (reviewState && typeof reviewState === 'object') {
+    return reviewState as SectionReviewState;
+  }
+
+  return null;
+}
+
+export async function appendProgramAuditEntry(
+  folderName: string,
+  entry: Omit<ProgramAuditEntry, 'id' | 'timestamp'>
+): Promise<ProgramAuditEntry> {
+  const program = await getProgram(folderName);
+  if (!program) {
+    throw new Error(`Program "${folderName}" not found.`);
+  }
+
+  const auditEntry: ProgramAuditEntry = {
+    id: `audit_${crypto.randomUUID()}`,
+    timestamp: new Date().toISOString(),
+    ...entry
+  };
+
+  const line = `${JSON.stringify(auditEntry)}\n`;
+  await fs.appendFile(getAuditPath(folderName), line, 'utf8');
+
+  return auditEntry;
 }
 
 export async function createProgramFile(folderName: string, filePath: string, content: string): Promise<void> {
