@@ -5,7 +5,7 @@ import { Dashboard } from './components/Dashboard';
 import { DossierView } from './components/DossierView';
 import { AuthoringStudio } from './components/AuthoringStudio';
 import { CreateProgramWizard, type CreateProgramResult, type TemplateConfigForAuthoring } from './components/CreateProgramWizard';
-import { listPrograms } from './lib/api';
+import { fetchFileContent, getProgram, listPrograms } from './lib/api';
 import {
   programs as initialPrograms,
   dossierStructure as initialStructure,
@@ -125,6 +125,7 @@ interface DocumentConfig {
   templateUploaded: boolean;
   sections: string[];
   sectionContent?: Record<string, string>;
+  sectionSummaries?: Record<string, string>;
 }
 
 export default function App() {
@@ -416,9 +417,67 @@ export default function App() {
     setAuthoringMode('author');
   };
 
-  const handleViewFullReport = () => {
+  const handleViewFullReport = async () => {
+    if (!selectedProgram) {
+      return;
+    }
+
+    const isSampleProgram = programs.find((program) => program.id === selectedProgram)?.isSample ?? false;
+
+    if (!isSampleProgram) {
+      try {
+        const program = await getProgram(selectedProgram);
+        const orderedSections = Object.entries(program.sections)
+          .sort(([, a], [, b]) => {
+            const aOrder = typeof a.order === 'number' ? a.order : Number.MAX_SAFE_INTEGER;
+            const bOrder = typeof b.order === 'number' ? b.order : Number.MAX_SAFE_INTEGER;
+            if (aOrder !== bOrder) {
+              return aOrder - bOrder;
+            }
+            return a.path.localeCompare(b.path);
+          });
+
+        const sections = orderedSections.map(([, section]) => section.title);
+        const sectionSummaries = Object.fromEntries(
+          orderedSections
+            .map(([, section]) => [section.title, section.summary?.trim() ?? ''] as const)
+            .filter(([, summary]) => Boolean(summary))
+        );
+
+        const contentEntries = await Promise.all(
+          orderedSections.map(async ([, section]) => {
+            try {
+              const fileContent = await fetchFileContent(selectedProgram, section.path);
+              return [section.title, fileContent] as const;
+            } catch {
+              return [section.title, ''] as const;
+            }
+          })
+        );
+
+        const sectionContent = Object.fromEntries(
+          contentEntries.filter(([, content]) => Boolean(content && content.trim()))
+        );
+
+        setDocumentConfig({
+          documentType: selectedProgram,
+          templateUploaded: true,
+          sections,
+          sectionContent,
+          sectionSummaries
+        });
+        setSelectedDocument(null);
+        setAuthoringMode('author');
+        setCurrentView('authoring');
+        return;
+      } catch {
+        // Fallback to local structure if backend fetch fails.
+      }
+    }
+
     const allSections: string[] = [];
     const sectionContent: Record<string, string> = {};
+    const sectionSummaries: Record<string, string> = {};
     const traverse = (nodes: ModuleNode[]) => {
       nodes.forEach((node) => {
         if (node.documents) {
@@ -427,6 +486,9 @@ export default function App() {
             allSections.push(docState.name);
             if (docState.content) {
               sectionContent[docState.name] = docState.content;
+            }
+            if (docState.summary) {
+              sectionSummaries[docState.name] = docState.summary;
             }
           });
         }
@@ -441,7 +503,8 @@ export default function App() {
       documentType: selectedProgram || 'Document',
       templateUploaded: true,
       sections: allSections,
-      sectionContent
+      sectionContent,
+      sectionSummaries
     });
     setSelectedDocument(null);
     setAuthoringMode('author');

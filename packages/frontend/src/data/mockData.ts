@@ -17,6 +17,7 @@ export interface Program {
 export interface Document {
   id: string;
   name: string;
+  summary?: string;
   status: 'Approved' | 'Drafting' | 'To Do' | 'In Review' | 'Changes Requested';
   lastUpdated: string;
   assignedReviewers?: string[];

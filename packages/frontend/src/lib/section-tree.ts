@@ -157,6 +157,7 @@ export function buildSectionTree(
       const doc: Document = {
         id: docId,
         name: node.section.title,
+        summary: node.section.summary,
         status: statusToDocStatus(node.section.status),
         lastUpdated: formatTimestamp(),
         linkedSources: [],

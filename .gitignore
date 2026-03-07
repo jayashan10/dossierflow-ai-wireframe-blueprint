@@ -38,3 +38,4 @@ outputs/*
 
 # RepoPrompt (AI assistant workspace files)
 .repoprompt/
+image/
