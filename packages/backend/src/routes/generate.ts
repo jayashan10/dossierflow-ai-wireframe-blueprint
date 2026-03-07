@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { fetchSourceSnippets, fetchSourceSnippetsFromDescriptors, getSourceFilePaths } from '../services/source-service';
-import { generateDraft, generateDraftStream, refineInlineStream } from '../services/claude-agent-service';
+import { generateDraft, generateDraftStream, refineInlineStream } from '../services/agent-provider';
 import { getProgramAbsolutePath, getProgram, getProgramSourceFileRefs, listProgramSources } from '../services/program-service';
 
 const requestSchema = z.object({

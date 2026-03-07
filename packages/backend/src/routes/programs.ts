@@ -23,7 +23,7 @@ import {
   type ProgramSection
 } from '../services/program-service';
 import { FileValidationError, sanitizeFileName, validateUpload } from '../services/file-service';
-import { createProgramStructure } from '../services/claude-agent-service';
+import { createProgramStructure } from '../services/agent-provider';
 
 const memoryStorage = multer.memoryStorage();
 const upload = multer({

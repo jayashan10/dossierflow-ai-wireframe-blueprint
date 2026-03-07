@@ -52,9 +52,14 @@ const envSchema = z.object({
   SOURCE_ROOT: z.string().trim().optional(),
   TEMPLATE_ROOT: z.string().trim().optional(),
   OUTPUTS_ROOT: z.string().trim().optional(),
-  // Feature flags for Claude Agent SDK integration
+  // Feature flags for AI provider integration
   ENABLE_CLAUDE_AGENT: z.coerce.boolean().default(true),
+  ENABLE_CODEX_AGENT: z.coerce.boolean().default(false),
+  AI_PROVIDER: z.enum(['claude', 'codex']).default('claude'),
   USE_SEMTOOLS: z.coerce.boolean().default(false),
+  // OpenAI / Codex configuration
+  OPENAI_API_KEY: z.string().trim().optional().transform((value) => value || undefined),
+  CODEX_MODEL: z.string().trim().optional().transform((value) => value || undefined),
   // Semtools configuration
   LLAMA_CLOUD_API_KEY: z.string().trim().optional().transform((value) => value || undefined),
   SEMTOOLS_WORKSPACE: z.string().trim().default('dossierflow'),
@@ -87,6 +92,10 @@ export const appConfig = {
   templateRoot: parsed.TEMPLATE_ROOT ? path.resolve(parsed.TEMPLATE_ROOT) : defaultTemplateRoot,
   outputsRoot: parsed.OUTPUTS_ROOT ? path.resolve(parsed.OUTPUTS_ROOT) : defaultOutputsRoot,
   enableClaudeAgent: parsed.ENABLE_CLAUDE_AGENT,
+  enableCodexAgent: parsed.ENABLE_CODEX_AGENT,
+  aiProvider: parsed.AI_PROVIDER as 'claude' | 'codex',
+  openaiApiKey: parsed.OPENAI_API_KEY,
+  codexModel: parsed.CODEX_MODEL,
   useSemtools: parsed.USE_SEMTOOLS,
   llamaCloudApiKey: parsed.LLAMA_CLOUD_API_KEY,
   semtoolsWorkspace: parsed.SEMTOOLS_WORKSPACE,

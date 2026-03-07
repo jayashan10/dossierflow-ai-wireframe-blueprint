@@ -13,6 +13,7 @@
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.1.28",
     "@anthropic-ai/sdk": "^0.68.0",
+    "@openai/codex": "^0.111.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "mammoth": "^1.8.0",

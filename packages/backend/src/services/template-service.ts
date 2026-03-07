@@ -14,7 +14,7 @@ import {
   refineTemplateSections,
   type TemplateRefinedSection,
   type SectionRefinementResult
-} from './claude-agent-service';
+} from './agent-provider';
 
 const TEMPLATE_INDEX_FILENAME = '.templates.json';
 
